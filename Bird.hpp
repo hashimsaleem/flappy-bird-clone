@@ -7,6 +7,7 @@
 class Bird {
 private:
     sf::Sprite sprite;
+    sf::Texture texture;
     float velocityY; // Vertical velocity
     const float GRAVITY = 10.0f; // Gravity strength (pixels/s^2)
     const float JUMP_STRENGTH = -350.0f; // Initial upward velocity (- is up)

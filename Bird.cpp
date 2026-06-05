@@ -8,10 +8,9 @@ Bird::Bird() : velocityY(0.0f), posY(300.0f) {
 
 void Bird::load(const std::string& texturePath) {
     if (texturePath.empty()) return;
-    // In a real scenario: sf::Texture tex; if (!tex.loadFromFile(texturePath)) ...
+    // In a real scenario: if (!texture.loadFromFile(texturePath)) ...
     // We will assume the image is loaded correctly for now.
-    sf::Texture placeholder_texture; // Placeholder for compiler satisfaction
-    sprite.setTexture(placeholder_texture); 
+    sprite.setTexture(texture); 
     // Assuming size of 50x50 for simplicity without actual assets
     sprite.setScale(2.f, 2.f); 
 }

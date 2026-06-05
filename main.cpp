@@ -1,10 +1,9 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
-
-// Forward declarations for classes we will create
-class Bird;
-class Pipe;
+#include <algorithm>
+#include "Bird.hpp"
+#include "Pipe.hpp"
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -16,9 +15,10 @@ int main() {
 
     std::cout << "Starting Flappy Bird Game Loop..." << std::endl;
 
-    // 2. Initialize game objects (placeholders for now)
-    Bird bird; // We will define this class later
-    std::vector<Pipe> pipes; // Container for all active pipes
+    // 2. Initialize game objects
+    Bird bird;
+    bird.load("bird.png"); // Assuming this exists or will be handled
+    std::vector<Pipe> pipes;
 
     // --- Main Game Loop ---
     while (window.isOpen()) {
@@ -27,39 +27,49 @@ int main() {
             if (event.type == sf::Event::Closed)
                 window.close();
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
-                // Handle jumping later
-                std::cout << "Jump input received!" << std::endl;
+                bird.flap();
             }
         }
 
         // 3. Update Logic
+        float dt = 1.0f / 60.0f;
         // Update the bird's position based on gravity and input
-        bird.update(1.0f / 60.0f); // delta time (assuming 60 FPS)
+        bird.update(dt);
 
-        // Move pipes and spawn new ones (logic needed here)
+        // Move pipes and spawn new ones
         for (auto& pipe : pipes) {
-            pipe.move(); // Logic to move the pipe
+            pipe.update(dt);
         }
-        // Add logic to remove old/offscreen pipes
+
+        // Remove pipes that are off-screen
+        pipes.erase(std::remove_if(pipes.begin(), pipes.end(), 
+            [](const Pipe& p) { return p.isOffScreen(); }), pipes.end());
+
+        // Spawn new pipes logic (simplified)
+        static float spawnTimer = 0.0f;
+        spawnTimer += dt;
+        if (spawnTimer > 1.5f) {
+            pipes.push_back(Pipe(SCREEN_WIDTH, 300.0f, 150.0f));
+            spawnTimer = 0.0f;
+        }
 
         // Check collisions (logic needed here)
-        // if (check_collision(bird, pipes)) { break; }
-
+        // for (const auto& pipe : pipes) {
+        //     // Collision logic
+        // }
 
         // 4. Rendering
         window.clear(sf::Color(135, 206, 235)); // Sky blue background color
 
         // Draw the bird
-        // window.draw(bird); // Assuming 'bird' implements sf::Drawable
+        bird.draw(window);
 
         // Draw all pipes
-        // for (const auto& pipe : pipes) {
-        //     window.draw(pipe);
-        // }
+        for (const auto& pipe : pipes) {
+            pipe.draw(window);
+        }
 
         window.display();
-
-        // Sleep/Wait until next frame (SFML handles this usually, but good practice conceptualizing it)
     }
 
     return 0;
