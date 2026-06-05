@@ -19,9 +19,10 @@ private:
     sf::RectangleShape topPipe;
     sf::RectangleShape bottomPipe;
     float velocityX;
-    const float PIPE_WIDTH = 60.0f;
-    const float PIPE_HEIGHT = 400.0f; // Total height of one pipe segment
-    const float GAP_HEIGHT = 150.0f;
+    static constexpr float PIPE_WIDTH = 60.0f;
+
+    static constexpr float PIPE_HEIGHT = 400.0f; // Total height of one pipe segment
+    static constexpr float GAP_HEIGHT = 150.0f;
 };
 
 #endif // PIPE_HPP

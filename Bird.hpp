@@ -6,15 +6,14 @@
 
 class Bird {
 private:
-    sf::Sprite sprite;
-    sf::Texture texture;
+    sf::RectangleShape shape;
     float velocityY; // Vertical velocity
     const float GRAVITY = 10.0f; // Gravity strength (pixels/s^2)
     const float JUMP_STRENGTH = -350.0f; // Initial upward velocity (- is up)
 
 public:
     Bird();
-    // Initializes the sprite and places it at a starting point
+    // Initializes the shape and places it at a starting point
     void load(const std::string& texturePath); 
 
     /**

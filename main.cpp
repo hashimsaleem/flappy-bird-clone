@@ -10,7 +10,7 @@ const int SCREEN_HEIGHT = 600;
 
 int main() {
     // 1. Initialize the window/view
-    sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Flappy Clone SFML");
+    sf::RenderWindow window(sf::VideoMode({(unsigned int)SCREEN_WIDTH, (unsigned int)SCREEN_HEIGHT}), "Flappy Clone SFML");
     window.setFramerateLimit(60);
 
     std::cout << "Starting Flappy Bird Game Loop..." << std::endl;
@@ -22,12 +22,14 @@ int main() {
 
     // --- Main Game Loop ---
     while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
+        while (auto event = window.pollEvent()) {
+            if (event->is<sf::Event::Closed>())
                 window.close();
-            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
-                bird.flap();
+            
+            if (auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
+                if (keyPressed->code == sf::Keyboard::Key::Space) {
+                    bird.flap();
+                }
             }
         }
 

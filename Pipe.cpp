@@ -8,20 +8,20 @@ Pipe::Pipe(float x, float y, float gapHeight) {
     // Let's use the member variable for consistency if not passed.
     
     // Setting up the bottom pipe
-    bottomPipe.setSize(PIPE_WIDTH, PIPE_HEIGHT);
-    bottomPipe.setPosition(x, y + gapHeight / 2.0f);
+    bottomPipe.setPosition({x, y + gapHeight / 2.0f});
     bottomPipe.setFillColor(sf::Color::Green);
 
     // Setting up the top pipe
-    topPipe.setSize(PIPE_WIDTH, PIPE_HEIGHT);
-    topPipe.setPosition(x, y - gapHeight / 2.0f - PIPE_HEIGHT);
+    topPipe.setSize({PIPE_WIDTH, PIPE_HEIGHT});
+    topPipe.setPosition({x, y - gapHeight / 2.0f - PIPE_HEIGHT});
     topPipe.setFillColor(sf::Color::Green);
+
 }
 
 void Pipe::update(float dt) {
     float deltaX = velocityX * dt;
-    bottomPipe.move(deltaX, 0);
-    topPipe.move(deltaX, 0);
+    bottomPipe.move({deltaX, 0.0f});
+    topPipe.move({deltaX, 0.0f});
 }
 
 void Pipe::draw(sf::RenderWindow& window) const {
