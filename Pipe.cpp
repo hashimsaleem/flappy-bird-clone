@@ -27,8 +27,8 @@ void Pipe::draw(sf::RenderWindow& window) const {
 
 bool Pipe::checkCollision(sf::FloatRect birdBounds) const {
     // Check if bird intersects with either topPipe or bottomPipe
-    return birdBounds.intersects(topPipe.getGlobalBounds()) || 
-           birdBounds.intersects(bottomPipe.getGlobalBounds());
+    return topPipe.getGlobalBounds().findIntersection(birdBounds).has_value() || 
+           bottomPipe.getGlobalBounds().findIntersection(birdBounds).has_value();
 }
 
 bool Pipe::isOffScreen() const {

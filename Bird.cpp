@@ -2,16 +2,12 @@
 #include <iostream>
 
 Bird::Bird() : velocityY(0.0f), posY(300.0f) {
-    // Placeholder: Initial position
+    sprite.setSize({40.f, 40.f});
     sprite.setPosition({50.f, posY});
 }
 
 void Bird::load(const std::string& texturePath) {
-    if (texture.loadFromFile(texturePath)) {
-        sprite.setTexture(texture);
-    } else {
-        std::cerr << "Error loading bird texture from " << texturePath << std::endl;
-    }
+    sprite.setSize({40.f, 40.f});
 }
 
 void Bird::update(float dt) {

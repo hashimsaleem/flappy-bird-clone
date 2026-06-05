@@ -17,26 +17,24 @@ int main() {
     sf::Font font;
     bool fontLoaded = false;
     // Note: You need to provide a font file (e.g., font.ttf) in the project directory.
-    if (font.loadFromFile("font.ttf")) {
+    if (font.openFromFile("font.ttf")) {
         fontLoaded = true;
     } else {
         std::cerr << "Warning: Could not load 'font.ttf'. Text rendering will be disabled." << std::endl;
     }
 
-    sf::Text scoreText;
+    sf::Text scoreText(font);
     if (fontLoaded) {
-        scoreText.setFont(font);
         scoreText.setCharacterSize(30);
         scoreText.setFillColor(sf::Color::White);
-        scoreText.setPosition(10.f, 10.f);
+        scoreText.setPosition({10.f, 10.f});
     }
 
-    sf::Text gameOverText;
+    sf::Text gameOverText(font);
     if (fontLoaded) {
-        gameOverText.setFont(font);
         gameOverText.setCharacterSize(50);
         gameOverText.setFillColor(sf::Color::Red);
-        gameOverText.setPosition(SCREEN_WIDTH / 2.f - 150.f, SCREEN_HEIGHT / 2.f - 25.f);
+        gameOverText.setPosition({SCREEN_WIDTH / 2.f - 150.f, SCREEN_HEIGHT / 2.f - 25.f});
         gameOverText.setString("GAME OVER");
     }
 
@@ -51,14 +49,13 @@ int main() {
     std::cout << "Game Started. Press SPACE to begin." << std::endl;
 
     while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
+        while (auto event = window.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
                 window.close();
             }
 
-            if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::Key::Space) {
+            if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
+                if (keyPressed->code == sf::Keyboard::Key::Space) {
                     if (currentState == START) {
                         currentState = PLAYING;
                         std::cout << "Game Playing!" << std::endl;
@@ -84,7 +81,7 @@ int main() {
 
             // Boundary check
             sf::FloatRect birdBounds = bird.getBoundingBox();
-            if (birdBounds.top < 0 || birdBounds.bottom > SCREEN_HEIGHT) {
+            if (birdBounds.position.y < 0 || birdBounds.position.y + birdBounds.size.y > SCREEN_HEIGHT) {
                 currentState = GAME_OVER;
                 std::cout << "Game Over! Final Score: " << score << std::endl;
             }

@@ -26,16 +26,16 @@ public:
      */
     float getX() const;
 
-private:
-    sf::Sprite topPipe;
-    sf::Sprite bottomPipe;
-    sf::Texture pipeTexture;
-    float velocityX;
     bool passed = false; // To track if the bird has passed this pipe
     static constexpr float PIPE_WIDTH = 60.0f;
 
     static constexpr float PIPE_HEIGHT = 400.0f; // Total height of one pipe segment
     static constexpr float GAP_HEIGHT = 150.0f;
+
+private:
+    sf::RectangleShape topPipe;
+    sf::RectangleShape bottomPipe;
+    float velocityX;
 };
 
 #endif // PIPE_HPP
