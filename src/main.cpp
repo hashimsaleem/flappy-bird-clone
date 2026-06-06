@@ -13,7 +13,7 @@
 #include "HighScore.hpp"
 #include "Particle.hpp"
 
-enum GameState { START, PLAYING, GAME_OVER };
+enum GameState { MENU, START, PLAYING, GAME_OVER, HIGH_SCORE_SCREEN };
 
 int main() {
     // Load config file (overrides defaults if present)
@@ -122,7 +122,8 @@ int main() {
     float currentPipeSpeed = Config::PIPE_SPEED;
     float currentSpawnInterval = Config::PIPE_SPAWN_INTERVAL;
 
-    GameState currentState = START;
+    GameState currentState = MENU;
+    int menuOption = 0;
     int score = 0;
     float spawnTimer = 0.0f;
 
@@ -145,7 +146,21 @@ int main() {
             }
 
             if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
-                if (keyPressed->code == sf::Keyboard::Key::Space) {
+                if (currentState == MENU) {
+                    if (keyPressed->code == sf::Keyboard::Key::Up) {
+                        menuOption = (menuOption - 1 + 3) % 3;
+                    } else if (keyPressed->code == sf::Keyboard::Key::Down) {
+                        menuOption = (menuOption + 1) % 3;
+                    } else if (keyPressed->code == sf::Keyboard::Key::Enter) {
+                        if (menuOption == 0) {
+                            currentState = START;
+                        } else if (menuOption == 1) {
+                            currentState = HIGH_SCORE_SCREEN;
+                        } else if (menuOption == 2) {
+                            window.close();
+                        }
+                    }
+                } else if (keyPressed->code == sf::Keyboard::Key::Space) {
                     if (currentState == START) {
                         currentState = PLAYING;
                         if (bgmLoaded && bgmMusic.getStatus() != sf::SoundSource::Status::Playing) {
@@ -169,6 +184,8 @@ int main() {
                         if (bgmLoaded) bgmMusic.play();
                         std::cout << "Restarting game..." << std::endl;
                     }
+                } else if (currentState == HIGH_SCORE_SCREEN && keyPressed->code == sf::Keyboard::Key::Escape) {
+                    currentState = MENU;
                 }
             }
         }
@@ -255,7 +272,12 @@ int main() {
                 if (spawnTimer > currentSpawnInterval) {
                     float randomY = yDist(generator);
                     float randomGap = gapDist(generator);
-                    pipes.push_back(Pipe(Config::SCREEN_WIDTH, randomY, randomGap, currentPipeSpeed));
+                    
+                    // 20% chance to spawn a moving pipe
+                    std::uniform_int_distribution<int> typeDist(0, 4);
+                    PipeType type = (typeDist(generator) == 0) ? PipeType::MOVING : PipeType::STATIC;
+                    
+                    pipes.push_back(Pipe(Config::SCREEN_WIDTH, randomY, randomGap, currentPipeSpeed, type));
                     spawnTimer = 0.0f;
                 }
             }
@@ -289,6 +311,48 @@ int main() {
             if (fontLoaded) {
                 startText.setPosition({Config::SCREEN_WIDTH / 2.f - 130.f, Config::SCREEN_HEIGHT / 2.f});
                 window.draw(startText);
+            }
+        } else if (currentState == MENU) {
+            if (fontLoaded) {
+                sf::Text menuTitle(font);
+                menuTitle.setString("FLAPPY CLONE");
+                menuTitle.setCharacterSize(60);
+                menuTitle.setFillColor(Config::TEXT_COLOR);
+                menuTitle.setPosition({Config::SCREEN_WIDTH / 2.f - 200.f, 100.f});
+                window.draw(menuTitle);
+
+                std::vector<std::string> options = {"Start Game", "High Scores", "Exit"};
+                for (int i = 0; i < options.size(); ++i) {
+                    sf::Text optionText(font);
+                    optionText.setString(options[i]);
+                    optionText.setCharacterSize(30);
+                    optionText.setFillColor(i == menuOption ? sf::Color::Yellow : Config::TEXT_COLOR);
+                    optionText.setPosition({Config::SCREEN_WIDTH / 2.f - 100.f, 250.f + i * 50.f});
+                    window.draw(optionText);
+                }
+            }
+        } else if (currentState == HIGH_SCORE_SCREEN) {
+            if (fontLoaded) {
+                sf::Text hsTitle(font);
+                hsTitle.setString("HIGH SCORE");
+                hsTitle.setCharacterSize(50);
+                hsTitle.setFillColor(Config::TEXT_COLOR);
+                hsTitle.setPosition({Config::SCREEN_WIDTH / 2.f - 150.f, 150.f});
+                window.draw(hsTitle);
+
+                sf::Text hsValue(font);
+                hsValue.setString(std::to_string(HighScore::load()));
+                hsValue.setCharacterSize(80);
+                hsValue.setFillColor(sf::Color::Yellow);
+                hsValue.setPosition({Config::SCREEN_WIDTH / 2.f - 50.f, 250.f});
+                window.draw(hsValue);
+
+                sf::Text backText(font);
+                backText.setString("Press ESC to return");
+                backText.setCharacterSize(24);
+                backText.setFillColor(Config::TEXT_COLOR);
+                backText.setPosition({Config::SCREEN_WIDTH / 2.f - 100.f, 450.f});
+                window.draw(backText);
             }
         } else if (currentState == GAME_OVER) {
             // Semi-transparent overlay

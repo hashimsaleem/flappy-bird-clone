@@ -12,7 +12,7 @@ This document outlines potential future enhancements for the Flappy Bird Clone.
 
 ## 2. Gameplay Mechanics
 *   **Dynamic Difficulty:** ✅ Implemented (Speed and spawn rate scale every 5 points)
-*   **Obstacle Variety:** Introduce moving obstacles (e.g., pipes moving up and down) or bonus collectibles.
+*   **Obstacle Variety:** ✅ Implemented (Moving pipes with sine-wave oscillation)
 *   **Power-ups:** Add temporary power-ups (e.g., "Invincibility" or "Slow-motion").
 
 ## 3. Technical Architecture

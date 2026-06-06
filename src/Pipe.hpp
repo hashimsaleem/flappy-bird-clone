@@ -5,10 +5,12 @@
 #include <vector>
 #include "Config.hpp"
 
+enum class PipeType { STATIC, MOVING };
+
 class Pipe {
 public:
-    // Constructor now takes speed to allow for dynamic difficulty
-    Pipe(float x, float y, float gapHeight, float speed);
+    // Constructor now takes speed and type to allow for dynamic difficulty and variety
+    Pipe(float x, float y, float gapHeight, float speed, PipeType type = PipeType::STATIC);
 
     void update(float dt);
     void draw(sf::RenderWindow& window) const;
@@ -34,6 +36,10 @@ private:
     sf::RectangleShape topPipe;
     sf::RectangleShape bottomPipe;
     float velocityX;
+    PipeType type;
+    float oscillationTimer = 0.0f;
+    float baseY;
+    float gapHeightValue;
 };
 
 #endif // PIPE_HPP

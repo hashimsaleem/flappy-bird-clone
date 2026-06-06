@@ -1,6 +1,8 @@
 #include "Pipe.hpp"
+#include <cmath>
 
-Pipe::Pipe(float x, float y, float gapHeight, float speed) : velocityX(-speed) {
+Pipe::Pipe(float x, float y, float gapHeight, float speed, PipeType type) 
+    : velocityX(-speed), type(type), baseY(y), gapHeightValue(gapHeight) {
 
     // Setting up the bottom pipe
     bottomPipe.setSize({Config::PIPE_WIDTH, Config::PIPE_HEIGHT});
@@ -17,6 +19,17 @@ void Pipe::update(float dt) {
     float deltaX = velocityX * dt;
     bottomPipe.move({deltaX, 0.0f});
     topPipe.move({deltaX, 0.0f});
+
+    if (type == PipeType::MOVING) {
+        oscillationTimer += dt;
+        // Oscillate Y position using a sine wave: amplitude 100, frequency 1Hz
+        float offsetY = std::sin(oscillationTimer * 2.0f * 3.14159f) * 100.0f;
+        
+        // We need to update positions relative to baseY
+        float currentX = bottomPipe.getPosition().x;
+        bottomPipe.setPosition({currentX, baseY + gapHeightValue / 2.0f + offsetY});
+        topPipe.setPosition({currentX, baseY - gapHeightValue / 2.0f - Config::PIPE_HEIGHT + offsetY});
+    }
 }
 
 void Pipe::draw(sf::RenderWindow& window) const {
