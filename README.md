@@ -6,12 +6,12 @@ This project is a 2D side-scrolling game inspired by Flappy Bird, built using C+
 The goal is to create a game where a bird must navigate through gaps in moving pipes.
 
 ### Core Components:
-- **`main.cpp`**: The game's entry point. It handles window initialization, the main game loop, and input handling (e.g., Spacebar for jumping).
+- **`main.cpp`**: The game's entry point. It handles window initialization, the main game loop, and input handling (e.g., Space key for jumping).
 - **`Bird.hpp` / `Bird.cpp`**: Manages the bird's behavior, including:
     - Physics (gravity and vertical velocity).
     - Jump mechanics.
     - Position tracking and sprite rendering.
-- **`Pipe.hpp`**: Defines the structure for the obstacles (pipes).
+- **`Pipe.hpp` / `Pipe.cpp`**: Defines the structure and implementation for the obstacles (pipes).
 
 ## Current Development State
 The project is in its early stages and serves as a skeletal foundation:
@@ -24,12 +24,13 @@ The project is in its early stages and serves as a skeletal foundation:
 - **Collision Detection**: Detection of collisions between the bird and the pipes.
 - **Scoring System**: Automatic score tracking as the bird passes pipes.
 - **Object Management**: Automated cleanup of off-screen obstacles.
+- **Rendering**: Drawing calls for the bird and pipes are implemented in both PLAYING and GAME_OVER states.
+- **Game State Management**: START, PLAYING, and GAME_OVER states are implemented with full state transitions and restart mechanic.
 
 ### Pending Tasks:
-- **Rendering**: Activating the drawing calls for the bird and pipes.
-- **Asset Loading**: Replacing placeholders with actual textures/images and fonts.
-- **Game State Management**: Refining the Start, Playing, and Game Over screens.
+- **Asset Loading**: Replacing `sf::RectangleShape` placeholders with `sf::Sprite` and loading actual textures/images and fonts.
 - **Audio**: Adding sound effects for jumping, hitting pipes, and scoring.
+- **UI Polish**: Adding "Press Space to Start" text in the START state.
 
 ## Technical Stack
 - **Language**: C++

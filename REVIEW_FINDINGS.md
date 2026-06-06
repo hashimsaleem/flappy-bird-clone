@@ -5,10 +5,9 @@ I have reviewed the source code for the Flappy Bird clone. The project has a sol
 ## 1. Architecture and Game Loop (`main.cpp`)
 - **Pros:**
     - **State Management:** Uses a clear `GameState` enum (`START`, `PLAYING`, `GAME_OVER`) to manage different phases of the game.
-    - **Delta Time:** Uses `dt` for physics updates, ensuring consistent movement across different frame rates.
+    - **Delta Time:** Uses `sf::Clock` to calculate actual elapsed time between frames, ensuring consistent physics across different frame rates.
     - **Object Management:** Correctly uses `std::remove_if` to clean up pipes that have moved off-screen.
 - **Improvements:**
-    - **Frame Rate Independence:** `dt` is currently hardcoded as `1.0f / 60.0f`. It should be calculated using `sf::Clock` to handle actual elapsed time between frames.
     - **Hardcoded Constants:** Many values (e.g., `SCREEN_WIDTH`, `SCREEN_HEIGHT`, `spawnTimer` threshold) are hardcoded in `main.cpp`. Moving these to a dedicated configuration header would improve maintainability.
     - **Visual Feedback:** The `START` state is currently empty. Adding a "Press Space to Start" prompt would improve user experience.
 
@@ -38,7 +37,7 @@ I have reviewed the source code for the Flappy Bird clone. The project has a sol
 | Priority | Component | Issue | Recommended Action |
 | :--- | :--- | :--- | :--- |
 | **High** | `Bird` | Placeholder `load()` | Implement `sf::Texture` loading and use `sf::Sprite`. |
-| **High** | `main.cpp` | Hardcoded `dt` | Use `sf::Clock` to get actual elapsed time. |
 | **Medium** | `main.cpp` | Hardcoded constants | Move constants to a dedicated `Config` header. |
+| **Medium** | `main.cpp` | `START` state | Add "Press Space" UI text. |
 | **Medium** | `main.cpp` | `START` state | Add "Press Space" UI text. |
 | **Low** | Project | Missing Audio/High Score | Implement `sf::Sound` and a file-based high score system. |
