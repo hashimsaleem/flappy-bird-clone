@@ -1,6 +1,6 @@
 #include "Pipe.hpp"
 
-Pipe::Pipe(float x, float y, float gapHeight) : velocityX(-Config::PIPE_SPEED) {
+Pipe::Pipe(float x, float y, float gapHeight, float speed) : velocityX(-speed) {
 
     // Setting up the bottom pipe
     bottomPipe.setSize({Config::PIPE_WIDTH, Config::PIPE_HEIGHT});

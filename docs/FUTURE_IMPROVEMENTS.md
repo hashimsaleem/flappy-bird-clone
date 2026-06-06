@@ -5,13 +5,13 @@ This document outlines potential future enhancements for the Flappy Bird Clone.
 ---
 
 ## 1. Visual Polish & UX
-*   **Parallax Scrolling Background:** Add a scrolling background layer (trees, hills, buildings) that moves at a fraction of the `PIPE_SPEED` to create a sense of depth.
-*   **Particle Effects:** Spawn particle effects (small squares or circles) that scatter when the bird hits a pipe or the ground to simulate a crash.
-*   **Animations:** Implement a "death animation" (e.g., the bird spinning rapidly and falling to the bottom of the screen).
+*   **Parallax Scrolling Background:** ✅ Implemented (Scrolling hills)
+*   **Particle Effects:** ✅ Implemented (Crash particles)
+*   **Animations:** ✅ Implemented (Spinning death fall)
 *   **Menu System:** Implement a proper main menu with options to view high scores, toggle music/sound, or change difficulty settings.
 
 ## 2. Gameplay Mechanics
-*   **Dynamic Difficulty:** Gradually increase `PIPE_SPEED` and decrease `PIPE_SPAWN_INTERVAL` as the user's score increases.
+*   **Dynamic Difficulty:** ✅ Implemented (Speed and spawn rate scale every 5 points)
 *   **Obstacle Variety:** Introduce moving obstacles (e.g., pipes moving up and down) or bonus collectibles.
 *   **Power-ups:** Add temporary power-ups (e.g., "Invincibility" or "Slow-motion").
 

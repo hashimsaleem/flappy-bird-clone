@@ -4,12 +4,14 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <cstdlib>
 #include "Bird.hpp"
 #include "Pipe.hpp"
 #include "Config.hpp"
 #include "ConfigLoader.hpp"
 #include "ResourceManager.hpp"
 #include "HighScore.hpp"
+#include "Particle.hpp"
 
 enum GameState { START, PLAYING, GAME_OVER };
 
@@ -115,6 +117,10 @@ int main() {
     Bird bird;
     bird.load(Config::BIRD_PATH);
     std::vector<Pipe> pipes;
+    std::vector<Particle> particles;
+
+    float currentPipeSpeed = Config::PIPE_SPEED;
+    float currentSpawnInterval = Config::PIPE_SPAWN_INTERVAL;
 
     GameState currentState = START;
     int score = 0;
@@ -157,6 +163,8 @@ int main() {
                         bird.load(Config::BIRD_PATH);
                         pipes.clear();
                         score = 0;
+                        currentPipeSpeed = Config::PIPE_SPEED;
+                        currentSpawnInterval = Config::PIPE_SPAWN_INTERVAL;
                         currentState = PLAYING;
                         if (bgmLoaded) bgmMusic.play();
                         std::cout << "Restarting game..." << std::endl;
@@ -164,55 +172,92 @@ int main() {
                 }
             }
         }
-        if (currentState == PLAYING) {
+        if (currentState == PLAYING || currentState == GAME_OVER) {
             bird.update(dt);
 
-            // Update background
-            bgOffset -= Config::BACKGROUND_SPEED * dt;
-            if (bgOffset <= -Config::SCREEN_WIDTH) {
-                bgOffset = 0.f;
-            }
+            // Update particles
+            for (auto& p : particles) p.update(dt);
+            particles.erase(std::remove_if(particles.begin(), particles.end(),
+                [](const Particle& p) { return p.lifetime <= 0; }), particles.end());
 
-            // Boundary check (including ground)
-            sf::FloatRect birdBounds = bird.getBoundingBox();
-            if (birdBounds.position.y < 0 || birdBounds.position.y + birdBounds.size.y > groundY) {
-                currentState = GAME_OVER;
-                std::cout << "Game Over! Final Score: " << score << std::endl;
-                deathSound.play();
-                if (bgmMusic.getStatus() == sf::SoundSource::Status::Playing)
-                    bgmMusic.stop();
-            }
+            if (currentState == PLAYING) {
+                // Update background
+                bgOffset -= Config::BACKGROUND_SPEED * dt;
+                if (bgOffset <= -Config::SCREEN_WIDTH) {
+                    bgOffset = 0.f;
+                }
 
-            for (auto& pipe : pipes) {
-                pipe.update(dt);
-                if (pipe.checkCollision(birdBounds)) {
+                // Boundary check (including ground)
+                sf::FloatRect birdBounds = bird.getBoundingBox();
+                if (birdBounds.position.y < 0 || birdBounds.position.y + birdBounds.size.y > groundY) {
                     currentState = GAME_OVER;
                     std::cout << "Game Over! Final Score: " << score << std::endl;
                     deathSound.play();
+                    bird.setDying();
+                    
+                    // Spawn particles on death
+                    for (int i = 0; i < 20; ++i) {
+                        particles.emplace_back(birdBounds.position, 
+                            sf::Vector2f(static_cast<float>(rand() % 200 - 100), static_cast<float>(rand() % 200 - 100)), 
+                            1.0f);
+                    }
+
                     if (bgmMusic.getStatus() == sf::SoundSource::Status::Playing)
                         bgmMusic.stop();
                 }
 
-                // Scoring logic
-                if (!pipe.passed && pipe.getX() < 50.0f) {
-                    score++;
-                    pipe.passed = true;
-                    std::cout << "Score: " << score << std::endl;
-                    scoreSound.play();
+                for (auto& pipe : pipes) {
+                    pipe.update(dt);
+                    if (pipe.checkCollision(birdBounds)) {
+                        currentState = GAME_OVER;
+                        std::cout << "Game Over! Final Score: " << score << std::endl;
+                        deathSound.play();
+                        bird.setDying();
+
+                        // Spawn particles on death
+                        for (int i = 0; i < 20; ++i) {
+                            particles.emplace_back(birdBounds.position, 
+                                sf::Vector2f(static_cast<float>(rand() % 200 - 100), static_cast<float>(rand() % 200 - 100)), 
+                                1.0f);
+                        }
+
+                        if (bgmMusic.getStatus() == sf::SoundSource::Status::Playing)
+                            bgmMusic.stop();
+                    }
+
+                    // Scoring logic
+                    if (!pipe.passed && pipe.getX() < 50.0f) {
+                        score++;
+                        pipe.passed = true;
+                        std::cout << "Score: " << score << std::endl;
+                        scoreSound.play();
+
+                        // Dynamic Difficulty: increase speed and decrease spawn interval every 5 points
+                        if (score % 5 == 0) {
+                            currentPipeSpeed *= 1.05f; // 5% speed increase
+                            currentSpawnInterval *= 0.95f; // 5% faster spawn
+                            
+                            // Caps to prevent game from becoming impossible
+                            if (currentPipeSpeed > 400.f) currentPipeSpeed = 400.f;
+                            if (currentSpawnInterval < 0.8f) currentSpawnInterval = 0.8f;
+                            
+                            std::cout << "[Difficulty Up] Speed: " << currentPipeSpeed << ", Interval: " << currentSpawnInterval << std::endl;
+                        }
+                    }
                 }
-            }
 
-            // Remove pipes that are off-screen
-            pipes.erase(std::remove_if(pipes.begin(), pipes.end(),
-                [](const Pipe& p) { return p.isOffScreen(); }), pipes.end());
+                // Remove pipes that are off-screen
+                pipes.erase(std::remove_if(pipes.begin(), pipes.end(),
+                    [](const Pipe& p) { return p.isOffScreen(); }), pipes.end());
 
-            // Spawn new pipes
-            spawnTimer += dt;
-            if (spawnTimer > Config::PIPE_SPAWN_INTERVAL) {
-                float randomY = yDist(generator);
-                float randomGap = gapDist(generator);
-                pipes.push_back(Pipe(Config::SCREEN_WIDTH, randomY, randomGap));
-                spawnTimer = 0.0f;
+                // Spawn new pipes
+                spawnTimer += dt;
+                if (spawnTimer > currentSpawnInterval) {
+                    float randomY = yDist(generator);
+                    float randomGap = gapDist(generator);
+                    pipes.push_back(Pipe(Config::SCREEN_WIDTH, randomY, randomGap, currentPipeSpeed));
+                    spawnTimer = 0.0f;
+                }
             }
         }
 
@@ -251,6 +296,9 @@ int main() {
             overlay.setSize({static_cast<float>(Config::SCREEN_WIDTH), static_cast<float>(Config::SCREEN_HEIGHT)});
             overlay.setFillColor(sf::Color(0, 0, 0, 128));
             window.draw(overlay);
+
+            // Draw particles
+            for (const auto& p : particles) p.draw(window);
 
             bird.draw(window);
             for (const auto& pipe : pipes) {

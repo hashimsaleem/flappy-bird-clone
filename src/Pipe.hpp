@@ -7,7 +7,8 @@
 
 class Pipe {
 public:
-    Pipe(float x, float y, float gapHeight);
+    // Constructor now takes speed to allow for dynamic difficulty
+    Pipe(float x, float y, float gapHeight, float speed);
 
     void update(float dt);
     void draw(sf::RenderWindow& window) const;
