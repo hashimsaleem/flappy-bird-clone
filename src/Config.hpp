@@ -21,6 +21,7 @@ namespace Config {
     constexpr float PIPE_WIDTH       = 60.0f;
     constexpr float PIPE_HEIGHT      = 400.0f;
     constexpr float PIPE_SPEED       = 200.0f;
+    constexpr float BACKGROUND_SPEED = 50.0f;
     constexpr float GAP_HEIGHT       = 150.0f;
     constexpr float PIPE_SPAWN_INTERVAL = 1.5f;
     constexpr float PIPE_MIN_Y       = 150.0f;

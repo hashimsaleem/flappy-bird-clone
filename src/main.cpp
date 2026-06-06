@@ -98,6 +98,14 @@ int main() {
     groundShape.setPosition({0.f, groundY});
     groundShape.setFillColor(Config::GROUND_COLOR);
 
+    // Parallax background layer
+    sf::RectangleShape bgLayer;
+    bgLayer.setSize({(float)Config::SCREEN_WIDTH, 150.f}); // Simple layer
+    bgLayer.setPosition({0.f, groundY - 150.f});
+    bgLayer.setFillColor(sf::Color(100, 150, 100)); // Dark green hills
+
+    float bgOffset = 0.f;
+
     // Ground top edge (grass-like strip)
     sf::RectangleShape groundEdge;
     groundEdge.setSize({(float)Config::SCREEN_WIDTH, 8.f});
@@ -159,6 +167,12 @@ int main() {
         if (currentState == PLAYING) {
             bird.update(dt);
 
+            // Update background
+            bgOffset -= Config::BACKGROUND_SPEED * dt;
+            if (bgOffset <= -Config::SCREEN_WIDTH) {
+                bgOffset = 0.f;
+            }
+
             // Boundary check (including ground)
             sf::FloatRect birdBounds = bird.getBoundingBox();
             if (birdBounds.position.y < 0 || birdBounds.position.y + birdBounds.size.y > groundY) {
@@ -203,6 +217,12 @@ int main() {
         }
 
         window.clear(Config::SKY_COLOR);
+
+        // Draw background layer
+        bgLayer.setPosition({bgOffset, groundY - 150.f});
+        window.draw(bgLayer);
+        bgLayer.setPosition({bgOffset + Config::SCREEN_WIDTH, groundY - 150.f});
+        window.draw(bgLayer);
 
         // Draw ground
         window.draw(groundShape);
