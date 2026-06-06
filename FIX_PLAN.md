@@ -12,7 +12,7 @@
 - [x] **Text Rendering**: Added a score display on the screen.
 
 ## Remaining Tasks
-- [ ] **Delta Time**: Replace hardcoded `dt` with `sf::Clock` for true frame-rate independence.
+- [x] **Delta Time**: Replace hardcoded `dt` with `sf::Clock` for true frame-rate independence.
 - [ ] **Constants Header**: Move magic numbers (screen dimensions, speeds, gravity) to a dedicated configuration file/header.
 - [ ] **Resource Manager**: Implement a manager to handle `sf::Texture` and `sf::Font` loading to avoid redundant loads and ensure persistence.
 - [ ] **Visuals Improvement**: Replace `sf::RectangleShape` with `sf::Sprite` and load actual textures for bird and pipes.

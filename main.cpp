@@ -51,11 +51,16 @@ int main() {
     std::uniform_real_distribution<float> yDist(150.0f, 450.0f);
     std::uniform_real_distribution<float> gapDist(150.0f, 250.0f);
 
+    sf::Clock gameClock;
+
     std::cout << "Game Started. Press SPACE to begin." << std::endl;
 
     while (window.isOpen()) {
+        sf::Time elapsed = gameClock.restart();
+        float dt = elapsed.asSeconds();
+
         while (auto event = window.pollEvent()) {
-            if (event->is<sf::Event::Closed>()) {
+...            if (event->is<sf::Event::Closed>()) {
                 window.close();
             }
 
@@ -79,7 +84,7 @@ int main() {
             }
         }
 
-        float dt = 1.0f / 60.0f;
+
 
         if (currentState == PLAYING) {
             bird.update(dt);
