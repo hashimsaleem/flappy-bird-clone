@@ -365,6 +365,21 @@ SFML 3 has breaking changes from SFML 2 (e.g., `sf::Vector2f` instead of raw flo
 | 15 | **Hardcoded difficulty caps** — magic numbers in game loop | Moved to `Config::PIPE_SPEED_MAX` / `Config::SPAWN_INTERVAL_MIN`, exposed in `gameconfig.json`
 | 16 | **Debug logs in release builds** — `std::cout` spam on every score/difficulty change | Wrapped all debug output in `#ifdef DEBUG` (disabled by default)
 | 17 | **Hardcoded `% 3` menu wrap** — breaks if menu options change | Changed to `% menuOptions.size()`
+| 18 | **HighScore::reset() corrupts file** — writes 0 to disk every call | Changed to only clear in-memory cache, not touch file |
+| 19 | **Bird placeholder missing origin** — else-branch in load() didn't set sprite origin | Added `setOrigin()` to match real-texture branch |
+
+### Unit Tests (Google Test 1.17)
+
+| Suite | Tests | Coverage |
+|-------|-------|----------|
+| `test_ConfigLoader` | 12 | JSON parsing, int/float/bool/string, escapes, fallbacks, clear/reload |
+| `test_HighScore` | 11 | File persistence, caching, score comparison, reset semantics |
+| `test_Bird` | 12 | Gravity, flap, bounding box, reset, velocity compounding |
+| `test_Pipe` | 12 | Movement, speed, off-screen detection, moving pipes |
+| `test_Collision` | 17 | Gap/no-gap, top/bottom pipe hits, edge overlap, moved/moving pipes |
+| **Total** | **64** | **All passing** 🟢 |
+
+Enable with: `cmake .. -DBUILD_TESTS=ON && make flappy_tests && ./tests/flappy_tests`
 
 ## 📊 Current State Summary
 
@@ -394,3 +409,4 @@ SFML 3 has breaking changes from SFML 2 (e.g., `sf::Vector2f` instead of raw flo
 | **Code Duplication** | ✅ Complete (game-over trigger extracted to lambda) |
 | **ResourceManager Efficiency** | ✅ Complete (`getFont()` returns `const sf::Font&`) |
 | **Difficulty Caps Configurable** | ✅ Complete (`gameconfig.json` overrides caps) |
+| **Unit Tests** | ✅ Complete (64 tests, 5 suites, GTest, `-DBUILD_TESTS=ON`) |
