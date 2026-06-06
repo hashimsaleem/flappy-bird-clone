@@ -28,10 +28,16 @@ namespace Config {
     constexpr float PIPE_GAP_RANGE   = 250.0f;
 
     // Assets (relative to executable directory)
-    constexpr const char* FONT_PATH  = "assets/font.ttf";
-    constexpr const char* BIRD_PATH  = "assets/bird.png";
-    constexpr const char* ASSETS_DIR = "assets/";
+    constexpr const char* FONT_PATH   = "assets/font.ttf";
+    constexpr const char* BIRD_PATH   = "assets/bird.png";
+    constexpr const char* ASSETS_DIR  = "assets/";
     constexpr const char* CONFIG_PATH = "gameconfig.json";
+
+    // Audio
+    constexpr const char* JUMP_SND    = "assets/jump.ogg";
+    constexpr const char* SCORE_SND   = "assets/score.ogg";
+    constexpr const char* DEATH_SND   = "assets/death.ogg";
+    constexpr const char* BG_MUSIC    = "assets/bgm.ogg";
 
     // Ground
     constexpr float GROUND_HEIGHT    = 50.0f;
