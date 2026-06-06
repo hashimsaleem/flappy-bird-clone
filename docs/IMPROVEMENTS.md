@@ -316,7 +316,7 @@ SFML 3 has breaking changes from SFML 2 (e.g., `sf::Vector2f` instead of raw flo
 > - `HighScore` with binary file persistence (`highscore.dat`)
 > - Sound effects: jump, score, death sounds
 > - High Score displayed in top-right during gameplay and centered on game over screen
-| **Phase 4** | (11) Add ground collision <br> (12) Add sprite animation <br> (13) Config file for tuning <br> (14) Consider SFML 3 migration | 3-4 hours |
+| **Phase 4** | (11) Add ground collision <br> (12) Add sprite animation <br> (13) Config file for tuning | 3-4 hours |
 
 > ✅ **Phase 4 Complete:** All items implemented:
 > - **Ground collision** — `GROUND_HEIGHT` (50px) in Config, `groundShape` + `groundEdge` rendered below all game elements, ground collision check in the boundary check (`birdBounds.position.y + birdBounds.size.y > groundY`). Ground visible in START, PLAYING, and GAME_OVER states.
@@ -324,6 +324,26 @@ SFML 3 has breaking changes from SFML 2 (e.g., `sf::Vector2f` instead of raw flo
 > - **Runtime config** — `ConfigLoader` (ConfigLoader.hpp/cpp) with a minimal JSON parser. Default config at `assets/gameconfig.json` allows tuning: screen_width, screen_height, gravity, jump_strength, pipe_speed, gap_height, pipe_spawn_interval, ground_height, bird_min_tilt, bird_max_tilt, bird_flap_rate, bird_flap_depth. All values override Config:: defaults at startup.
 
 ---
+
+## 🐛 Bug Fixes Applied
+
+### Critical
+
+| # | Issue | Fix |
+|---|-------|-----|
+| 1 | **Pipe velocity direction** — pipes moved right (off-screen) instead of left | Removed redundant `velocityX = Config::PIPE_SPEED` assignment in Pipe constructor that overwrote the correct `-200` value |
+| 2 | **Game restart double-free** — `bird = Bird()` shallow-copied `sf::Sprite*`, causing double-free on destruction | Added `Bird::reset()` method that properly destroys old sprite, resets all fields, then calls `load()` to create a fresh sprite |
+| 3 | **Empty sound files** — WAV files were headers-only (8864 bytes, no audio data) | Generated real OGG Vorbis sounds via ffmpeg: jump (upward chirp), score (bright ding), death (descending buzzer) |
+| 4 | **SFML WAV format not supported** — SFML's audio backend lacks WAV codec support | Replaced all `.wav` files with `.ogg` Vorbis; updated paths in main.cpp |
+
+### Medium — ConfigLoader Fixes
+
+| # | Issue | Fix |
+|---|-------|-----|
+| 5 | Key substring length off-by-one (`json.substr(key_start, key_end - key_start)`) | Added `+1` to include the last character: `json.substr(key_start, key_end - key_start + 1)` |
+| 6 | Colon search loop stopped at wrong position (`json[i+1] != ':'`) | Changed to `json[i] != ':'` |
+| 7 | String value parser didn't advance past closing quote | Added `i++` after detecting closing quote |
+| 8 | `std::stof` locale-dependent decimal parsing | Replaced with `std::strtod` for consistent dot-decimal parsing |
 
 ## 📊 Current State Summary
 
