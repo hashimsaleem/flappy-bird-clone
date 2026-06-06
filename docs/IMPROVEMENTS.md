@@ -366,3 +366,4 @@ SFML 3 has breaking changes from SFML 2 (e.g., `sf::Vector2f` instead of raw flo
 | **Ground Collision** | ✅ Complete (ground plane + collision check) |
 | **Bird Animation** | ✅ Complete (velocity-based tilt + wing flap oscillation) |
 | **Runtime Config** | ✅ Complete (JSON config loader, `gameconfig.json`) |
+| **Background Music** | ✅ Complete (Plays at launch, persists, loop enabled, 40% vol) |

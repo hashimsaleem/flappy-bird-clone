@@ -85,7 +85,8 @@ int main() {
     std::cerr << "[bgm] bgmLoaded=" << bgmLoaded << "\n";
     if (bgmLoaded) {
         bgmMusic.setLooping(true);
-        bgmMusic.setVolume(0.4f);
+        bgmMusic.setVolume(40.f);
+        bgmMusic.play();
     }
 
     int highScore = HighScore::load();
@@ -133,7 +134,9 @@ int main() {
                 if (keyPressed->code == sf::Keyboard::Key::Space) {
                     if (currentState == START) {
                         currentState = PLAYING;
-                        if (bgmLoaded) bgmMusic.play();
+                        if (bgmLoaded && bgmMusic.getStatus() != sf::SoundSource::Status::Playing) {
+                            bgmMusic.play();
+                        }
                         std::cout << "Game Playing!" << std::endl;
                     } else if (currentState == PLAYING) {
                         bird.flap();
@@ -147,6 +150,7 @@ int main() {
                         pipes.clear();
                         score = 0;
                         currentState = PLAYING;
+                        if (bgmLoaded) bgmMusic.play();
                         std::cout << "Restarting game..." << std::endl;
                     }
                 }
