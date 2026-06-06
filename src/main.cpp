@@ -76,11 +76,13 @@ int main() {
     sf::Sound deathSound = ResourceManager::getSound(Config::DEATH_SND);
 
     // Background music (loops continuously during gameplay)
-    sf::Music bgmMusic;
-    bool bgmLoaded = bgmMusic.openFromFile(Config::BG_MUSIC);
+    auto bgmBuffer = std::make_shared<sf::SoundBuffer>();
+    bool bgmLoaded = bgmBuffer->loadFromFile(Config::BG_MUSIC);
+    sf::Sound* bgmSound = nullptr;
     if (bgmLoaded) {
-        bgmMusic.setLooping(true);
-        bgmMusic.setVolume(0.3f);
+        bgmSound = new sf::Sound(*bgmBuffer);
+        bgmSound->setLooping(true);
+        bgmSound->setVolume(0.3f);
     }
 
     int highScore = HighScore::load();
@@ -128,7 +130,7 @@ int main() {
                 if (keyPressed->code == sf::Keyboard::Key::Space) {
                     if (currentState == START) {
                         currentState = PLAYING;
-                        if (bgmLoaded) bgmMusic.play();
+                        if (bgmLoaded) bgmSound->play();
                         std::cout << "Game Playing!" << std::endl;
                     } else if (currentState == PLAYING) {
                         bird.flap();
@@ -156,8 +158,8 @@ int main() {
                 currentState = GAME_OVER;
                 std::cout << "Game Over! Final Score: " << score << std::endl;
                 deathSound.play();
-                if (bgmMusic.getStatus() == sf::SoundSource::Status::Playing)
-                    bgmMusic.stop();
+                if (bgmSound->getStatus() == sf::SoundSource::Status::Playing)
+                    bgmSound->stop();
             }
 
             for (auto& pipe : pipes) {
@@ -166,8 +168,8 @@ int main() {
                     currentState = GAME_OVER;
                     std::cout << "Game Over! Final Score: " << score << std::endl;
                     deathSound.play();
-                    if (bgmMusic.getStatus() == sf::SoundSource::Status::Playing)
-                        bgmMusic.stop();
+                    if (bgmSound->getStatus() == sf::SoundSource::Status::Playing)
+                        bgmSound->stop();
                 }
 
                 // Scoring logic
