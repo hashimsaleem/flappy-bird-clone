@@ -15,6 +15,12 @@ private:
 public:
     Bird();
     ~Bird();
+
+    // Prevent copying — raw sf::Sprite* makes copy unsafe
+    Bird(const Bird&) = delete;
+    Bird& operator=(const Bird&) = delete;
+    Bird(Bird&&) = delete;
+    Bird& operator=(Bird&&) = delete;
     // Initializes the sprite and places it at a starting point
     void load(const std::string& texturePath);
 
@@ -45,6 +51,7 @@ public:
     sf::FloatRect getBoundingBox() const;
 
     float getVelocity() const { return velocityY; }
+    float getX() const { return posX; }
 
     /**
      * @brief Resets the bird to its initial state (called on game restart).

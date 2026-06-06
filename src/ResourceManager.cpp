@@ -30,13 +30,13 @@ sf::Texture& ResourceManager::getTexture(const std::string& path) {
     return textures[path];
 }
 
-sf::Font ResourceManager::getFont(const std::string& path, unsigned int size) {
+const sf::Font& ResourceManager::getFont(const std::string& path, unsigned int size) {
     init();
     std::string key = path + "::" + std::to_string(size);
     if (fonts.find(key) == fonts.end()) {
         sf::Font font;
         if (font.openFromFile(path)) {
-            fonts[key] = std::make_pair(font, size);
+            fonts[key] = std::make_pair(std::move(font), size);
         } else {
             // Fallback: default font
             fonts[key] = std::make_pair(sf::Font(), size);

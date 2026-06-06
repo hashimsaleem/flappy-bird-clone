@@ -317,11 +317,18 @@ SFML 3 has breaking changes from SFML 2 (e.g., `sf::Vector2f` instead of raw flo
 > - Sound effects: jump, score, death sounds
 > - High Score displayed in top-right during gameplay and centered on game over screen
 | **Phase 4** | (11) Add ground collision <br> (12) Add sprite animation <br> (13) Config file for tuning | 3-4 hours |
+| **Phase 5** | (14) Bird copy safety (delete copy ctor) <br> (15) Remove dead `fontLoaded` code <br> (16) Replace `rand()` with `<random>` <br> (17) Extract game-over helper lambda <br> (18) Return `const sf::Font&` from ResourceManager <br> (19) Dynamic scoring threshold from bird X <br> (20) Move difficulty caps to Config <br> (21) Wrap debug logs in `#ifdef DEBUG` <br> (22) Use `menuOptions.size()` instead of hardcoded `% 3` | 1 hour |
 
-> ✅ **Phase 4 Complete:** All items implemented:
-> - **Ground collision** — `GROUND_HEIGHT` (50px) in Config, `groundShape` + `groundEdge` rendered below all game elements, ground collision check in the boundary check (`birdBounds.position.y + birdBounds.size.y > groundY`). Ground visible in START, PLAYING, and GAME_OVER states.
-> - **Bird tilt animation** — `Bird::animateTilt()` in Bird.cpp maps velocityY to a tilt angle (BIRD_MIN_TILT=-30° to BIRD_MAX_TILT=+60°) with smooth lerp interpolation. Wing flap oscillation (BIRD_FLAP_RATE=8 Hz, BIRD_FLAP_DEPTH=3px) when velocity is negative.
-> - **Runtime config** — `ConfigLoader` (ConfigLoader.hpp/cpp) with a minimal JSON parser. Default config at `assets/gameconfig.json` allows tuning: screen_width, screen_height, gravity, jump_strength, pipe_speed, gap_height, pipe_spawn_interval, ground_height, bird_min_tilt, bird_max_tilt, bird_flap_rate, bird_flap_depth. All values override Config:: defaults at startup.
+> ✅ **Phase 5 Complete:** All items implemented:
+> - **Bird copy safety** — Deleted copy/move constructors & assignment operators on `Bird` (raw `sf::Sprite*` is now non-copyable)
+> - **Removed dead `fontLoaded` code** — Variable, dead branch, and all `if (fontLoaded)` guards removed from `main.cpp`
+> - **Consistent RNG** — Replaced `rand()` with `std::uniform_int_distribution<int>` using the existing RNG engine
+> - **Game-over helper lambda** — `triggerGameOver` lambda in `main.cpp` eliminates ~20 lines of duplicated code
+> - **`getFont()` returns `const sf::Font&`** — Avoids copying the font from the cache on every call
+> - **Dynamic scoring threshold** — Scoring now compares `pipe.getX() < bird.getX()` instead of hardcoded `50.0f`
+> - **Difficulty caps in Config** — `Config::PIPE_SPEED_MAX` and `Config::SPAWN_INTERVAL_MIN`, overridable via `gameconfig.json` (`pipe_speed_max`, `spawn_interval_min`)
+> - **Debug logs guarded** — All `std::cout` debug output wrapped in `#ifdef DEBUG` (disabled by default)
+> - **Menu navigation uses `menuOptions.size()`** — No more hardcoded `% 3` in menu wrapping
 
 ---
 
@@ -345,6 +352,20 @@ SFML 3 has breaking changes from SFML 2 (e.g., `sf::Vector2f` instead of raw flo
 | 7 | String value parser didn't advance past closing quote | Added `i++` after detecting closing quote |
 | 8 | `std::stof` locale-dependent decimal parsing | Replaced with `std::strtod` for consistent dot-decimal parsing |
 
+### Phase 5 — Code Quality & Safety Fixes
+
+| # | Issue | Fix |
+|---|-------|-----|
+| 9 | **Bird copy-unsafe** — `sf::Sprite*` with no copy control | Deleted copy/move constructors & assignment operators on `Bird`
+| 10 | **`fontLoaded` dead code** — always-true flag with unreachable branch | Removed variable, dead branch, and all `if (fontLoaded)` guards
+| 11 | **`rand()` inconsistency** — mixed C `rand()` with C++ `<random>` | Replaced with `std::uniform_int_distribution<int>` using existing engine
+| 12 | **Duplicate game-over logic** — ~20 lines repeated across two collision branches | Extracted into `triggerGameOver` local lambda
+| 13 | **`getFont()` returns by value** — copies entire `sf::Font` from cache | Changed return type to `const sf::Font&`
+| 14 | **Hardcoded scoring threshold** — `pipe.getX() < 50.0f` assumes bird at X=50 | Changed to `pipe.getX() < bird.getX()`
+| 15 | **Hardcoded difficulty caps** — magic numbers in game loop | Moved to `Config::PIPE_SPEED_MAX` / `Config::SPAWN_INTERVAL_MIN`, exposed in `gameconfig.json`
+| 16 | **Debug logs in release builds** — `std::cout` spam on every score/difficulty change | Wrapped all debug output in `#ifdef DEBUG` (disabled by default)
+| 17 | **Hardcoded `% 3` menu wrap** — breaks if menu options change | Changed to `% menuOptions.size()`
+
 ## 📊 Current State Summary
 
 | Category | Status |
@@ -367,3 +388,9 @@ SFML 3 has breaking changes from SFML 2 (e.g., `sf::Vector2f` instead of raw flo
 | **Bird Animation** | ✅ Complete (velocity-based tilt + wing flap oscillation) |
 | **Runtime Config** | ✅ Complete (JSON config loader, `gameconfig.json`) |
 | **Background Music** | ✅ Complete (Plays at launch, persists, loop enabled, 40% vol) |
+| **Bird Copy Safety** | ✅ Complete (copy/move deleted, `reset()` for restart) |
+| **Scoring Correctness** | ✅ Complete (uses bird X, not hardcoded 50.0f) |
+| **Debug Hygiene** | ✅ Complete (debug logs guarded by `#ifdef DEBUG`) |
+| **Code Duplication** | ✅ Complete (game-over trigger extracted to lambda) |
+| **ResourceManager Efficiency** | ✅ Complete (`getFont()` returns `const sf::Font&`) |
+| **Difficulty Caps Configurable** | ✅ Complete (`gameconfig.json` overrides caps) |

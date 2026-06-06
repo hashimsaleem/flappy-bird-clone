@@ -10,7 +10,7 @@
 class ResourceManager {
 public:
     static sf::Texture& getTexture(const std::string& path);
-    static sf::Font     getFont(const std::string& path, unsigned int size);
+    static const sf::Font& getFont(const std::string& path, unsigned int size);
     static sf::Sound    getSound(const std::string& path);
 
     static void reload(const std::string& path);

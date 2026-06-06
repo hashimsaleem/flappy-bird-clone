@@ -28,6 +28,10 @@ namespace Config {
     constexpr float PIPE_MAX_Y       = 450.0f;
     constexpr float PIPE_GAP_RANGE   = 250.0f;
 
+    // Difficulty caps
+    constexpr float PIPE_SPEED_MAX     = 400.0f;
+    constexpr float SPAWN_INTERVAL_MIN = 0.8f;
+
     // Assets (relative to executable directory)
     constexpr const char* FONT_PATH   = "assets/font.ttf";
     constexpr const char* BIRD_PATH   = "assets/bird.png";

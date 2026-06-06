@@ -11,5 +11,7 @@
     "bird_min_tilt": -30.0,
     "bird_max_tilt": 60.0,
     "bird_flap_rate": 8.0,
-    "bird_flap_depth": 3.0
+    "bird_flap_depth": 3.0,
+    "pipe_speed_max": 400.0,
+    "spawn_interval_min": 0.8
 }

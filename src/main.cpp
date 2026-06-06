@@ -13,6 +13,9 @@
 #include "HighScore.hpp"
 #include "Particle.hpp"
 
+// Uncomment to enable debug console output
+// #define DEBUG
+
 enum GameState { MENU, START, PLAYING, GAME_OVER, HIGH_SCORE_SCREEN };
 
 int main() {
@@ -35,42 +38,30 @@ int main() {
     sf::RenderWindow window(sf::VideoMode({screenW, screenH}), "Flappy Clone SFML");
     window.setFramerateLimit(Config::TARGET_FPS);
 
-    sf::Font font = ResourceManager::getFont(Config::FONT_PATH, 30);
-    bool fontLoaded = true; // Font is loaded or falls back to default in ResourceManager
-    if (!fontLoaded) {
-        std::cerr << "Warning: Could not load '" << Config::FONT_PATH << "'. Text rendering will be disabled." << std::endl;
-    }
+    const sf::Font& font = ResourceManager::getFont(Config::FONT_PATH, 30);
 
     sf::Text scoreText(font);
-    if (fontLoaded) {
-        scoreText.setCharacterSize(30);
-        scoreText.setFillColor(Config::TEXT_COLOR);
-        scoreText.setPosition({10.f, 10.f});
-    }
+    scoreText.setCharacterSize(30);
+    scoreText.setFillColor(Config::TEXT_COLOR);
+    scoreText.setPosition({10.f, 10.f});
 
     sf::Text gameOverText(font);
-    if (fontLoaded) {
-        gameOverText.setCharacterSize(50);
-        gameOverText.setFillColor(Config::GAME_OVER_COLOR);
-        gameOverText.setPosition({Config::SCREEN_WIDTH / 2.f - 150.f, Config::SCREEN_HEIGHT / 2.f - 25.f});
-        gameOverText.setString("GAME OVER");
-    }
+    gameOverText.setCharacterSize(50);
+    gameOverText.setFillColor(Config::GAME_OVER_COLOR);
+    gameOverText.setPosition({Config::SCREEN_WIDTH / 2.f - 150.f, Config::SCREEN_HEIGHT / 2.f - 25.f});
+    gameOverText.setString("GAME OVER");
 
     sf::Text startText(font);
-    if (fontLoaded) {
-        startText.setString("Press SPACE to Start");
-        startText.setCharacterSize(36);
-        startText.setFillColor(Config::TEXT_COLOR);
-        startText.setPosition({Config::SCREEN_WIDTH / 2.f - 130.f, Config::SCREEN_HEIGHT / 2.f});
-    }
+    startText.setString("Press SPACE to Start");
+    startText.setCharacterSize(36);
+    startText.setFillColor(Config::TEXT_COLOR);
+    startText.setPosition({Config::SCREEN_WIDTH / 2.f - 130.f, Config::SCREEN_HEIGHT / 2.f});
 
     sf::Text highScoreText(font);
-    if (fontLoaded) {
-        highScoreText.setCharacterSize(24);
-        highScoreText.setFillColor(Config::TEXT_COLOR);
-        highScoreText.setPosition({Config::SCREEN_WIDTH - 180.f, 10.f});
-        highScoreText.setString("High Score: 0");
-    }
+    highScoreText.setCharacterSize(24);
+    highScoreText.setFillColor(Config::TEXT_COLOR);
+    highScoreText.setPosition({Config::SCREEN_WIDTH - 180.f, 10.f});
+    highScoreText.setString("High Score: 0");
 
     // Sound effects
     sf::Sound jumpSound = ResourceManager::getSound(Config::JUMP_SND);
@@ -84,7 +75,9 @@ int main() {
         // Fallback: try WAV
         bgmLoaded = bgmMusic.openFromFile("assets/bgm_bgm.wav");
     }
+#ifdef DEBUG
     std::cerr << "[bgm] bgmLoaded=" << bgmLoaded << "\n";
+#endif
     if (bgmLoaded) {
         bgmMusic.setLooping(true);
         bgmMusic.setVolume(40.f);
@@ -119,8 +112,15 @@ int main() {
     std::vector<Pipe> pipes;
     std::vector<Particle> particles;
 
+    // Difficulty caps (overridable via gameconfig.json)
+    float pipeSpeedMax = ConfigLoader::getFloat("pipe_speed_max", Config::PIPE_SPEED_MAX);
+    float spawnIntervalMin = ConfigLoader::getFloat("spawn_interval_min", Config::SPAWN_INTERVAL_MIN);
+
     float currentPipeSpeed = Config::PIPE_SPEED;
     float currentSpawnInterval = Config::PIPE_SPAWN_INTERVAL;
+
+    // Menu options (defined here so input handler can use .size())
+    const std::vector<std::string> menuOptions = {"Start Game", "High Scores", "Exit"};
 
     GameState currentState = MENU;
     int menuOption = 0;
@@ -130,11 +130,36 @@ int main() {
     std::default_random_engine generator;
     std::uniform_real_distribution<float> yDist(Config::PIPE_MIN_Y, Config::PIPE_MAX_Y);
     std::uniform_real_distribution<float> gapDist(Config::PIPE_GAP_RANGE * 0.6f, Config::PIPE_GAP_RANGE);
+    std::uniform_int_distribution<int> particleDist(-100, 100);
+
+#ifdef DEBUG
+    std::cout << "Game Started. Press SPACE to begin." << std::endl;
+#endif
+
+    // Helper lambda to trigger game-over (avoids duplicating ~20 lines)
+    auto triggerGameOver = [&]() {
+        currentState = GAME_OVER;
+#ifdef DEBUG
+        std::cout << "Game Over! Final Score: " << score << std::endl;
+#endif
+        deathSound.play();
+        bird.setDying();
+
+        // Spawn particles on death
+        sf::FloatRect birdBounds = bird.getBoundingBox();
+        for (int i = 0; i < 20; ++i) {
+            particles.emplace_back(birdBounds.position,
+                sf::Vector2f(static_cast<float>(particleDist(generator)),
+                             static_cast<float>(particleDist(generator))),
+                1.0f);
+        }
+
+        if (bgmMusic.getStatus() == sf::SoundSource::Status::Playing)
+            bgmMusic.stop();
+    };
 
     sf::Clock gameClock;
     gameClock.restart();
-
-    std::cout << "Game Started. Press SPACE to begin." << std::endl;
 
     while (window.isOpen()) {
         sf::Time elapsed = gameClock.restart();
@@ -147,10 +172,11 @@ int main() {
 
             if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
                 if (currentState == MENU) {
+                    int optCount = (int)menuOptions.size();
                     if (keyPressed->code == sf::Keyboard::Key::Up) {
-                        menuOption = (menuOption - 1 + 3) % 3;
+                        menuOption = (menuOption - 1 + optCount) % optCount;
                     } else if (keyPressed->code == sf::Keyboard::Key::Down) {
-                        menuOption = (menuOption + 1) % 3;
+                        menuOption = (menuOption + 1) % optCount;
                     } else if (keyPressed->code == sf::Keyboard::Key::Enter) {
                         if (menuOption == 0) {
                             currentState = START;
@@ -166,7 +192,9 @@ int main() {
                         if (bgmLoaded && bgmMusic.getStatus() != sf::SoundSource::Status::Playing) {
                             bgmMusic.play();
                         }
+#ifdef DEBUG
                         std::cout << "Game Playing!" << std::endl;
+#endif
                     } else if (currentState == PLAYING) {
                         bird.flap();
                         if (jumpSound.getStatus() != sf::SoundSource::Status::Playing) {
@@ -177,12 +205,15 @@ int main() {
                         bird.reset();
                         bird.load(Config::BIRD_PATH);
                         pipes.clear();
+                        particles.clear();
                         score = 0;
                         currentPipeSpeed = Config::PIPE_SPEED;
                         currentSpawnInterval = Config::PIPE_SPAWN_INTERVAL;
                         currentState = PLAYING;
                         if (bgmLoaded) bgmMusic.play();
+#ifdef DEBUG
                         std::cout << "Restarting game..." << std::endl;
+#endif
                     }
                 } else if (currentState == HIGH_SCORE_SCREEN && keyPressed->code == sf::Keyboard::Key::Escape) {
                     currentState = MENU;
@@ -207,58 +238,37 @@ int main() {
                 // Boundary check (including ground)
                 sf::FloatRect birdBounds = bird.getBoundingBox();
                 if (birdBounds.position.y < 0 || birdBounds.position.y + birdBounds.size.y > groundY) {
-                    currentState = GAME_OVER;
-                    std::cout << "Game Over! Final Score: " << score << std::endl;
-                    deathSound.play();
-                    bird.setDying();
-                    
-                    // Spawn particles on death
-                    for (int i = 0; i < 20; ++i) {
-                        particles.emplace_back(birdBounds.position, 
-                            sf::Vector2f(static_cast<float>(rand() % 200 - 100), static_cast<float>(rand() % 200 - 100)), 
-                            1.0f);
-                    }
-
-                    if (bgmMusic.getStatus() == sf::SoundSource::Status::Playing)
-                        bgmMusic.stop();
+                    triggerGameOver();
                 }
 
                 for (auto& pipe : pipes) {
                     pipe.update(dt);
                     if (pipe.checkCollision(birdBounds)) {
-                        currentState = GAME_OVER;
-                        std::cout << "Game Over! Final Score: " << score << std::endl;
-                        deathSound.play();
-                        bird.setDying();
-
-                        // Spawn particles on death
-                        for (int i = 0; i < 20; ++i) {
-                            particles.emplace_back(birdBounds.position, 
-                                sf::Vector2f(static_cast<float>(rand() % 200 - 100), static_cast<float>(rand() % 200 - 100)), 
-                                1.0f);
-                        }
-
-                        if (bgmMusic.getStatus() == sf::SoundSource::Status::Playing)
-                            bgmMusic.stop();
+                        triggerGameOver();
                     }
 
-                    // Scoring logic
-                    if (!pipe.passed && pipe.getX() < 50.0f) {
+                    // Scoring logic — compare against the bird's actual X position
+                    float birdX = bird.getX();
+                    if (!pipe.passed && pipe.getX() < birdX) {
                         score++;
                         pipe.passed = true;
+#ifdef DEBUG
                         std::cout << "Score: " << score << std::endl;
+#endif
                         scoreSound.play();
 
                         // Dynamic Difficulty: increase speed and decrease spawn interval every 5 points
                         if (score % 5 == 0) {
                             currentPipeSpeed *= 1.05f; // 5% speed increase
                             currentSpawnInterval *= 0.95f; // 5% faster spawn
-                            
+
                             // Caps to prevent game from becoming impossible
-                            if (currentPipeSpeed > 400.f) currentPipeSpeed = 400.f;
-                            if (currentSpawnInterval < 0.8f) currentSpawnInterval = 0.8f;
-                            
+                            if (currentPipeSpeed > pipeSpeedMax) currentPipeSpeed = pipeSpeedMax;
+                            if (currentSpawnInterval < spawnIntervalMin) currentSpawnInterval = spawnIntervalMin;
+
+#ifdef DEBUG
                             std::cout << "[Difficulty Up] Speed: " << currentPipeSpeed << ", Interval: " << currentSpawnInterval << std::endl;
+#endif
                         }
                     }
                 }
@@ -272,11 +282,11 @@ int main() {
                 if (spawnTimer > currentSpawnInterval) {
                     float randomY = yDist(generator);
                     float randomGap = gapDist(generator);
-                    
+
                     // 20% chance to spawn a moving pipe
                     std::uniform_int_distribution<int> typeDist(0, 4);
                     PipeType type = (typeDist(generator) == 0) ? PipeType::MOVING : PipeType::STATIC;
-                    
+
                     pipes.push_back(Pipe(Config::SCREEN_WIDTH, randomY, randomGap, currentPipeSpeed, type));
                     spawnTimer = 0.0f;
                 }
@@ -300,60 +310,51 @@ int main() {
             for (const auto& pipe : pipes) {
                 pipe.draw(window);
             }
-            if (fontLoaded) {
-                scoreText.setString("Score: " + std::to_string(score));
-                window.draw(scoreText);
-                highScoreText.setString("High Score: " + std::to_string(highScore));
-                window.draw(highScoreText);
-            }
+            scoreText.setString("Score: " + std::to_string(score));
+            window.draw(scoreText);
+            highScoreText.setString("High Score: " + std::to_string(highScore));
+            window.draw(highScoreText);
         } else if (currentState == START) {
             bird.draw(window);
-            if (fontLoaded) {
-                startText.setPosition({Config::SCREEN_WIDTH / 2.f - 130.f, Config::SCREEN_HEIGHT / 2.f});
-                window.draw(startText);
-            }
+            startText.setPosition({Config::SCREEN_WIDTH / 2.f - 130.f, Config::SCREEN_HEIGHT / 2.f});
+            window.draw(startText);
         } else if (currentState == MENU) {
-            if (fontLoaded) {
-                sf::Text menuTitle(font);
-                menuTitle.setString("FLAPPY CLONE");
-                menuTitle.setCharacterSize(60);
-                menuTitle.setFillColor(Config::TEXT_COLOR);
-                menuTitle.setPosition({Config::SCREEN_WIDTH / 2.f - 200.f, 100.f});
-                window.draw(menuTitle);
+            sf::Text menuTitle(font);
+            menuTitle.setString("FLAPPY CLONE");
+            menuTitle.setCharacterSize(60);
+            menuTitle.setFillColor(Config::TEXT_COLOR);
+            menuTitle.setPosition({Config::SCREEN_WIDTH / 2.f - 200.f, 100.f});
+            window.draw(menuTitle);
 
-                std::vector<std::string> options = {"Start Game", "High Scores", "Exit"};
-                for (int i = 0; i < options.size(); ++i) {
-                    sf::Text optionText(font);
-                    optionText.setString(options[i]);
-                    optionText.setCharacterSize(30);
-                    optionText.setFillColor(i == menuOption ? sf::Color::Yellow : Config::TEXT_COLOR);
-                    optionText.setPosition({Config::SCREEN_WIDTH / 2.f - 100.f, 250.f + i * 50.f});
-                    window.draw(optionText);
-                }
+            for (int i = 0; i < (int)menuOptions.size(); ++i) {
+                sf::Text optionText(font);
+                optionText.setString(menuOptions[i]);
+                optionText.setCharacterSize(30);
+                optionText.setFillColor(i == menuOption ? sf::Color::Yellow : Config::TEXT_COLOR);
+                optionText.setPosition({Config::SCREEN_WIDTH / 2.f - 100.f, 250.f + i * 50.f});
+                window.draw(optionText);
             }
         } else if (currentState == HIGH_SCORE_SCREEN) {
-            if (fontLoaded) {
-                sf::Text hsTitle(font);
-                hsTitle.setString("HIGH SCORE");
-                hsTitle.setCharacterSize(50);
-                hsTitle.setFillColor(Config::TEXT_COLOR);
-                hsTitle.setPosition({Config::SCREEN_WIDTH / 2.f - 150.f, 150.f});
-                window.draw(hsTitle);
+            sf::Text hsTitle(font);
+            hsTitle.setString("HIGH SCORE");
+            hsTitle.setCharacterSize(50);
+            hsTitle.setFillColor(Config::TEXT_COLOR);
+            hsTitle.setPosition({Config::SCREEN_WIDTH / 2.f - 150.f, 150.f});
+            window.draw(hsTitle);
 
-                sf::Text hsValue(font);
-                hsValue.setString(std::to_string(HighScore::load()));
-                hsValue.setCharacterSize(80);
-                hsValue.setFillColor(sf::Color::Yellow);
-                hsValue.setPosition({Config::SCREEN_WIDTH / 2.f - 50.f, 250.f});
-                window.draw(hsValue);
+            sf::Text hsValue(font);
+            hsValue.setString(std::to_string(HighScore::load()));
+            hsValue.setCharacterSize(80);
+            hsValue.setFillColor(sf::Color::Yellow);
+            hsValue.setPosition({Config::SCREEN_WIDTH / 2.f - 50.f, 250.f});
+            window.draw(hsValue);
 
-                sf::Text backText(font);
-                backText.setString("Press ESC to return");
-                backText.setCharacterSize(24);
-                backText.setFillColor(Config::TEXT_COLOR);
-                backText.setPosition({Config::SCREEN_WIDTH / 2.f - 100.f, 450.f});
-                window.draw(backText);
-            }
+            sf::Text backText(font);
+            backText.setString("Press ESC to return");
+            backText.setCharacterSize(24);
+            backText.setFillColor(Config::TEXT_COLOR);
+            backText.setPosition({Config::SCREEN_WIDTH / 2.f - 100.f, 450.f});
+            window.draw(backText);
         } else if (currentState == GAME_OVER) {
             // Semi-transparent overlay
             sf::RectangleShape overlay;
@@ -368,29 +369,25 @@ int main() {
             for (const auto& pipe : pipes) {
                 pipe.draw(window);
             }
-            if (fontLoaded) {
-                scoreText.setString("Score: " + std::to_string(score));
-                window.draw(scoreText);
-                window.draw(gameOverText);
+            scoreText.setString("Score: " + std::to_string(score));
+            window.draw(scoreText);
+            window.draw(gameOverText);
 
-                sf::Text restartText(font);
-                restartText.setString("Press SPACE to Restart");
-                restartText.setCharacterSize(28);
-                restartText.setFillColor(Config::TEXT_COLOR);
-                restartText.setPosition({Config::SCREEN_WIDTH / 2.f - 130.f, Config::SCREEN_HEIGHT / 2.f + 50.f});
-                window.draw(restartText);
-            }
+            sf::Text restartText(font);
+            restartText.setString("Press SPACE to Restart");
+            restartText.setCharacterSize(28);
+            restartText.setFillColor(Config::TEXT_COLOR);
+            restartText.setPosition({Config::SCREEN_WIDTH / 2.f - 130.f, Config::SCREEN_HEIGHT / 2.f + 50.f});
+            window.draw(restartText);
 
             // Update and display high score
             if (score > highScore) {
                 highScore = score;
                 HighScore::save(highScore);
             }
-            if (fontLoaded) {
-                highScoreText.setString("High Score: " + std::to_string(highScore));
-                highScoreText.setPosition({Config::SCREEN_WIDTH / 2.f - 80.f, Config::SCREEN_HEIGHT / 2.f + 80.f});
-                window.draw(highScoreText);
-            }
+            highScoreText.setString("High Score: " + std::to_string(highScore));
+            highScoreText.setPosition({Config::SCREEN_WIDTH / 2.f - 80.f, Config::SCREEN_HEIGHT / 2.f + 80.f});
+            window.draw(highScoreText);
         }
 
         window.display();
