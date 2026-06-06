@@ -1,38 +1,58 @@
 #include "Bird.hpp"
 #include <iostream>
 
-Bird::Bird() : velocityY(0.0f), posY(300.0f) {
-    sprite.setSize({40.f, 40.f});
-    sprite.setPosition({50.f, posY});
+Bird::Bird() : velocityY(0.0f), posX(Config::BIRD_START_X), posY(Config::BIRD_START_Y) {
+    // Create a temporary white texture as placeholder using sf::Image constructor
+    sf::Image placeholderImg({static_cast<unsigned int>(Config::BIRD_WIDTH), static_cast<unsigned int>(Config::BIRD_HEIGHT)}, sf::Color::White);
+    sf::Texture placeholder(placeholderImg);
+    sprite = new sf::Sprite(placeholder);
+    sprite->setPosition({posX, posY});
 }
 
 void Bird::load(const std::string& texturePath) {
-    sprite.setSize({40.f, 40.f});
+    if (birdTexture.loadFromFile(texturePath)) {
+        // Delete the placeholder sprite and create a new one with the real texture
+        delete sprite;
+        sprite = new sf::Sprite(birdTexture);
+        sprite->setOrigin({birdTexture.getSize().x / 2.f, birdTexture.getSize().y / 2.f});
+        sprite->setPosition({posX, posY});
+    } else {
+        std::cerr << "Warning: Could not load bird texture '" << texturePath << "'. Using placeholder." << std::endl;
+    }
+}
+
+Bird::~Bird() {
+    delete sprite;
 }
 
 void Bird::update(float dt) {
     // Apply gravity: velocity increases downwards over time
-    velocityY += GRAVITY * dt;
+    velocityY += Config::GRAVITY * dt;
 
     // Calculate new position delta
     float deltaY = velocityY * dt;
 
     // Update the Y position tracker
-    this->posY += deltaY;
+    posY += deltaY;
 
     // Update the sprite position based on physics calculations
-    sprite.setPosition({50.f, posY}); 
+    sprite->setPosition({posX, posY});
 }
 
 void Bird::flap() {
     // Set a strong negative (upward) velocity
-    velocityY = JUMP_STRENGTH;
+    velocityY = Config::JUMP_STRENGTH;
 }
 
 void Bird::draw(sf::RenderWindow& window) const {
-    window.draw(sprite);
+    if (sprite) {
+        window.draw(*sprite);
+    }
 }
 
 sf::FloatRect Bird::getBoundingBox() const {
-    return sprite.getGlobalBounds();
+    if (sprite) {
+        return sprite->getGlobalBounds();
+    }
+    return sf::FloatRect({posX, posY}, {Config::BIRD_WIDTH, Config::BIRD_HEIGHT});
 }

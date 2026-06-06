@@ -3,18 +3,19 @@
 
 #include <SFML/Graphics.hpp>
 #include <cmath>
+#include "Config.hpp"
 
 class Bird {
 private:
-    sf::RectangleShape sprite;
+    sf::Sprite* sprite = nullptr; // Initialized in load()
+    sf::Texture birdTexture;
     float velocityY; // Vertical velocity
-    float GRAVITY = 800.0f; // Gravity strength (pixels/s^2)
-    float JUMP_STRENGTH = -600.0f; // Initial upward velocity (- is up)
 
 public:
     Bird();
+    ~Bird();
     // Initializes the sprite and places it at a starting point
-    void load(const std::string& texturePath); 
+    void load(const std::string& texturePath);
 
     /**
      * @brief Updates the bird's position based on physics and delta time.
@@ -22,8 +23,7 @@ public:
      */
     void update(float dt);
 
-    /**
-     * @brief Makes the bird jump (resets vertical velocity).
+    /**\n     * @brief Makes the bird jump (resets vertical velocity).
      */
     void flap();
 
@@ -39,6 +39,7 @@ public:
     sf::FloatRect getBoundingBox() const;
 
 private:
+    float posX; // X position tracker
     float posY; // Y position tracker (needed for collision and physics)
 };
 
