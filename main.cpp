@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <random>
 #include "Bird.hpp"
 #include "Pipe.hpp"
 
@@ -45,6 +46,10 @@ int main() {
     GameState currentState = START;
     int score = 0;
     float spawnTimer = 0.0f;
+
+    std::default_random_engine generator;
+    std::uniform_real_distribution<float> yDist(150.0f, 450.0f);
+    std::uniform_real_distribution<float> gapDist(150.0f, 250.0f);
 
     std::cout << "Game Started. Press SPACE to begin." << std::endl;
 
@@ -108,7 +113,9 @@ int main() {
             // Spawn new pipes
             spawnTimer += dt;
             if (spawnTimer > 1.5f) {
-                pipes.push_back(Pipe(SCREEN_WIDTH, 300.0f, 150.0f));
+                float randomY = yDist(generator);
+                float randomGap = gapDist(generator);
+                pipes.push_back(Pipe(SCREEN_WIDTH, randomY, randomGap));
                 spawnTimer = 0.0f;
             }
         }
