@@ -60,7 +60,9 @@ ConfigLoader::Value ConfigLoader::parseValue(const std::string& s) {
     }
     if (hasDot || hasE) {
         val.type = Value::FLOAT;
-        val.floatValue = std::stof(t);
+        // Use strtod for locale-safe parsing
+        char* end = nullptr;
+        val.floatValue = static_cast<float>(std::strtod(t.c_str(), &end));
         return val;
     }
 
@@ -85,11 +87,11 @@ void ConfigLoader::parse(const std::string& json) {
         if (c != '"') { ++i; continue; }
         size_t keyStart = i + 1;
         while (i + 1 < json.size() && json[i + 1] != '"') ++i;
-        std::string key = trim(json.substr(keyStart, i - keyStart));
+        std::string key = trim(json.substr(keyStart, i - keyStart + 1));
 
         // Skip to ':'
-        while (i + 1 < json.size() && json[i + 1] != ':') ++i;
-        ++i; // skip ':'
+        while (i < json.size() && json[i] != ':') ++i;
+        ++i; // now past ':'
 
         // Skip whitespace
         while (i < json.size() && std::isspace(json[i])) ++i;
@@ -103,6 +105,7 @@ void ConfigLoader::parse(const std::string& json) {
                 if (json[i] == '\\') ++i;
                 ++i;
             }
+            ++i; // skip closing quote
         } else if (json[i] == '{') {
             // Nested object — skip it
             int depth = 1;
