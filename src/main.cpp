@@ -7,13 +7,30 @@
 #include "Bird.hpp"
 #include "Pipe.hpp"
 #include "Config.hpp"
+#include "ConfigLoader.hpp"
 #include "ResourceManager.hpp"
 #include "HighScore.hpp"
 
 enum GameState { START, PLAYING, GAME_OVER };
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode({(unsigned int)Config::SCREEN_WIDTH, (unsigned int)Config::SCREEN_HEIGHT}), "Flappy Clone SFML");
+    // Load config file (overrides defaults if present)
+    std::string configPath = std::string(Config::ASSETS_DIR) + Config::CONFIG_PATH;
+    bool configLoaded = ConfigLoader::load(configPath);
+
+    // Apply config overrides to screen settings
+    unsigned int screenW = (unsigned int)Config::SCREEN_WIDTH;
+    unsigned int screenH = (unsigned int)Config::SCREEN_HEIGHT;
+    if (configLoaded) {
+        int cw = ConfigLoader::getInt("screen_width", 0);
+        int ch = ConfigLoader::getInt("screen_height", 0);
+        if (cw > 0 && ch > 0) {
+            screenW = (unsigned int)cw;
+            screenH = (unsigned int)ch;
+        }
+    }
+
+    sf::RenderWindow window(sf::VideoMode({screenW, screenH}), "Flappy Clone SFML");
     window.setFramerateLimit(Config::TARGET_FPS);
 
     sf::Font font = ResourceManager::getFont(Config::FONT_PATH, 30);
@@ -62,6 +79,19 @@ int main() {
     sf::Sound deathSound = ResourceManager::getSound(deathPath);
 
     int highScore = HighScore::load();
+
+    // Ground surface
+    float groundY = (float)Config::SCREEN_HEIGHT - Config::GROUND_HEIGHT;
+    sf::RectangleShape groundShape;
+    groundShape.setSize({(float)Config::SCREEN_WIDTH, Config::GROUND_HEIGHT});
+    groundShape.setPosition({0.f, groundY});
+    groundShape.setFillColor(Config::GROUND_COLOR);
+
+    // Ground top edge (grass-like strip)
+    sf::RectangleShape groundEdge;
+    groundEdge.setSize({(float)Config::SCREEN_WIDTH, 8.f});
+    groundEdge.setPosition({0.f, groundY});
+    groundEdge.setFillColor(Config::GROUND_TOP);
 
     Bird bird;
     bird.load(Config::BIRD_PATH);
@@ -114,9 +144,9 @@ int main() {
         if (currentState == PLAYING) {
             bird.update(dt);
 
-            // Boundary check
+            // Boundary check (including ground)
             sf::FloatRect birdBounds = bird.getBoundingBox();
-            if (birdBounds.position.y < 0 || birdBounds.position.y + birdBounds.size.y > Config::SCREEN_HEIGHT) {
+            if (birdBounds.position.y < 0 || birdBounds.position.y + birdBounds.size.y > groundY) {
                 currentState = GAME_OVER;
                 std::cout << "Game Over! Final Score: " << score << std::endl;
                 deathSound.play();
@@ -154,6 +184,10 @@ int main() {
         }
 
         window.clear(Config::SKY_COLOR);
+
+        // Draw ground
+        window.draw(groundShape);
+        window.draw(groundEdge);
 
         if (currentState == PLAYING) {
             bird.draw(window);

@@ -31,6 +31,19 @@ namespace Config {
     constexpr const char* FONT_PATH  = "assets/font.ttf";
     constexpr const char* BIRD_PATH  = "assets/bird.png";
     constexpr const char* ASSETS_DIR = "assets/";
+    constexpr const char* CONFIG_PATH = "gameconfig.json";
+
+    // Ground
+    constexpr float GROUND_HEIGHT    = 50.0f;
+    constexpr sf::Color GROUND_COLOR = sf::Color(139, 119, 70);  // Sandy brown
+    constexpr sf::Color GROUND_TOP   = sf::Color(107, 87, 48);   // Darker top edge
+
+    // Bird animation
+    constexpr float BIRD_MIN_TILT    = -30.0f;   // Degrees when flapping hard
+    constexpr float BIRD_MAX_TILT    = 60.0f;    // Degrees when falling fast
+    constexpr float BIRD_FLAP_RATE   = 8.0f;     // Wing flap oscillations per second
+    constexpr float BIRD_FLAP_DEPTH  = 3.0f;     // Pixels of vertical oscillation
+    constexpr float BIRD_TILT_LERP   = 5.0f;     // How fast tilt interpolates (higher = snappier)
 
     // Colors
     constexpr sf::Color SKY_COLOR    = sf::Color(135, 206, 235);

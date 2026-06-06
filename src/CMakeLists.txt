@@ -13,6 +13,7 @@ set(SOURCES
     Pipe.cpp
     ResourceManager.cpp
     HighScore.cpp
+    ConfigLoader.cpp
 )
 
 # Executable

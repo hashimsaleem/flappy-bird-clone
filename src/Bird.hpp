@@ -31,7 +31,7 @@ public:
     /**
      * @brief Draws the bird to the window.
      */
-    void draw(sf::RenderWindow& window) const;
+    void draw(sf::RenderWindow& window);
 
     /**
      * @brief Gets the bounding box of the bird.
@@ -39,9 +39,15 @@ public:
      */
     sf::FloatRect getBoundingBox() const;
 
+    float getVelocity() const { return velocityY; }
+
 private:
-    float posX; // X position tracker
-    float posY; // Y position tracker (needed for collision and physics)
+    void animateTilt(float dt);
+
+    float posX;    // X position tracker
+    float posY;    // Y position tracker (needed for collision and physics)
+    float tiltAngle = 0.0f;  // Current visual tilt angle (degrees)
+    float flapTimer = 0.0f;  // Timer for wing flap oscillation
 };
 
 #endif // BIRD_HPP

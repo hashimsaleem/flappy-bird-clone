@@ -303,6 +303,11 @@ SFML 3 has breaking changes from SFML 2 (e.g., `sf::Vector2f` instead of raw flo
 > - `sf::RenderTexture` uses `create({width, height})` instead of constructor args
 > - `sf::Rectangle` removed — use `sf::RectangleShape` instead
 | **Phase 2** | (5) Add "Press Space to Start" in START state <br> (6) Add visual polish to Game Over <br> (7) Make Bird X position configurable | 1-2 hours |
+
+> ✅ **Phase 2 Complete:** All items implemented:
+> - START state renders bird + "Press SPACE to Start" prompt
+> - Game Over screen has semi-transparent overlay, restart prompt, and high score display
+> - Bird X position is configurable via `Config::BIRD_START_X` (currently 50.0f)
 | **Phase 3** | (8) Implement `ResourceManager` <br> (9) Add sound effects <br> (10) Implement high score system | 2-3 hours |
 
 > ✅ **Phase 3 Complete:** All items implemented:
@@ -312,6 +317,11 @@ SFML 3 has breaking changes from SFML 2 (e.g., `sf::Vector2f` instead of raw flo
 > - Sound effects: jump, score, death sounds
 > - High Score displayed in top-right during gameplay and centered on game over screen
 | **Phase 4** | (11) Add ground collision <br> (12) Add sprite animation <br> (13) Config file for tuning <br> (14) Consider SFML 3 migration | 3-4 hours |
+
+> ✅ **Phase 4 Complete:** All items implemented:
+> - **Ground collision** — `GROUND_HEIGHT` (50px) in Config, `groundShape` + `groundEdge` rendered below all game elements, ground collision check in the boundary check (`birdBounds.position.y + birdBounds.size.y > groundY`). Ground visible in START, PLAYING, and GAME_OVER states.
+> - **Bird tilt animation** — `Bird::animateTilt()` in Bird.cpp maps velocityY to a tilt angle (BIRD_MIN_TILT=-30° to BIRD_MAX_TILT=+60°) with smooth lerp interpolation. Wing flap oscillation (BIRD_FLAP_RATE=8 Hz, BIRD_FLAP_DEPTH=3px) when velocity is negative.
+> - **Runtime config** — `ConfigLoader` (ConfigLoader.hpp/cpp) with a minimal JSON parser. Default config at `assets/gameconfig.json` allows tuning: screen_width, screen_height, gravity, jump_strength, pipe_speed, gap_height, pipe_spawn_interval, ground_height, bird_min_tilt, bird_max_tilt, bird_flap_rate, bird_flap_depth. All values override Config:: defaults at startup.
 
 ---
 
@@ -332,4 +342,7 @@ SFML 3 has breaking changes from SFML 2 (e.g., `sf::Vector2f` instead of raw flo
 | **Audio** | ✅ Complete (jump, score, death sounds with silent fallback) |
 | **High Score** | ✅ Complete (binary persistence via `highscore.dat`) |
 | **Configurability** | ✅ Implemented (`Config.hpp` with all constants) |
-| **UI Polish** | ⚠️ Partially done (START state empty) |
+| **UI Polish** | ✅ Complete (START prompt, GAME_OVER overlay, ground rendering) |
+| **Ground Collision** | ✅ Complete (ground plane + collision check) |
+| **Bird Animation** | ✅ Complete (velocity-based tilt + wing flap oscillation) |
+| **Runtime Config** | ✅ Complete (JSON config loader, `gameconfig.json`) |

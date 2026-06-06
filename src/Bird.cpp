@@ -41,6 +41,47 @@ void Bird::update(float dt) {
 
     // Update the sprite position based on physics calculations
     sprite->setPosition({posX, posY});
+
+    // Animate tilt and wing flap
+    animateTilt(dt);
+}
+
+void Bird::animateTilt(float dt) {
+    // Calculate target tilt angle from velocity
+    // Clamp velocity to a reasonable range for tilt mapping
+    float vel = velocityY;
+    float minVel = Config::JUMP_STRENGTH * 0.8f;  // ~-480
+    float maxVel = Config::GRAVITY * 0.6f;          // ~480
+
+    float t = 0.0f;
+    if (vel < minVel) {
+        t = 0.0f;
+    } else if (vel > maxVel) {
+        t = 1.0f;
+    } else {
+        t = (vel - minVel) / (maxVel - minVel);
+    }
+
+    float targetAngle = Config::BIRD_MIN_TILT + t * (Config::BIRD_MAX_TILT - Config::BIRD_MIN_TILT);
+
+    // Smooth interpolation toward target
+    float lerpSpeed = Config::BIRD_TILT_LERP * dt;
+    tiltAngle += (targetAngle - tiltAngle) * std::min(lerpSpeed, 1.0f);
+
+    // Wing flap oscillation (only when velocity is negative — going up)
+    if (vel < -50.0f) {
+        flapTimer += dt;
+        float flap = std::sin(flapTimer * Config::BIRD_FLAP_RATE * 3.14159f)
+                     * Config::BIRD_FLAP_DEPTH;
+        sprite->setPosition({posX, posY + flap});
+    } else {
+        flapTimer = 0.0f;
+    }
+
+    // Apply tilt rotation (SFML 3 uses sf::degrees() free function)
+    if (sprite) {
+        sprite->setRotation(sf::degrees(tiltAngle));
+    }
 }
 
 void Bird::flap() {
@@ -48,7 +89,7 @@ void Bird::flap() {
     velocityY = Config::JUMP_STRENGTH;
 }
 
-void Bird::draw(sf::RenderWindow& window) const {
+void Bird::draw(sf::RenderWindow& window) {
     if (sprite) {
         window.draw(*sprite);
     }
