@@ -130,8 +130,8 @@ int main() {
                             jumpSound.play();
                         }
                     } else if (currentState == GAME_OVER) {
-                        // Reset game
-                        bird = Bird();
+                        // Reset game — reset bird in-place to avoid shallow-copy double-free
+                        bird.reset();
                         bird.load(Config::BIRD_PATH);
                         pipes.clear();
                         score = 0;

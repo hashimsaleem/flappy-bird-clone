@@ -41,6 +41,19 @@ public:
 
     float getVelocity() const { return velocityY; }
 
+    /**
+     * @brief Resets the bird to its initial state (called on game restart).
+     */
+    void reset() {
+        delete sprite;
+        sprite = nullptr;
+        velocityY = 0.0f;
+        posX = Config::BIRD_START_X;
+        posY = Config::BIRD_START_Y;
+        tiltAngle = 0.0f;
+        flapTimer = 0.0f;
+    }
+
 private:
     void animateTilt(float dt);
 
