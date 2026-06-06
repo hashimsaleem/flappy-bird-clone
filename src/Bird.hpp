@@ -24,6 +24,11 @@ public:
      */
     void update(float dt);
 
+    /**
+     * @brief Triggers the death animation state.
+     */
+    void setDying() { isDying = true; }
+
     /**\n     * @brief Makes the bird jump (resets vertical velocity).
      */
     void flap();
@@ -52,6 +57,7 @@ public:
         posY = Config::BIRD_START_Y;
         tiltAngle = 0.0f;
         flapTimer = 0.0f;
+        isDying = false;
     }
 
 private:
@@ -61,6 +67,7 @@ private:
     float posY;    // Y position tracker (needed for collision and physics)
     float tiltAngle = 0.0f;  // Current visual tilt angle (degrees)
     float flapTimer = 0.0f;  // Timer for wing flap oscillation
+    bool isDying = false;    // Flag for death animation
 };
 
 #endif // BIRD_HPP

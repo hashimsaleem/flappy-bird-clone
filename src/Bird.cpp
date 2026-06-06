@@ -30,6 +30,16 @@ Bird::~Bird() {
 }
 
 void Bird::update(float dt) {
+    if (isDying) {
+        // Death physics: accelerate downwards and spin rapidly
+        velocityY += Config::GRAVITY * 1.5f * dt;
+        posY += velocityY * dt;
+        tiltAngle += 360.0f * dt; // Spin 360 degrees per second
+        sprite->setPosition({posX, posY});
+        sprite->setRotation(sf::degrees(tiltAngle));
+        return;
+    }
+
     // Apply gravity: velocity increases downwards over time
     velocityY += Config::GRAVITY * dt;
 

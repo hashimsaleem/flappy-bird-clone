@@ -8,7 +8,7 @@ This document outlines potential future enhancements for the Flappy Bird Clone.
 *   **Parallax Scrolling Background:** ✅ Implemented (Scrolling hills)
 *   **Particle Effects:** ✅ Implemented (Crash particles)
 *   **Animations:** ✅ Implemented (Spinning death fall)
-*   **Menu System:** Implement a proper main menu with options to view high scores, toggle music/sound, or change difficulty settings.
+*   **Menu System:** ✅ Implemented (Interactive menu with high scores and navigation)
 
 ## 2. Gameplay Mechanics
 *   **Dynamic Difficulty:** ✅ Implemented (Speed and spawn rate scale every 5 points)
