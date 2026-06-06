@@ -44,9 +44,4 @@ int HighScore::get() {
 void HighScore::reset() {
     cached = 0;
     loaded = false;
-    std::ofstream file(PATH, std::ios::binary);
-    if (file.is_open()) {
-        int zero = 0;
-        file.write(reinterpret_cast<const char*>(&zero), sizeof(zero));
-    }
 }

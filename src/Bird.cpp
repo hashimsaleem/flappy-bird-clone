@@ -21,6 +21,7 @@ void Bird::load(const std::string& texturePath) {
     } else {
         // Keep the placeholder sprite — it's still valid since placeholderTexture is a member
         sprite = new sf::Sprite(placeholderTexture);
+        sprite->setOrigin({placeholderTexture.getSize().x / 2.f, placeholderTexture.getSize().y / 2.f});
         sprite->setPosition({posX, posY});
     }
 }
