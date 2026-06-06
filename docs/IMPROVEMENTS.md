@@ -304,6 +304,13 @@ SFML 3 has breaking changes from SFML 2 (e.g., `sf::Vector2f` instead of raw flo
 > - `sf::Rectangle` removed — use `sf::RectangleShape` instead
 | **Phase 2** | (5) Add "Press Space to Start" in START state <br> (6) Add visual polish to Game Over <br> (7) Make Bird X position configurable | 1-2 hours |
 | **Phase 3** | (8) Implement `ResourceManager` <br> (9) Add sound effects <br> (10) Implement high score system | 2-3 hours |
+
+> ✅ **Phase 3 Complete:** All items implemented:
+> - `ResourceManager` with texture, font, and sound caching via `std::shared_ptr<sf::SoundBuffer>`
+> - Silent WAV fallback for missing sound files
+> - `HighScore` with binary file persistence (`highscore.dat`)
+> - Sound effects: jump, score, death sounds
+> - High Score displayed in top-right during gameplay and centered on game over screen
 | **Phase 4** | (11) Add ground collision <br> (12) Add sprite animation <br> (13) Config file for tuning <br> (14) Consider SFML 3 migration | 3-4 hours |
 
 ---
@@ -321,8 +328,8 @@ SFML 3 has breaking changes from SFML 2 (e.g., `sf::Vector2f` instead of raw flo
 | Rendering (shapes) | ✅ Complete |
 | Input Handling | ✅ Complete |
 | **Texture/Sprite Rendering** | ✅ Implemented (with `sf::Sprite`) |
-| **Resource Management** | ❌ Not started |
-| **Audio** | ❌ Not started |
-| **High Score** | ❌ Not started |
+| **Resource Management** | ✅ Complete (`ResourceManager` with texture/font/sound caching) |
+| **Audio** | ✅ Complete (jump, score, death sounds with silent fallback) |
+| **High Score** | ✅ Complete (binary persistence via `highscore.dat`) |
 | **Configurability** | ✅ Implemented (`Config.hpp` with all constants) |
 | **UI Polish** | ⚠️ Partially done (START state empty) |

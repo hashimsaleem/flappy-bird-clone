@@ -11,13 +11,15 @@ set(SOURCES
     main.cpp
     Bird.cpp
     Pipe.cpp
+    ResourceManager.cpp
+    HighScore.cpp
 )
 
 # Executable
 add_executable(FlappyBirdClone ${SOURCES})
 
 # Link libraries
-target_link_libraries(FlappyBirdClone sfml-graphics sfml-window sfml-system)
+target_link_libraries(FlappyBirdClone sfml-graphics sfml-window sfml-system sfml-audio)
 
 # Set executable output to project root build directory
 set_target_properties(FlappyBirdClone PROPERTIES

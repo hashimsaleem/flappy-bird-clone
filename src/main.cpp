@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -6,6 +7,8 @@
 #include "Bird.hpp"
 #include "Pipe.hpp"
 #include "Config.hpp"
+#include "ResourceManager.hpp"
+#include "HighScore.hpp"
 
 enum GameState { START, PLAYING, GAME_OVER };
 
@@ -13,12 +16,9 @@ int main() {
     sf::RenderWindow window(sf::VideoMode({(unsigned int)Config::SCREEN_WIDTH, (unsigned int)Config::SCREEN_HEIGHT}), "Flappy Clone SFML");
     window.setFramerateLimit(Config::TARGET_FPS);
 
-    sf::Font font;
-    bool fontLoaded = false;
-    // Note: You need to provide a font file (e.g., font.ttf) in the project directory.
-    if (font.openFromFile(Config::FONT_PATH)) {
-        fontLoaded = true;
-    } else {
+    sf::Font font = ResourceManager::getFont(Config::FONT_PATH, 30);
+    bool fontLoaded = true; // Font is loaded or falls back to default in ResourceManager
+    if (!fontLoaded) {
         std::cerr << "Warning: Could not load '" << Config::FONT_PATH << "'. Text rendering will be disabled." << std::endl;
     }
 
@@ -44,6 +44,24 @@ int main() {
         startText.setFillColor(Config::TEXT_COLOR);
         startText.setPosition({Config::SCREEN_WIDTH / 2.f - 130.f, Config::SCREEN_HEIGHT / 2.f});
     }
+
+    sf::Text highScoreText(font);
+    if (fontLoaded) {
+        highScoreText.setCharacterSize(24);
+        highScoreText.setFillColor(Config::TEXT_COLOR);
+        highScoreText.setPosition({Config::SCREEN_WIDTH - 180.f, 10.f});
+        highScoreText.setString("High Score: 0");
+    }
+
+    // Sound effects
+    std::string jumpPath = std::string(Config::ASSETS_DIR) + "jump.wav";
+    std::string scorePath = std::string(Config::ASSETS_DIR) + "score.wav";
+    std::string deathPath = std::string(Config::ASSETS_DIR) + "death.wav";
+    sf::Sound jumpSound = ResourceManager::getSound(jumpPath);
+    sf::Sound scoreSound = ResourceManager::getSound(scorePath);
+    sf::Sound deathSound = ResourceManager::getSound(deathPath);
+
+    int highScore = HighScore::load();
 
     Bird bird;
     bird.load(Config::BIRD_PATH);
@@ -78,6 +96,9 @@ int main() {
                         std::cout << "Game Playing!" << std::endl;
                     } else if (currentState == PLAYING) {
                         bird.flap();
+                        if (jumpSound.getStatus() != sf::SoundSource::Status::Playing) {
+                            jumpSound.play();
+                        }
                     } else if (currentState == GAME_OVER) {
                         // Reset game
                         bird = Bird();
@@ -98,6 +119,7 @@ int main() {
             if (birdBounds.position.y < 0 || birdBounds.position.y + birdBounds.size.y > Config::SCREEN_HEIGHT) {
                 currentState = GAME_OVER;
                 std::cout << "Game Over! Final Score: " << score << std::endl;
+                deathSound.play();
             }
 
             for (auto& pipe : pipes) {
@@ -105,6 +127,7 @@ int main() {
                 if (pipe.checkCollision(birdBounds)) {
                     currentState = GAME_OVER;
                     std::cout << "Game Over! Final Score: " << score << std::endl;
+                    deathSound.play();
                 }
 
                 // Scoring logic
@@ -112,6 +135,7 @@ int main() {
                     score++;
                     pipe.passed = true;
                     std::cout << "Score: " << score << std::endl;
+                    scoreSound.play();
                 }
             }
 
@@ -139,6 +163,8 @@ int main() {
             if (fontLoaded) {
                 scoreText.setString("Score: " + std::to_string(score));
                 window.draw(scoreText);
+                highScoreText.setString("High Score: " + std::to_string(highScore));
+                window.draw(highScoreText);
             }
         } else if (currentState == START) {
             bird.draw(window);
@@ -168,6 +194,17 @@ int main() {
                 restartText.setFillColor(Config::TEXT_COLOR);
                 restartText.setPosition({Config::SCREEN_WIDTH / 2.f - 130.f, Config::SCREEN_HEIGHT / 2.f + 50.f});
                 window.draw(restartText);
+            }
+
+            // Update and display high score
+            if (score > highScore) {
+                highScore = score;
+                HighScore::save(highScore);
+            }
+            if (fontLoaded) {
+                highScoreText.setString("High Score: " + std::to_string(highScore));
+                highScoreText.setPosition({Config::SCREEN_WIDTH / 2.f - 80.f, Config::SCREEN_HEIGHT / 2.f + 80.f});
+                window.draw(highScoreText);
             }
         }
 
