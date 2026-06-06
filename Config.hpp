@@ -27,9 +27,10 @@ namespace Config {
     constexpr float PIPE_MAX_Y       = 450.0f;
     constexpr float PIPE_GAP_RANGE   = 250.0f;
 
-    // Assets
-    constexpr const char* FONT_PATH  = "font.ttf";
-    constexpr const char* BIRD_PATH  = "bird.png";
+    // Assets (relative to executable directory)
+    constexpr const char* FONT_PATH  = "assets/font.ttf";
+    constexpr const char* BIRD_PATH  = "assets/bird.png";
+    constexpr const char* ASSETS_DIR = "assets/";
 
     // Colors
     constexpr sf::Color SKY_COLOR    = sf::Color(135, 206, 235);

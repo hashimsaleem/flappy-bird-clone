@@ -2,10 +2,12 @@
 #include <iostream>
 
 Bird::Bird() : velocityY(0.0f), posX(Config::BIRD_START_X), posY(Config::BIRD_START_Y) {
-    // Create a temporary white texture as placeholder using sf::Image constructor
+    // Create a white placeholder texture (lifetime tied to this Bird instance)
     sf::Image placeholderImg({static_cast<unsigned int>(Config::BIRD_WIDTH), static_cast<unsigned int>(Config::BIRD_HEIGHT)}, sf::Color::White);
-    sf::Texture placeholder(placeholderImg);
-    sprite = new sf::Sprite(placeholder);
+    if (!placeholderTexture.loadFromImage(placeholderImg)) {
+        std::cerr << "Error: Failed to create placeholder texture." << std::endl;
+    }
+    sprite = new sf::Sprite(placeholderTexture);
     sprite->setPosition({posX, posY});
 }
 
@@ -17,7 +19,9 @@ void Bird::load(const std::string& texturePath) {
         sprite->setOrigin({birdTexture.getSize().x / 2.f, birdTexture.getSize().y / 2.f});
         sprite->setPosition({posX, posY});
     } else {
-        std::cerr << "Warning: Could not load bird texture '" << texturePath << "'. Using placeholder." << std::endl;
+        // Keep the placeholder sprite — it's still valid since placeholderTexture is a member
+        sprite = new sf::Sprite(placeholderTexture);
+        sprite->setPosition({posX, posY});
     }
 }
 

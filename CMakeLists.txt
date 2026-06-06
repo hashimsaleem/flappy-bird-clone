@@ -24,3 +24,11 @@ add_executable(FlappyBirdClone ${SOURCES})
 
 # Link libraries
 target_link_libraries(FlappyBirdClone sfml-graphics sfml-window sfml-system)
+
+# Copy assets to build directory after build
+add_custom_command(TARGET FlappyBirdClone POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/assets
+        ${CMAKE_CURRENT_BINARY_DIR}/assets
+    COMMENT "Copying assets to build directory"
+)

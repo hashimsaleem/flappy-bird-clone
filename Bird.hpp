@@ -9,6 +9,7 @@ class Bird {
 private:
     sf::Sprite* sprite = nullptr; // Initialized in load()
     sf::Texture birdTexture;
+    sf::Texture placeholderTexture; // Lifetime tied to Bird instance
     float velocityY; // Vertical velocity
 
 public:
