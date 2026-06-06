@@ -71,9 +71,9 @@ int main() {
     }
 
     // Sound effects
-    std::string jumpPath = std::string(Config::ASSETS_DIR) + "jump.wav";
-    std::string scorePath = std::string(Config::ASSETS_DIR) + "score.wav";
-    std::string deathPath = std::string(Config::ASSETS_DIR) + "death.wav";
+    std::string jumpPath = std::string(Config::ASSETS_DIR) + "jump.ogg";
+    std::string scorePath = std::string(Config::ASSETS_DIR) + "score.ogg";
+    std::string deathPath = std::string(Config::ASSETS_DIR) + "death.ogg";
     sf::Sound jumpSound = ResourceManager::getSound(jumpPath);
     sf::Sound scoreSound = ResourceManager::getSound(scorePath);
     sf::Sound deathSound = ResourceManager::getSound(deathPath);
