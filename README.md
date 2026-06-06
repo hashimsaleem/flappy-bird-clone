@@ -20,12 +20,16 @@ The project is in its early stages and serves as a skeletal foundation:
 - **Basic Game Loop**: Window setup and 60 FPS framerate limit.
 - **Bird Physics**: Gravity and jump mechanics are implemented.
 - **Input Handling**: Basic detection of the Space key.
+- **Pipe Mechanics**: Randomized spawning of pipes with varying heights and gap widths.
+- **Collision Detection**: Detection of collisions between the bird and the pipes.
+- **Scoring System**: Automatic score tracking as the bird passes pipes.
+- **Object Management**: Automated cleanup of off-screen obstacles.
 
 ### Pending Tasks:
-- **Pipe Mechanics**: Logic for spawning new pipes and moving existing ones.
-- **Collision Detection**: Logic to detect when the bird hits a pipe.
 - **Rendering**: Activating the drawing calls for the bird and pipes.
-- **Asset Loading**: Replacing placeholders with actual textures/images.
+- **Asset Loading**: Replacing placeholders with actual textures/images and fonts.
+- **Game State Management**: Refining the Start, Playing, and Game Over screens.
+- **Audio**: Adding sound effects for jumping, hitting pipes, and scoring.
 
 ## Technical Stack
 - **Language**: C++
