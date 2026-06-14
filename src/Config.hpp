@@ -61,6 +61,43 @@ namespace Config {
     constexpr sf::Color PIPE_COLOR   = sf::Color(34, 139, 34);
     constexpr sf::Color TEXT_COLOR   = sf::Color(255, 255, 255);
     constexpr sf::Color GAME_OVER_COLOR = sf::Color(255, 0, 0);
+
+    // Screen shake
+    constexpr float SCREEN_SHAKE_INTENSITY = 8.0f;
+    constexpr float SCREEN_SHAKE_DURATION  = 0.35f;
+
+    // Score +1 float
+    constexpr float SCORE_FLOAT_DURATION  = 0.8f;
+    constexpr float SCORE_FLOAT_SPEED     = 60.0f;
+    constexpr float SCORE_FLOAT_SCALE_MAX  = 1.6f;
+    constexpr float SCORE_FLOAT_SCALE_SPEED = 4.0f;
+
+    // Time-of-day (sky gradient)
+    constexpr int SKY_COLOR_COUNT  = 4;
+    constexpr sf::Color SKY_TOP[SKY_COLOR_COUNT] = {
+        sf::Color(135, 206, 235),  // daytime blue
+        sf::Color(255, 160,  50),  // sunset orange
+        sf::Color( 20,  30,  60),  // dusk purple-blue
+        sf::Color(  8,  12,  30)   // night dark blue
+    };
+    constexpr sf::Color SKY_BOT[SKY_COLOR_COUNT] = {
+        sf::Color(180, 220, 240),  // daytime light blue
+        sf::Color(220, 100,  40),  // sunset warm
+        sf::Color( 15,  20,  50),  // dusk dark
+        sf::Color(  5,   8,  20)   // night
+    };
+    constexpr float SKY_CYCLE_INTERVAL = 60.0f;  // seconds for full cycle
+
+    // Ground
+    constexpr int GROUND_TILE_W = 32;
+    constexpr int GROUND_TILE_H = 16;
+    constexpr int GROUND_TILE_COUNT = 4;
+    constexpr sf::Color GROUND_TOP_COLORS[GROUND_TILE_COUNT] = {
+        sf::Color(107, 87,  48),  // dark top
+        sf::Color(120, 98,  52),
+        sf::Color(95,  75,  42),
+        sf::Color(110, 90,  46)
+    };
 }
 
 #endif // CONFIG_HPP

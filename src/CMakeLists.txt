@@ -14,6 +14,8 @@ set(SOURCES
     ResourceManager.cpp
     HighScore.cpp
     ConfigLoader.cpp
+    PlayState.cpp
+    GameOverState.cpp
 )
 
 # Executable

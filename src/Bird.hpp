@@ -34,6 +34,7 @@ public:
      * @brief Triggers the death animation state.
      */
     void setDying() { isDying = true; }
+    bool isDyingFlag() const { return isDying; }
 
     /**\n     * @brief Makes the bird jump (resets vertical velocity).
      */
@@ -52,6 +53,8 @@ public:
 
     float getVelocity() const { return velocityY; }
     float getX() const { return posX; }
+    void setRestartPos(float x, float y);
+    void setRestartVel(float vel);
 
     /**
      * @brief Resets the bird to its initial state (called on game restart).
@@ -65,10 +68,15 @@ public:
         tiltAngle = 0.0f;
         flapTimer = 0.0f;
         isDying = false;
+        wingFlapActive = false;
+        wingFlapTimer = 0.0f;
     }
 
 private:
     void animateTilt(float dt);
+
+    float wingFlapTimer = 0.0f;
+    bool wingFlapActive = false;
 
     float posX;    // X position tracker
     float posY;    // Y position tracker (needed for collision and physics)
