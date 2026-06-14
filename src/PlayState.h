@@ -13,6 +13,7 @@
 #include "ScoreFloat.h"
 #include "BirdState.h"
 
+
 struct PlayStateSnapshot {
     BirdState birdState;
     int score;

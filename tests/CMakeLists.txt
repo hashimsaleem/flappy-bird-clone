@@ -15,6 +15,7 @@ set(TEST_SOURCES
     test_Bird.cpp
     test_Pipe.cpp
     test_Collision.cpp
+    test_Integration.cpp
 )
 
 # Executable

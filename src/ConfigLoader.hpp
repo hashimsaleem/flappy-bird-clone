@@ -43,6 +43,9 @@ public:
 
     static void clear();
 
+    /// Validate that required keys exist. Logs warnings for missing keys.
+    static bool validate(const std::unordered_map<std::string, std::string>& requiredKeys);
+
 private:
     static std::unordered_map<std::string, Value> data;
     static bool loaded;

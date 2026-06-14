@@ -143,6 +143,17 @@ bool ConfigLoader::load(const std::string& path) {
     ss << file.rdbuf();
     std::string json = ss.str();
     parse(json);
+    
+    // Validate required keys (warns but doesn't fail load)
+    std::unordered_map<std::string, std::string> required = {
+        {"screen_width", "int"}, {"screen_height", "int"},
+        {"gravity", "float"}, {"jump_strength", "float"},
+        {"pipe_speed", "float"}, {"gap_height", "float"},
+        {"pipe_spawn_interval", "float"}, {"ground_height", "int"}
+    };
+    validate(required);
+    
+    loaded = true;  // Always report success if file was readable
     return loaded;
 }
 
@@ -179,4 +190,19 @@ bool ConfigLoader::isLoaded() { return loaded; }
 void ConfigLoader::clear() {
     data.clear();
     loaded = false;
+}
+
+bool ConfigLoader::validate(const std::unordered_map<std::string, std::string>& requiredKeys) {
+    bool allPresent = true;
+    for (const auto& [key, type] : requiredKeys) {
+        auto v = get(key);
+        if (v.isNone()) {
+            std::cerr << "Config warning: Missing required key '" << key << "' (expected: " << type << "). Using default." << std::endl;
+            allPresent = false;
+        } else if (!v.isInt() && !v.isFloat() && !v.isBool() && !v.isString()) {
+            std::cerr << "Config warning: Key '" << key << "' has invalid type (expected: " << type << ")." << std::endl;
+            allPresent = false;
+        }
+    }
+    return allPresent;
 }
