@@ -126,8 +126,21 @@ These would catch bugs that unit tests miss because they test real-world scenari
 | **P1** | Ground texture/visual | Low ✅ |
 | **P1** | Screen shake on death | Low ✅ |
 | **P1** | Score +1 floating text | Medium ✅ |
-| **P2** | Object pooling | Medium |
-| **P2** | Menu title screen polish | Medium |
+| **P2** | Object pooling | Medium ⏗ Deferred (unnecessary at this scale)
+| **P2** | Menu title screen polish | Medium ✅ |
 | **P2** | Time-of-day sky cycle | Low ✅ |
-| **P3** | Config validation | Low |
-| **P3** | Integration tests | Medium |
+| **P3** | Config validation | Low ✅ |
+| **P3** | Integration tests | Medium ✅ |
+
+---
+
+## ✅ All Completed — Original Roadmap Status
+
+**Completed:** 10/10 priority items  
+**Deferred:** Object pooling (unnecessary at current game scale of ~5 pipes, ~20 particles)  
+**Remaining Ideas** (not on original roadmap):
+- Power-ups (invincibility, slow-motion)
+- Advanced object pooling for games with 100+ simultaneous objects
+- Save/load game state (pause menu)
+- Sound effects (more SFX)
+- Touch/mobile support
