@@ -44,8 +44,8 @@ void PlayState::triggerGameOver() {
 
     sf::FloatRect birdBounds = bird.getBoundingBox();
     for (int i = 0; i < 20; ++i) {
-        float vx = static_cast<float>(typeDist(rng)) * 100.0f;
-        float vy = static_cast<float>(typeDist(rng)) * 100.0f;
+        float vx = (static_cast<float>(typeDist(rng)) - 2.0f) * 200.0f;
+        float vy = (static_cast<float>(typeDist(rng)) - 2.0f) * 200.0f;
         particles.emplace_back(sf::Vector2f(birdBounds.position.x, birdBounds.position.y),
                                sf::Vector2f(vx, vy), 1.0f);
     }
@@ -94,7 +94,6 @@ void PlayState::drawSky(sf::RenderWindow& window, float dt) {
 }
 
 void PlayState::drawGround(sf::RenderWindow& window, float dt) {
-    groundScrollOffset += currentPipeSpeed * dt;
     float totalW = static_cast<float>(Config::SCREEN_WIDTH);
     float groundY = static_cast<float>(Config::SCREEN_HEIGHT - Config::GROUND_HEIGHT);
     float scroll = std::fmod(groundScrollOffset, Config::GROUND_TILE_W);
@@ -144,6 +143,10 @@ void PlayState::update(float dt) {
     particles.erase(std::remove_if(particles.begin(), particles.end(),
         [](const Particle& p) { return p.lifetime <= 0; }), particles.end());
 
+    // Fix #10 and #11: Move timer/offset updates to update()
+    skyTimer += dt;
+    groundScrollOffset += currentPipeSpeed * dt;
+
     if (bird.isDyingFlag()) {
         bird.update(dt);
         shakeOffset = {0.f, 0.f};
@@ -157,7 +160,8 @@ void PlayState::update(float dt) {
     bgOffset -= Config::BACKGROUND_SPEED * dt;
     if (bgOffset <= -static_cast<float>(Config::SCREEN_WIDTH)) bgOffset = 0.f;
 
-    float groundY = static_cast<float>(Config::SCREEN_HEIGHT - Config::GROUND_HEIGHT);
+    // Fix #18: Use ground_height from config
+    float groundY = static_cast<float>(Config::SCREEN_HEIGHT - ConfigLoader::getFloat("ground_height", Config::GROUND_HEIGHT));
     if (birdBounds.position.y < 0 || birdBounds.position.y + birdBounds.size.y > groundY) {
         triggerGameOver();
         return;
@@ -165,6 +169,8 @@ void PlayState::update(float dt) {
 
     for (auto& pipe : pipes) {
         pipe.update(dt);
+        // Fix #18: Use gap_height from config
+        float currentGap = ConfigLoader::getFloat("gap_height", Config::GAP_HEIGHT);
         if (!bird.isDyingFlag() && pipe.checkCollision(birdBounds)) {
             triggerGameOver();
             return;
@@ -213,7 +219,8 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
 
     drawSky(window, 0.f);
 
-    float groundY = static_cast<float>(Config::SCREEN_HEIGHT - Config::GROUND_HEIGHT);
+    // Fix #18: Use ground_height from config
+    float groundY = static_cast<float>(Config::SCREEN_HEIGHT - ConfigLoader::getFloat("ground_height", Config::GROUND_HEIGHT));
     sf::RectangleShape bgLayer;
     bgLayer.setSize(sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH), 150.f));
     bgLayer.setPosition(sf::Vector2f(bgOffset, groundY - 150.f));
@@ -226,22 +233,20 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
 
     for (const auto& pipe : pipes) pipe.draw(window);
 
-    if (!bird.isDyingFlag()) bird.draw(window);
+    // Fix #12: Always draw the bird
+    bird.draw(window);
 
     for (const auto& sf : scoreFloats) sf->draw(window);
 
     auto scoreText = makeText(font, "Score: " + std::to_string(score),
-                              30, Config::TEXT_COLOR, sf::Vector2f(10.f, 10.f));
+                              30, Config::TEXT_COLOR,
+                              sf::Vector2f(10.f, 10.f));
     window.draw(scoreText);
 
     auto hsText = makeText(font, "High Score: " + std::to_string(highScore),
                            24, Config::TEXT_COLOR,
                            sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH - 200.f), 10.f));
     window.draw(hsText);
-
-    if (bird.isDyingFlag()) {
-        for (const auto& p : particles) p.draw(window);
-    }
 
     window.setView(originalView);
     window.popGLStates();
@@ -260,12 +265,17 @@ void PlayState::handleKeyPress(sf::Keyboard::Key key) {
 void PlayState::getSnapshot(PlayStateSnapshot& out) const {
     BirdState bs;
     bs.posX = bird.getX();
-    bs.posY = bird.getBoundingBox().position.y;
-    bs.isDying = false;
+    // Fix #9: Store actual center posY
+    bs.posY = bird.getBoundingBox().position.y + bird.getBoundingBox().size.y / 2.f;
+    // Fix #8: Set isDying correctly
+    bs.isDying = bird.isDyingFlag();
     bs.velocityY = bird.getVelocity();
     bs.tiltAngle = 0.0f;
     bs.flapTimer = 0.0f;
     out.birdState = bs;
     out.score = score;
+    // Fix #7: Populate pipes and particles
+    out.pipes = pipes;
+    out.particles = particles;
     out.scoreFloats = scoreFloats; // shared_ptr is copyable
 }

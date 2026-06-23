@@ -23,10 +23,11 @@ struct ScoreFloat {
         float progress = 1.0f - (lifetime / Config::SCORE_FLOAT_DURATION);
         float scale;
         if (progress < 0.3f) {
-            scale = 1.0f + Config::SCORE_FLOAT_SCALE_MAX * (progress / 0.3f);
+            scale = 1.0f + (Config::SCORE_FLOAT_SCALE_MAX - 1.0f) * (progress / 0.3f);
         } else {
             scale = Config::SCORE_FLOAT_SCALE_MAX * (1.0f - (progress - 0.3f) / 0.7f);
         }
+        if (scale < 0.0f) scale = 0.0f;
         text.setCharacterSize(static_cast<unsigned int>(28 * scale));
         float alpha = std::max(0.f, (lifetime / Config::SCORE_FLOAT_DURATION) * 255.f);
         auto bc = sf::Color(255, 255, 100);

@@ -60,21 +60,23 @@ ConfigLoader::Value ConfigLoader::parseValue(const std::string& s) {
     }
     if (hasDot || hasE) {
         val.type = Value::FLOAT;
-        // Use strtod for locale-safe parsing
         char* end = nullptr;
         val.floatValue = static_cast<float>(std::strtod(t.c_str(), &end));
         return val;
     }
 
     // Integer
-    val.type = Value::INT;
-    val.intValue = std::stoi(t);
+    try {
+        val.type = Value::INT;
+        val.intValue = std::stoi(t);
+    } catch (...) {
+        val.type = Value::NONE;
+    }
     return val;
 }
 
 void ConfigLoader::parse(const std::string& json) {
     data.clear();
-    Value currentArray = Value(); // not used in flat parser
 
     // Simple flat key-value parser (handles nested objects via dot notation)
     // e.g., "physics.gravity": 800 -> key = "physics.gravity"
@@ -91,34 +93,46 @@ void ConfigLoader::parse(const std::string& json) {
 
         // Skip to ':'
         while (i < json.size() && json[i] != ':') ++i;
+        if (i >= json.size()) break;
         ++i; // now past ':'
 
         // Skip whitespace
-        while (i < json.size() && std::isspace(json[i])) ++i;
+        while (i < json.size() && std::isspace(static_cast<unsigned char>(json[i]))) ++i;
 
         // Parse value
         size_t valStart = i;
-        if (json[i] == '"') {
+        if (i < json.size() && json[i] == '"') {
             // String value
             ++i;
             while (i < json.size() && json[i] != '"') {
                 if (json[i] == '\\') ++i;
                 ++i;
             }
-            ++i; // skip closing quote
-        } else if (json[i] == '{') {
+            if (i < json.size()) ++i; // skip closing quote
+        } else if (i < json.size() && json[i] == '{') {
             // Nested object — skip it
             int depth = 1;
             ++i;
             while (i < json.size() && depth > 0) {
                 if (json[i] == '{') ++depth;
-                if (json[i] == '}') --depth;
+                else if (json[i] == '}') --depth;
+                ++i;
+            }
+        } else if (i < json.size() && json[i] == '[') {
+            // Array — skip it
+            int depth = 1;
+            ++i;
+            while (i < json.size() && depth > 0) {
+                if (json[i] == '[') ++depth;
+                else if (json[i] == ']') --depth;
                 ++i;
             }
         } else {
             // Number, bool, null — skip until comma or }
             while (i < json.size() && json[i] != ',' && json[i] != '}') ++i;
         }
+
+        if (i >= json.size()) break;
 
         std::string rawVal = json.substr(valStart, i - valStart);
         Value val = parseValue(rawVal);

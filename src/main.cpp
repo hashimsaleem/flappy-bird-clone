@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
-#include <random>
+#include <memory>
 #include "Bird.hpp"
 #include "Pipe.hpp"
 #include "Config.hpp"
@@ -59,28 +59,27 @@ int main() {
     int highScore = HighScore::load();
 
     // State machine
-    GameState* state = nullptr;
+    std::unique_ptr<GameState> state = nullptr;
 
     auto createMenuState = [&]() {
-        state = new MenuState();
+        state = std::make_unique<MenuState>();
     };
     auto createPlayState = [&]() {
-        state = new PlayState(jumpSound, scoreSound, deathSound, bgmMusic, bgmLoaded, highScore, font);
-        static_cast<PlayState*>(state)->onEnter();
+        state = std::make_unique<PlayState>(jumpSound, scoreSound, deathSound, bgmMusic, bgmLoaded, highScore, font);
+        static_cast<PlayState*>(state.get())->onEnter();
     };
     auto createGameOverState = [&](PlayStateSnapshot snap, int score) {
-        state = new GameOverState(snap.birdState, std::move(snap.pipes),
-                                  std::move(snap.particles),
-                                  std::move(snap.scoreFloats), score, highScore);
+        state = std::make_unique<GameOverState>(std::move(snap.birdState), std::move(snap.pipes),
+                                                 std::move(snap.particles),
+                                                 std::move(snap.scoreFloats), score, highScore);
     };
     auto createHighScoreScreen = [&]() {
-        state = new HighScoreScreenState();
+        state = std::make_unique<HighScoreScreenState>();
     };
 
     createMenuState();
 
     sf::Clock gameClock;
-    gameClock.restart();
 
     while (window.isOpen()) {
         sf::Time elapsed = gameClock.restart();
@@ -95,7 +94,7 @@ int main() {
                 window.close();
             }
             if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
-                if (auto* ms = dynamic_cast<MenuState*>(state)) {
+                if (auto* ms = dynamic_cast<MenuState*>(state.get())) {
                     ms->handleKeyPress(keyPressed->code);
                     if (ms->selectedOption >= 0) {
                         if (ms->selectedOption == 0) { createPlayState(); }
@@ -103,7 +102,7 @@ int main() {
                         else { window.close(); }
                         ms->selectedOption = -1;
                     }
-                } else if (auto* hs = dynamic_cast<HighScoreScreenState*>(state)) {
+                } else if (auto* hs = dynamic_cast<HighScoreScreenState*>(state.get())) {
                     hs->handleKeyPress(keyPressed->code);
                     if (hs->selectedOption >= 0) { createMenuState(); hs->selectedOption = -1; }
                 } else {
@@ -116,28 +115,24 @@ int main() {
         state->update(dt);
 
         // Check for state transitions
-        if (auto* ps = dynamic_cast<PlayState*>(state)) {
+        if (auto* ps = dynamic_cast<PlayState*>(state.get())) {
             int action = ps->nextAction();
             if (action == 1) {
                 PlayStateSnapshot snap;
                 ps->getSnapshot(snap);
                 int currentScore = snap.score;
-                delete state;
                 createGameOverState(std::move(snap), currentScore);
             } else if (action == 3) {
-                delete state;
                 window.close();
             }
         }
-        if (auto* gs = dynamic_cast<GameOverState*>(state)) {
+        if (auto* gs = dynamic_cast<GameOverState*>(state.get())) {
             if (gs->nextAction() == 1) {
-                delete state;
                 BirdState rs = gs->getRestartState();
-                state = new PlayState(jumpSound, scoreSound, deathSound, bgmMusic, bgmLoaded, highScore, font,
-                                      rs.posX, rs.posY, rs.velocityY);
-                static_cast<PlayState*>(state)->onEnter();
+                state = std::make_unique<PlayState>(jumpSound, scoreSound, deathSound, bgmMusic, bgmLoaded, highScore, font,
+                                                      rs.posX, rs.posY, rs.velocityY);
+                static_cast<PlayState*>(state.get())->onEnter();
             } else if (gs->nextAction() == 2) {
-                delete state;
                 createMenuState();
             }
         }
@@ -148,6 +143,5 @@ int main() {
         window.display();
     }
 
-    delete state;
     return 0;
 }

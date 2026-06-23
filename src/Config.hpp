@@ -66,7 +66,7 @@ namespace Config {
     constexpr float SCREEN_SHAKE_INTENSITY = 8.0f;
     constexpr float SCREEN_SHAKE_DURATION  = 0.35f;
 
-    // Score +1 float
+    // TEST EDIT
     constexpr float SCORE_FLOAT_DURATION  = 0.8f;
     constexpr float SCORE_FLOAT_SPEED     = 60.0f;
     constexpr float SCORE_FLOAT_SCALE_MAX  = 1.6f;

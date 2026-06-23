@@ -12,6 +12,14 @@ private:
     sf::Texture placeholderTexture; // Lifetime tied to Bird instance
     float velocityY; // Vertical velocity
 
+    // Configurable parameters
+    float gravity;
+    float jumpStrength;
+    float birdMinTilt;
+    float birdMaxTilt;
+    float birdFlapRate;
+    float birdFlapDepth;
+
 public:
     Bird();
     ~Bird();

@@ -25,6 +25,19 @@ void GameOverState::update(float dt) {
         birdState.velocityY += Config::GRAVITY * 1.5f * dt;
         birdState.posY += birdState.velocityY * dt;
         birdState.tiltAngle += 360.0f * dt;
+        
+        // Fix #16: Clamp to ground line
+        float groundY = static_cast<float>(Config::SCREEN_HEIGHT - Config::GROUND_HEIGHT);
+        if (birdState.posY + Config::BIRD_HEIGHT > groundY) {
+            birdState.posY = groundY - Config::BIRD_HEIGHT;
+            birdState.velocityY = 0.f;
+        }
+    }
+
+    // Fix #19: Move HighScore save to update()
+    if (score > highScore) {
+        highScore = score;
+        HighScore::save(highScore);
     }
 }
 
@@ -71,16 +84,14 @@ void GameOverState::draw(sf::RenderWindow& window, const sf::Font& font) {
                            sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH / 2 - 80),
                                         static_cast<float>(Config::SCREEN_HEIGHT / 2 + 80)));
     window.draw(hsText);
-
-    if (score > highScore) {
-        highScore = score;
-        HighScore::save(highScore);
-    }
 }
 
 void GameOverState::handleKeyPress(sf::Keyboard::Key key) {
     if (key == sf::Keyboard::Key::Space) {
         nextActionCode = 1;
+    } else if (key == sf::Keyboard::Key::Escape) {
+        // Fix #15: Return to menu on Escape
+        nextActionCode = 2;
     }
 }
 

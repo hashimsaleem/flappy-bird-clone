@@ -73,8 +73,8 @@ public:
         window.draw(preview);
         
         // "Press to start" prompt
-        auto promptAlpha = static_cast<unsigned char>(0.5f + 0.5f * std::sin(menuGlowTimer * 2.0f));
-        auto prompt = makeText(font, "Press ENTER to start", 20, sf::Color(promptAlpha, promptAlpha, promptAlpha),
+        float alphaVal = (0.5f + 0.5f * std::sin(menuGlowTimer * 2.0f)) * 255.f;
+        auto prompt = makeText(font, "Press ENTER to start", 20, sf::Color(static_cast<unsigned char>(alphaVal), static_cast<unsigned char>(alphaVal), static_cast<unsigned char>(alphaVal)),
             sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH / 2 - 100),
                          static_cast<float>(Config::SCREEN_HEIGHT - 120)));
         window.draw(prompt);

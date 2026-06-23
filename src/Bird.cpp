@@ -1,4 +1,5 @@
 #include "Bird.hpp"
+#include "ConfigLoader.hpp"
 #include <iostream>
 
 Bird::Bird() : velocityY(0.0f), posX(Config::BIRD_START_X), posY(Config::BIRD_START_Y) {
@@ -9,6 +10,14 @@ Bird::Bird() : velocityY(0.0f), posX(Config::BIRD_START_X), posY(Config::BIRD_ST
     }
     sprite = new sf::Sprite(placeholderTexture);
     sprite->setPosition({posX, posY});
+
+    // Initialize from config
+    gravity = ConfigLoader::getFloat("gravity", Config::GRAVITY);
+    jumpStrength = ConfigLoader::getFloat("jump_strength", Config::JUMP_STRENGTH);
+    birdMinTilt = ConfigLoader::getFloat("bird_min_tilt", Config::BIRD_MIN_TILT);
+    birdMaxTilt = ConfigLoader::getFloat("bird_max_tilt", Config::BIRD_MAX_TILT);
+    birdFlapRate = ConfigLoader::getFloat("bird_flap_rate", Config::BIRD_FLAP_RATE);
+    birdFlapDepth = ConfigLoader::getFloat("bird_flap_depth", Config::BIRD_FLAP_DEPTH);
 }
 
 void Bird::load(const std::string& texturePath) {
@@ -20,6 +29,7 @@ void Bird::load(const std::string& texturePath) {
         sprite->setPosition({posX, posY});
     } else {
         // Keep the placeholder sprite — it's still valid since placeholderTexture is a member
+        if (sprite) delete sprite;
         sprite = new sf::Sprite(placeholderTexture);
         sprite->setOrigin({placeholderTexture.getSize().x / 2.f, placeholderTexture.getSize().y / 2.f});
         sprite->setPosition({posX, posY});
@@ -33,16 +43,18 @@ Bird::~Bird() {
 void Bird::update(float dt) {
     if (isDying) {
         // Death physics: accelerate downwards and spin rapidly
-        velocityY += Config::GRAVITY * 1.5f * dt;
+        velocityY += gravity * 1.5f * dt;
         posY += velocityY * dt;
         tiltAngle += 360.0f * dt; // Spin 360 degrees per second
-        sprite->setPosition({posX, posY});
-        sprite->setRotation(sf::degrees(tiltAngle));
+        if (sprite) {
+            sprite->setPosition({posX, posY});
+            sprite->setRotation(sf::degrees(tiltAngle));
+        }
         return;
     }
 
     // Apply gravity: velocity increases downwards over time
-    velocityY += Config::GRAVITY * dt;
+    velocityY += gravity * dt;
 
     // Calculate new position delta
     float deltaY = velocityY * dt;
@@ -51,7 +63,9 @@ void Bird::update(float dt) {
     posY += deltaY;
 
     // Update the sprite position based on physics calculations
-    sprite->setPosition({posX, posY});
+    if (sprite) {
+        sprite->setPosition({posX, posY});
+    }
 
     // Animate tilt and wing flap
     animateTilt(dt);
@@ -66,7 +80,7 @@ void Bird::animateTilt(float dt) {
             if (sprite) sprite->setColor(sf::Color::White);
         } else {
             // Pulse the color during flap
-            float pulse = std::sin(wingFlapTimer * 30.0f) * 0.5f + 0.5f;
+            float pulse = std::sin(wingFlapTimer * birdFlapRate) * 0.5f + 0.5f;
             float r = 255.0f;
             float g = 255.0f * pulse;
             float b = 200.0f * (1.0f - pulse);
@@ -80,8 +94,8 @@ void Bird::animateTilt(float dt) {
     // Calculate target tilt angle from velocity
     // Clamp velocity to a reasonable range for tilt mapping
     float vel = velocityY;
-    float minVel = Config::JUMP_STRENGTH * 0.8f;  // ~-480
-    float maxVel = Config::GRAVITY * 0.6f;          // ~480
+    float minVel = jumpStrength * 0.8f;  // ~-480
+    float maxVel = gravity * 0.6f;          // ~480
 
     float t = 0.0f;
     if (vel < minVel) {
@@ -92,7 +106,7 @@ void Bird::animateTilt(float dt) {
         t = (vel - minVel) / (maxVel - minVel);
     }
 
-    float targetAngle = Config::BIRD_MIN_TILT + t * (Config::BIRD_MAX_TILT - Config::BIRD_MIN_TILT);
+    float targetAngle = birdMinTilt + t * (birdMaxTilt - birdMinTilt);
 
     // Smooth interpolation toward target
     float lerpSpeed = Config::BIRD_TILT_LERP * dt;
@@ -101,9 +115,11 @@ void Bird::animateTilt(float dt) {
     // Wing flap oscillation (only when velocity is negative — going up)
     if (vel < -50.0f) {
         flapTimer += dt;
-        float flap = std::sin(flapTimer * Config::BIRD_FLAP_RATE * 3.14159f)
-                     * Config::BIRD_FLAP_DEPTH;
-        sprite->setPosition({posX, posY + flap});
+        float flap = std::sin(flapTimer * birdFlapRate * 3.14159f)
+                     * birdFlapDepth;
+        if (sprite) {
+            sprite->setPosition({posX, posY + flap});
+        }
     } else {
         flapTimer = 0.0f;
     }
@@ -126,7 +142,7 @@ void Bird::setRestartVel(float vel) {
 
 void Bird::flap() {
     // Set a strong negative (upward) velocity
-    velocityY = Config::JUMP_STRENGTH;
+    velocityY = jumpStrength;
     // Trigger visual wing flap: brighten sprite briefly
     wingFlapTimer = 0.15f;
     wingFlapActive = true;
