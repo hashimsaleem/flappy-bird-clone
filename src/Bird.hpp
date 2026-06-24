@@ -3,11 +3,12 @@
 
 #include <SFML/Graphics.hpp>
 #include <cmath>
+#include <memory>
 #include "Config.hpp"
 
 class Bird {
 private:
-    sf::Sprite* sprite = nullptr; // Initialized in load()
+    std::unique_ptr<sf::Sprite> sprite; // Managed by unique_ptr
     sf::Texture birdTexture;
     sf::Texture placeholderTexture; // Lifetime tied to Bird instance
     float velocityY; // Vertical velocity
@@ -22,9 +23,9 @@ private:
 
 public:
     Bird();
-    ~Bird();
+    ~Bird() = default; // unique_ptr handles deletion
 
-    // Prevent copying — raw sf::Sprite* makes copy unsafe
+    // Prevent copying — unique_ptr is non-copyable by default
     Bird(const Bird&) = delete;
     Bird& operator=(const Bird&) = delete;
     Bird(Bird&&) = delete;
@@ -68,8 +69,7 @@ public:
      * @brief Resets the bird to its initial state (called on game restart).
      */
     void reset() {
-        delete sprite;
-        sprite = nullptr;
+        sprite.reset();
         velocityY = 0.0f;
         posX = Config::BIRD_START_X;
         posY = Config::BIRD_START_Y;

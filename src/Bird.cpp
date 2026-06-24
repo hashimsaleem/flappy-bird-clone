@@ -8,7 +8,7 @@ Bird::Bird() : velocityY(0.0f), posX(Config::BIRD_START_X), posY(Config::BIRD_ST
     if (!placeholderTexture.loadFromImage(placeholderImg)) {
         std::cerr << "Error: Failed to create placeholder texture." << std::endl;
     }
-    sprite = new sf::Sprite(placeholderTexture);
+    sprite = std::make_unique<sf::Sprite>(placeholderTexture);
     sprite->setPosition({posX, posY});
 
     // Initialize from config
@@ -23,21 +23,17 @@ Bird::Bird() : velocityY(0.0f), posX(Config::BIRD_START_X), posY(Config::BIRD_ST
 void Bird::load(const std::string& texturePath) {
     if (birdTexture.loadFromFile(texturePath)) {
         // Delete the placeholder sprite and create a new one with the real texture
-        delete sprite;
-        sprite = new sf::Sprite(birdTexture);
+        sprite.reset();
+        sprite = std::make_unique<sf::Sprite>(birdTexture);
         sprite->setOrigin({birdTexture.getSize().x / 2.f, birdTexture.getSize().y / 2.f});
         sprite->setPosition({posX, posY});
     } else {
         // Keep the placeholder sprite — it's still valid since placeholderTexture is a member
-        if (sprite) delete sprite;
-        sprite = new sf::Sprite(placeholderTexture);
+        if (sprite) sprite.reset();
+        sprite = std::make_unique<sf::Sprite>(placeholderTexture);
         sprite->setOrigin({placeholderTexture.getSize().x / 2.f, placeholderTexture.getSize().y / 2.f});
         sprite->setPosition({posX, posY});
     }
-}
-
-Bird::~Bird() {
-    delete sprite;
 }
 
 void Bird::update(float dt) {
@@ -133,7 +129,7 @@ void Bird::animateTilt(float dt) {
 void Bird::setRestartPos(float x, float y) {
     posX = x;
     posY = y;
-    if (sprite) sprite->setPosition(sf::Vector2f(x, y));
+    if (sprite) sprite->setPosition({x, y});
 }
 
 void Bird::setRestartVel(float vel) {
