@@ -9,10 +9,7 @@
 #include "ResourceManager.hpp"
 #include "HighScore.hpp"
 #include "GameState.h"
-#include "MenuState.h"
-#include "PlayState.h"
-#include "GameOverState.h"
-#include "HighScoreScreenState.h"
+#include "StateFactory.h"
 
 // Uncomment to enable debug console output
 // #define DEBUG
@@ -34,12 +31,13 @@ int main() {
     sf::RenderWindow window(sf::VideoMode({screenW, screenH}), "Flappy Clone SFML");
     window.setFramerateLimit(Config::TARGET_FPS);
 
+    // Load resources
     const sf::Font& font = ResourceManager::getFont(Config::FONT_PATH, 30);
 
     // Sounds
-    sf::Sound jumpSound = ResourceManager::getSound(Config::JUMP_SND);
-    sf::Sound scoreSound = ResourceManager::getSound(Config::SCORE_SND);
-    sf::Sound deathSound = ResourceManager::getSound(Config::DEATH_SND);
+    sf::Sound& jumpSound = ResourceManager::getSound(Config::JUMP_SND);
+    sf::Sound& scoreSnd = ResourceManager::getSound(Config::SCORE_SND);
+    sf::Sound& deathSnd = ResourceManager::getSound(Config::DEATH_SND);
 
     // Background music
     sf::Music bgmMusic;
@@ -59,25 +57,7 @@ int main() {
     int highScore = HighScore::load();
 
     // State machine
-    std::unique_ptr<GameState> state = nullptr;
-
-    auto createMenuState = [&]() {
-        state = std::make_unique<MenuState>();
-    };
-    auto createPlayState = [&]() {
-        state = std::make_unique<PlayState>(jumpSound, scoreSound, deathSound, bgmMusic, bgmLoaded, highScore, font);
-        static_cast<PlayState*>(state.get())->onEnter();
-    };
-    auto createGameOverState = [&](PlayStateSnapshot snap, int score) {
-        state = std::make_unique<GameOverState>(std::move(snap.birdState), std::move(snap.pipes),
-                                                 std::move(snap.particles),
-                                                 std::move(snap.scoreFloats), score, highScore);
-    };
-    auto createHighScoreScreen = [&]() {
-        state = std::make_unique<HighScoreScreenState>();
-    };
-
-    createMenuState();
+    std::unique_ptr<GameState> state = StateFactory::createMenuState(jumpSound, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScore, font);
 
     sf::Clock gameClock;
 
@@ -97,14 +77,14 @@ int main() {
                 if (auto* ms = dynamic_cast<MenuState*>(state.get())) {
                     ms->handleKeyPress(keyPressed->code);
                     if (ms->selectedOption >= 0) {
-                        if (ms->selectedOption == 0) { createPlayState(); }
-                        else if (ms->selectedOption == 1) { createHighScoreScreen(); }
+                        if (ms->selectedOption == 0) { state = StateFactory::createPlayState(jumpSound, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScore, font); }
+                        else if (ms->selectedOption == 1) { state = StateFactory::createHighScoreScreenState(); }
                         else { window.close(); }
                         ms->selectedOption = -1;
                     }
                 } else if (auto* hs = dynamic_cast<HighScoreScreenState*>(state.get())) {
                     hs->handleKeyPress(keyPressed->code);
-                    if (hs->selectedOption >= 0) { createMenuState(); hs->selectedOption = -1; }
+                    if (hs->selectedOption >= 0) { state = StateFactory::createMenuState(jumpSound, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScore, font); hs->selectedOption = -1; }
                 } else {
                     state->handleKeyPress(keyPressed->code);
                 }
@@ -121,7 +101,7 @@ int main() {
                 PlayStateSnapshot snap;
                 ps->getSnapshot(snap);
                 int currentScore = snap.score;
-                createGameOverState(std::move(snap), currentScore);
+                state = StateFactory::createGameOverState(std::move(snap), currentScore, highScore);
             } else if (action == 3) {
                 window.close();
             }
@@ -129,11 +109,10 @@ int main() {
         if (auto* gs = dynamic_cast<GameOverState*>(state.get())) {
             if (gs->nextAction() == 1) {
                 BirdState rs = gs->getRestartState();
-                state = std::make_unique<PlayState>(jumpSound, scoreSound, deathSound, bgmMusic, bgmLoaded, highScore, font,
+                state = StateFactory::createPlayState(jumpSound, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScore, font,
                                                       rs.posX, rs.posY, rs.velocityY);
-                static_cast<PlayState*>(state.get())->onEnter();
             } else if (gs->nextAction() == 2) {
-                createMenuState();
+                state = StateFactory::createMenuState(jumpSound, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScore, font);
             }
         }
 

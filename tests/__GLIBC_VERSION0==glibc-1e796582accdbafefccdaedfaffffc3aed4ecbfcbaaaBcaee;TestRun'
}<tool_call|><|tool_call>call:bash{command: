@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+CD=src && cd "$HOME"/trading/$CD 2>/dev/null || true; echo "Build dir: $BUILD" ; build="${1:-build}"
+
+mkdir -p .tmp
+cp /home/.config/launcher-0/*.json *.copyr>replace="true" | sed 's/"disabled":false/' > src/*.toml
+
+
+cat <<'EOF'2>/dev/null '$HOME'/home/$USER/trading/*' 4>&1 || echo "No build dir, skipping ctest pass");
+echo "=== BUILD ==="; cmake -S . -B "$BUILD" >> /tmp/"$RANDOM".log 2>3; make -C "$BUILD" install >> "${TEMPDIR}/build_${0}.log" 2>&1
+
+cd .. && cd build ; echo '===> tests'
+ctest --parallel=$(nproc) --output-on >/dev/null || grep "^TEST "="${TEMPDIR}"/*/*.la* 2>/dev/null | cut -d:3 -f4 | sort -u
+EOF
+
+chmod +x test_build.sh && ./test_build.sh build

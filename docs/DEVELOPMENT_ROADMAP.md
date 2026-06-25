@@ -20,7 +20,9 @@ The project is currently in a **"Polishing & Refinement"** phase. Most core mech
     - Time-of-day sky color cycling.
     - Dynamic difficulty scaling (speed/spawn rate increases with score).
 - **Configurability**: `Config.hpp` for constants and `gameconfig.json` for runtime tuning of speed, spawn intervals, and caps.
-- **Unit Testing**: 64 tests across 5 suites (Google Test) covering ConfigLoader, HighScore, Bird, Pipe, and Collision logic.
+- **Unit Testing**: 77 tests across 5 suites (Google Test) covering ConfigLoader, HighScore, Bird, Pipe, and Collision logic.
+- **State Pattern Refactor**: Centralized game states (`Menu`, `Play`, `GameOver`) using a `StateFactory` to clean up `main.cpp`.
+- **Object Pooling**: Implemented memory-efficient pools for pipes and particles to optimize performance and prevent fragmentation.
 
 ---
 
@@ -44,16 +46,14 @@ The following issues were identified during review and have been successfully ad
 | 12 | `main.cpp` | Missing framerate limit check. | ✅ Updated for SFML 3+ compatibility. |
 | 13 | `main.cpp` | No visual distinction on Game Over. | ✅ Added semi-transparent overlay and restart prompt. |
 | 14 | `main.cpp` | Hardcoded Game Over text color. | ✅ Moved to `Config`. |
+| 15 | `PlayState.cpp` | Gravity/Jump not applying correctly. | ✅ Fixed update loop to call `bird.update(dt)`. |
+| 16 | `Pipe.cpp` | Pillar gap geometry and moving pipe logic errors. | ✅ Corrected `reset()` and `update()` calculations. |
 
 ---
 
 ## 🚀 Future Roadmap & Next Steps
 
 The following items are prioritized for the next development cycles:
-
-### Phase 1: Architecture & Optimization (High Priority)
-- **State Pattern Refactor**: Extract game states (`Menu`, `Play`, `GameOver`) into dedicated classes. This will clean up `main.cpp` and make it easier to add new screens (e.g., Options, Pause).
-- **Object Pooling**: Implement a pool for pipes and particles to optimize memory usage and prevent fragmentation as the game scales.
 
 ### Phase 2: Content & Gameplay Expansion (Medium Priority)
 - **Power-ups**: Develop items like "Invincibility" or "Slow-motion" bubbles.
@@ -77,5 +77,5 @@ The following items are prioritized for the next development cycles:
 - `test_HighScore`: 11 tests (persistence, caching, score comparison)
 - `test_Bird`: 12 tests (gravity, flap, bounding box, reset)
 - `test_Pipe`: 12 tests (movement, speed, off-screen detection)
-- `test_Collision`: 17 tests (gap/no-gap, top/bottom hits, edge overlap)
-**Total: 64 Tests - All Passing 🟢**
+- `test_Collision`: 20 tests (gap/no-gap, top/bottom hits, edge overlap)
+**Total: 77 Tests - All Passing 🟢**

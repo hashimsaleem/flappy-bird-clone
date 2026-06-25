@@ -22,6 +22,17 @@ PlayState::PlayState(sf::Sound jumpSnd, sf::Sound scoreSnd, sf::Sound deathSnd,
     restartPosX = posX;
     restartPosY = posY;
     restartVel = vel;
+
+    // Initialize Pools
+    pipePool = std::make_unique<ObjectPool<Pipe>>([&]() {
+        return Pipe(0, 0, Config::GAP_HEIGHT, Config::PIPE_SPEED);
+    });
+    particlePool = std::make_unique<ObjectPool<Particle>>([]() {
+        return Particle({0.f, 0.f}, {0.f, 0.f}, 1.0f);
+    });
+
+    // Pre-allocate some pipes
+    for (int i = 0; i < 20; ++i) pipePool->acquire();
 }
 
 void PlayState::onEnter() {
@@ -37,6 +48,12 @@ void PlayState::setRestartState(float posX, float posY, float vel) {
     restartVel = vel;
 }
 
+void PlayState::handleKeyPress(sf::Keyboard::Key key) {
+    if (key == sf::Keyboard::Key::Space) {
+        bird.flap();
+    }
+}
+
 void PlayState::triggerGameOver() {
     nextActionCode = 1;
     deathSound.play();
@@ -46,8 +63,12 @@ void PlayState::triggerGameOver() {
     for (int i = 0; i < 20; ++i) {
         float vx = (static_cast<float>(typeDist(rng)) - 2.0f) * 200.0f;
         float vy = (static_cast<float>(typeDist(rng)) - 2.0f) * 200.0f;
-        particles.emplace_back(sf::Vector2f(birdBounds.position.x, birdBounds.position.y),
-                               sf::Vector2f(vx, vy), 1.0f);
+        int idx = particlePool->acquire();
+        Particle& p = (*particlePool)[idx];
+        p.shape.setPosition(birdBounds.position);
+        p.velocity = {vx, vy};
+        p.lifetime = 1.0f;
+        activeParticles.push_back(idx);
     }
 
     shakeTimer = Config::SCREEN_SHAKE_DURATION;
@@ -95,7 +116,7 @@ void PlayState::drawSky(sf::RenderWindow& window, float dt) {
 
 void PlayState::drawGround(sf::RenderWindow& window, float dt) {
     float totalW = static_cast<float>(Config::SCREEN_WIDTH);
-    float groundY = static_cast<float>(Config::SCREEN_HEIGHT - Config::GROUND_HEIGHT);
+    float groundY = static_cast<float>(Config::SCREEN_HEIGHT - ConfigLoader::getFloat("ground_height", Config::GROUND_HEIGHT));
     float scroll = std::fmod(groundScrollOffset, Config::GROUND_TILE_W);
 
     sf::RectangleShape base;
@@ -139,11 +160,6 @@ void PlayState::update(float dt) {
     scoreFloats.erase(std::remove_if(scoreFloats.begin(), scoreFloats.end(),
         [](const std::shared_ptr<ScoreFloat>& s) { return !s->alive(); }), scoreFloats.end());
 
-    for (auto& p : particles) p.update(dt);
-    particles.erase(std::remove_if(particles.begin(), particles.end(),
-        [](const Particle& p) { return p.lifetime <= 0; }), particles.end());
-
-    // Fix #10 and #11: Move timer/offset updates to update()
     skyTimer += dt;
     groundScrollOffset += currentPipeSpeed * dt;
 
@@ -155,23 +171,19 @@ void PlayState::update(float dt) {
     }
 
     bird.update(dt);
-    sf::FloatRect birdBounds = bird.getBoundingBox();
 
-    bgOffset -= Config::BACKGROUND_SPEED * dt;
-    if (bgOffset <= -static_cast<float>(Config::SCREEN_WIDTH)) bgOffset = 0.f;
-
-    // Fix #18: Use ground_height from config
     float groundY = static_cast<float>(Config::SCREEN_HEIGHT - ConfigLoader::getFloat("ground_height", Config::GROUND_HEIGHT));
-    if (birdBounds.position.y < 0 || birdBounds.position.y + birdBounds.size.y > groundY) {
+    if (bird.getBoundingBox().position.y < 0 || bird.getBoundingBox().position.y + bird.getBoundingBox().size.y > groundY) {
         triggerGameOver();
         return;
     }
 
-    for (auto& pipe : pipes) {
+    for (auto it = activePipes.begin(); it != activePipes.end(); ) {
+        int idx = *it;
+        Pipe& pipe = (*pipePool)[idx];
         pipe.update(dt);
-        // Fix #18: Use gap_height from config
         float currentGap = ConfigLoader::getFloat("gap_height", Config::GAP_HEIGHT);
-        if (!bird.isDyingFlag() && pipe.checkCollision(birdBounds)) {
+        if (!bird.isDyingFlag() && pipe.checkCollision(bird.getBoundingBox())) {
             triggerGameOver();
             return;
         }
@@ -181,7 +193,7 @@ void PlayState::update(float dt) {
             pipe.passed = true;
             score++;
             scoreSound.play();
-            scoreFloats.push_back(std::make_shared<ScoreFloat>(*font, sf::Vector2f(birdBounds.position.x, birdBounds.position.y - 20.f)));
+            scoreFloats.push_back(std::make_shared<ScoreFloat>(*font, sf::Vector2f(bird.getBoundingBox().position.x, bird.getBoundingBox().position.y - 20.f)));
 
             if (score % 5 == 0) {
                 currentPipeSpeed *= 1.05f;
@@ -192,19 +204,35 @@ void PlayState::update(float dt) {
                 if (currentSpawnInterval < spawnIntervalMin) currentSpawnInterval = spawnIntervalMin;
             }
         }
-    }
 
-    pipes.erase(std::remove_if(pipes.begin(), pipes.end(),
-        [](const Pipe& p) { return p.isOffScreen(); }), pipes.end());
+        if (pipe.isOffScreen()) {
+            pipePool->release(idx);
+            it = activePipes.erase(it);
+        } else {
+            ++it;
+        }
+    }
 
     spawnTimer += dt;
     if (spawnTimer > currentSpawnInterval) {
         float randomY = yDist(rng);
         float randomGap = gapDist(rng);
         PipeType type = (typeDist(rng) == 0) ? PipeType::MOVING : PipeType::STATIC;
-        pipes.emplace_back(static_cast<float>(Config::SCREEN_WIDTH), randomY,
-                           randomGap, currentPipeSpeed, type);
-        spawnTimer = 0.f;
+        int idx = pipePool->acquire();
+        (*pipePool)[idx].reset(static_cast<float>(Config::SCREEN_WIDTH), randomY, randomGap, currentPipeSpeed, type);
+        activePipes.push_back(idx);
+    }
+
+    for (auto it = activeParticles.begin(); it != activeParticles.end(); ) {
+        int idx = *it;
+        Particle& p = (*particlePool)[idx];
+        p.update(dt);
+        if (p.lifetime <= 0) {
+            particlePool->release(idx);
+            it = activeParticles.erase(it);
+        } else {
+            ++it;
+        }
     }
 }
 
@@ -219,21 +247,18 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
 
     drawSky(window, 0.f);
 
-    // Fix #18: Use ground_height from config
     float groundY = static_cast<float>(Config::SCREEN_HEIGHT - ConfigLoader::getFloat("ground_height", Config::GROUND_HEIGHT));
     sf::RectangleShape bgLayer;
     bgLayer.setSize(sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH), 150.f));
     bgLayer.setPosition(sf::Vector2f(bgOffset, groundY - 150.f));
     bgLayer.setFillColor(sf::Color(100, 150, 100));
     window.draw(bgLayer);
+
     bgLayer.setPosition(sf::Vector2f(bgOffset + static_cast<float>(Config::SCREEN_WIDTH), groundY - 150.f));
     window.draw(bgLayer);
 
-    drawGround(window, 0.f);
+    for (int idx : activePipes) (*pipePool)[idx].draw(window);
 
-    for (const auto& pipe : pipes) pipe.draw(window);
-
-    // Fix #12: Always draw the bird
     bird.draw(window);
 
     for (const auto& sf : scoreFloats) sf->draw(window);
@@ -252,16 +277,6 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
     window.popGLStates();
 }
 
-void PlayState::handleKeyPress(sf::Keyboard::Key key) {
-    if (key == sf::Keyboard::Key::Space) {
-        if (!bird.isDyingFlag()) {
-            bird.flap();
-            if (jumpSound.getStatus() != sf::SoundSource::Status::Playing)
-                jumpSound.play();
-        }
-    }
-}
-
 void PlayState::getSnapshot(PlayStateSnapshot& out) const {
     BirdState bs;
     bs.posX = bird.getX();
@@ -274,8 +289,14 @@ void PlayState::getSnapshot(PlayStateSnapshot& out) const {
     bs.flapTimer = 0.0f;
     out.birdState = bs;
     out.score = score;
-    // Fix #7: Populate pipes and particles
-    out.pipes = pipes;
-    out.particles = particles;
+
+    // Fix #7: Populate pipes and particles from pools
+    for (int idx : activePipes) {
+        out.pipes.push_back((*pipePool)[idx]);
+    }
+    for (int idx : activeParticles) {
+        out.particles.push_back((*particlePool)[idx]);
+    }
+
     out.scoreFloats = scoreFloats; // shared_ptr is copyable
 }

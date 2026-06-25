@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.10)
-
 # Find SFML
 find_package(SFML REQUIRED COMPONENTS Graphics Window System)
 
@@ -16,6 +14,7 @@ set(SOURCES
     ConfigLoader.cpp
     PlayState.cpp
     GameOverState.cpp
+    StateFactory.cpp
 )
 
 # Executable

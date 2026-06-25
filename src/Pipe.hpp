@@ -32,6 +32,11 @@ public:
 
     bool passed = false; // To track if the bird has passed this pipe
 
+    /**
+     * @brief Resets the pipe's properties for reuse in a pool.
+     */
+    void reset(float x, float y, float gapHeight, float speed, PipeType type);
+
 private:
     sf::RectangleShape topPipe;
     sf::RectangleShape bottomPipe;

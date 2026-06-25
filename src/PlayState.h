@@ -12,6 +12,7 @@
 #include "Particle.hpp"
 #include "ScoreFloat.h"
 #include "BirdState.h"
+#include "ObjectPool.h"
 
 
 struct PlayStateSnapshot {
@@ -53,9 +54,12 @@ private:
     const sf::Font* font = nullptr;
 
     Bird bird;
-    std::vector<Pipe> pipes;
-    std::vector<Particle> particles;
+    std::vector<int> activePipes;
+    std::vector<int> activeParticles;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
+
+    std::unique_ptr<ObjectPool<Pipe>> pipePool;
+    std::unique_ptr<ObjectPool<Particle>> particlePool;
 
     float groundScrollOffset = 0.f;
     float bgOffset = 0.f;

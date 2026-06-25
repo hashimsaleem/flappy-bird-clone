@@ -3,6 +3,8 @@
 std::unordered_map<std::string, sf::Texture> ResourceManager::textures;
 std::unordered_map<std::string, std::pair<sf::Font, unsigned int>> ResourceManager::fonts;
 std::unordered_map<std::string, std::shared_ptr<sf::SoundBuffer>> ResourceManager::soundBuffers;
+std::unordered_map<std::string, std::unique_ptr<sf::Sound>> ResourceManager::sounds;
+std::unordered_map<std::string, std::unique_ptr<sf::Music>> ResourceManager::music;
 bool ResourceManager::initialized = false;
 
 void ResourceManager::init() {
@@ -10,6 +12,8 @@ void ResourceManager::init() {
         textures.clear();
         fonts.clear();
         soundBuffers.clear();
+        sounds.clear();
+        music.clear();
         initialized = true;
     }
 }
@@ -45,9 +49,9 @@ const sf::Font& ResourceManager::getFont(const std::string& path, unsigned int s
     return fonts[key].first;
 }
 
-sf::Sound ResourceManager::getSound(const std::string& path) {
+sf::Sound& ResourceManager::getSound(const std::string& path) {
     init();
-    if (soundBuffers.find(path) == soundBuffers.end()) {
+    if (sounds.find(path) == sounds.end()) {
         auto buffer = std::make_shared<sf::SoundBuffer>();
         if (buffer->loadFromFile(path)) {
             soundBuffers[path] = buffer;
@@ -73,13 +77,24 @@ sf::Sound ResourceManager::getSound(const std::string& path) {
                 soundBuffers[path] = nullptr;
             }
         }
+        sounds[path] = std::make_unique<sf::Sound>(*soundBuffers[path]);
     }
-    if (soundBuffers[path]) {
-        return sf::Sound(*soundBuffers[path]);
+    return *sounds[path];
+}
+
+sf::Music* ResourceManager::getMusic(const std::string& path) {
+    init();
+    if (music.find(path) == music.end()) {
+        auto mus = std::make_unique<sf::Music>();
+        if (mus->openFromFile(path)) {
+            music[path] = std::move(mus);
+        } else {
+            // Fallback: null pointer or some dummy? 
+            // For now, we'll just leave it as nullptr if it fails to load.
+            music[path] = nullptr;
+        }
     }
-    // Ultimate fallback: create empty buffer
-    static sf::SoundBuffer emptyBuf;
-    return sf::Sound(emptyBuf);
+    return music[path].get();
 }
 
 void ResourceManager::reload(const std::string& path) {
@@ -99,11 +114,15 @@ void ResourceManager::reload(const std::string& path) {
         }
     }
     soundBuffers.erase(path);
+    sounds.erase(path);
+    music.erase(path);
 }
 
 void ResourceManager::clear() {
     textures.clear();
     fonts.clear();
     soundBuffers.clear();
+    sounds.clear();
+    music.clear();
     initialized = false;
 }
