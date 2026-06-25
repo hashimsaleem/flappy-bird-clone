@@ -36,10 +36,38 @@ void PlayState::onEnter() {
     bird.load(Config::BIRD_PATH);
     bird.setRestartPos(restartPosX, restartPosY);
     bird.setRestartVel(restartVel);
+    countdownTimer = 3.0f;
+    gameStarted = false;
+    paused = false;
+    quitToMenu = false;
 }
 
 void PlayState::handleKeyPress(sf::Keyboard::Key key) {
+    if (gameOverTriggered) return;
+
+    if (key == sf::Keyboard::Key::Escape) {
+        if (!gameStarted) return;
+        paused = !paused;
+        return;
+    }
+
+    if (paused) {
+        if (key == sf::Keyboard::Key::Up || key == sf::Keyboard::Key::W) {
+            pauseSelected = (pauseSelected - 1 + 2) % 2;
+        } else if (key == sf::Keyboard::Key::Down || key == sf::Keyboard::Key::S) {
+            pauseSelected = (pauseSelected + 1) % 2;
+        } else if (key == sf::Keyboard::Key::Enter || key == sf::Keyboard::Key::Space) {
+            if (pauseSelected == 0) {
+                paused = false;
+            } else {
+                quitToMenu = true;
+            }
+        }
+        return;
+    }
+
     if (key == sf::Keyboard::Key::Space) {
+        if (!gameStarted) return;
         bird.flap();
     }
 }
@@ -139,8 +167,20 @@ void PlayState::drawGround(sf::RenderWindow& window, float dt) {
 }
 
 void PlayState::update(float dt) {
+    if (paused || quitToMenu) return;
+
     if (gameOverTriggered) {
         bird.update(dt);
+        return;
+    }
+
+    if (!gameStarted) {
+        countdownTimer -= dt;
+        if (countdownTimer <= 0.0f) {
+            gameStarted = true;
+        }
+        skyTimer += dt;
+        groundScrollOffset += currentPipeSpeed * dt;
         return;
     }
 
@@ -228,7 +268,6 @@ void PlayState::update(float dt) {
 }
 
 void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
-    (void)font;
     window.pushGLStates();
 
     sf::View originalView = window.getView();
@@ -260,9 +299,45 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
     window.draw(scoreText);
 
     auto hsText = makeText(font, "High Score: " + std::to_string(highScore),
-                           24, Config::TEXT_COLOR,
-                           sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH - 200.f), 10.f));
+                            24, Config::TEXT_COLOR,
+                            sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH - 200.f), 10.f));
     window.draw(hsText);
+
+    if (!gameStarted) {
+        std::string countStr;
+        int n = static_cast<int>(std::ceil(countdownTimer));
+        countStr = (n >= 1) ? std::to_string(n) : "GO!";
+        auto countText = makeText(font, countStr, 80,
+            (n >= 1) ? sf::Color::White : sf::Color::Yellow,
+            sf::Vector2f(0.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f - 100.f));
+        centerText(window, countText);
+        window.draw(countText);
+    }
+
+    if (paused) {
+        sf::RectangleShape overlay(sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH), static_cast<float>(Config::SCREEN_HEIGHT)));
+        overlay.setFillColor(sf::Color(0, 0, 0, 150));
+        window.draw(overlay);
+
+        auto pauseTitle = makeText(font, "PAUSED", 60, sf::Color::White,
+            sf::Vector2f(0.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f - 100.f));
+        centerText(window, pauseTitle);
+        window.draw(pauseTitle);
+
+        auto resumeText = makeText(font,
+            (pauseSelected == 0 ? "> Resume" : "  Resume"), 30,
+            (pauseSelected == 0 ? sf::Color::Yellow : sf::Color::White),
+            sf::Vector2f(0.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f));
+        centerText(window, resumeText);
+        window.draw(resumeText);
+
+        auto quitText = makeText(font,
+            (pauseSelected == 1 ? "> Quit" : "  Quit"), 30,
+            (pauseSelected == 1 ? sf::Color::Yellow : sf::Color::White),
+            sf::Vector2f(0.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f + 50.f));
+        centerText(window, quitText);
+        window.draw(quitText);
+    }
 
     window.setView(originalView);
     window.popGLStates();

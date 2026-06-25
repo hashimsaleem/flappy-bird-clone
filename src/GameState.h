@@ -29,7 +29,6 @@ public:
     virtual StateAction nextAction() const { return StateAction::None; }
     virtual BirdState getRestartBirdState() const { return {}; }
 
-protected:
     static sf::Text makeText(const sf::Font& font, const std::string& str,
                              unsigned int charSize, sf::Color color, sf::Vector2f pos) {
         sf::Text t(font, str, charSize);

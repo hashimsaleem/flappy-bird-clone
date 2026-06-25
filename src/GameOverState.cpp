@@ -79,10 +79,41 @@ void GameOverState::draw(sf::RenderWindow& window, const sf::Font& font) {
     window.draw(restartText);
 
     auto hsText = makeText(font, "High Score: " + std::to_string(highScore),
-                           24, Config::TEXT_COLOR,
-                           sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH / 2 - 80),
-                                        static_cast<float>(Config::SCREEN_HEIGHT / 2 + 80)));
+                            24, Config::TEXT_COLOR,
+                            sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH / 2 - 80),
+                                         static_cast<float>(Config::SCREEN_HEIGHT / 2 + 80)));
     window.draw(hsText);
+
+    if (score >= 10) {
+        sf::Color medalColor;
+        std::string medalLabel;
+        if (score >= 50) {
+            medalColor = sf::Color(200, 200, 220);
+            medalLabel = "PLATINUM";
+        } else if (score >= 30) {
+            medalColor = sf::Color(255, 215, 0);
+            medalLabel = "GOLD";
+        } else if (score >= 20) {
+            medalColor = sf::Color(192, 192, 192);
+            medalLabel = "SILVER";
+        } else {
+            medalColor = sf::Color(205, 127, 50);
+            medalLabel = "BRONZE";
+        }
+        float cx = static_cast<float>(Config::SCREEN_WIDTH) / 2.f;
+        float cy = static_cast<float>(Config::SCREEN_HEIGHT) / 2.f - 130.f;
+        sf::CircleShape medal(20.f, 6);
+        medal.setFillColor(medalColor);
+        medal.setOutlineColor(sf::Color::White);
+        medal.setOutlineThickness(2.f);
+        medal.setOrigin({20.f, 20.f});
+        medal.setPosition({cx, cy});
+        window.draw(medal);
+
+        auto medalText = makeText(font, medalLabel, 18, medalColor,
+            sf::Vector2f(cx - 35.f, cy + 25.f));
+        window.draw(medalText);
+    }
 }
 
 void GameOverState::handleKeyPress(sf::Keyboard::Key key) {

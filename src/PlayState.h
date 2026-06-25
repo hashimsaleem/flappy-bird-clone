@@ -35,7 +35,11 @@ public:
     void handleKeyPress(sf::Keyboard::Key key) override;
     void onEnter() override;
 
-    StateAction nextAction() const override { return gameOverTriggered ? StateAction::GameOver : StateAction::None; }
+    StateAction nextAction() const override {
+        if (quitToMenu) return StateAction::ReturnToMenu;
+        if (gameOverTriggered) return StateAction::GameOver;
+        return StateAction::None;
+    }
     PlayStateSnapshot takeSnapshot() const;
 
 private:
@@ -76,6 +80,11 @@ private:
     std::uniform_int_distribution<int> typeDist;
 
     bool gameOverTriggered = false;
+    bool paused = false;
+    int pauseSelected = 0;
+    bool quitToMenu = false;
+    bool gameStarted = false;
+    float countdownTimer = 3.0f;
     PlayStateSnapshot gameOverSnapshot;
     float restartPosX = Config::BIRD_START_X;
     float restartPosY = Config::BIRD_START_Y;

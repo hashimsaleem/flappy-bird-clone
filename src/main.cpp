@@ -62,8 +62,15 @@ int main() {
     state->onEnter();
 
     sf::Clock gameClock;
+    sf::Clock fpsClock;
     float accumulator = 0.f;
     const float fixedDt = 1.f / static_cast<float>(Config::TARGET_FPS);
+
+    bool fullscreen = false;
+    bool showFps = false;
+    int fps = 0;
+    int frameCount = 0;
+    float fadeAlpha = 0.f;
 
     while (window.isOpen()) {
         float frameTime = gameClock.restart().asSeconds();
@@ -75,7 +82,19 @@ int main() {
                 window.close();
             }
             if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
-                state->handleKeyPress(keyPressed->code);
+                if (keyPressed->code == sf::Keyboard::Key::F1) {
+                    showFps = !showFps;
+                } else if (keyPressed->code == sf::Keyboard::Key::F11) {
+                    fullscreen = !fullscreen;
+                    window.create(
+                        fullscreen ? sf::VideoMode::getDesktopMode() : sf::VideoMode({screenW, screenH}),
+                        "Flappy Clone SFML",
+                        fullscreen ? sf::State::Fullscreen : sf::State::Windowed
+                    );
+                    window.setFramerateLimit(Config::TARGET_FPS);
+                } else {
+                    state->handleKeyPress(keyPressed->code);
+                }
             }
         }
 
@@ -115,11 +134,33 @@ int main() {
             if (next) {
                 next->onEnter();
                 state = std::move(next);
+                fadeAlpha = 255.f;
             }
         }
 
         window.clear(Config::SKY_COLOR);
         state->draw(window, font);
+
+        if (showFps) {
+            auto fpsText = GameState::makeText(font, "FPS: " + std::to_string(fps), 18,
+                sf::Color(200, 200, 200),
+                sf::Vector2f(static_cast<float>(screenW) - 90.f, 5.f));
+            window.draw(fpsText);
+        }
+        frameCount++;
+        if (fpsClock.getElapsedTime().asSeconds() >= 1.0f) {
+            fps = frameCount;
+            frameCount = 0;
+            fpsClock.restart();
+        }
+
+        if (fadeAlpha > 0.f) {
+            fadeAlpha = std::max(0.f, fadeAlpha - 600.f * fixedDt);
+            sf::RectangleShape fadeRect(sf::Vector2f(static_cast<float>(screenW), static_cast<float>(screenH)));
+            fadeRect.setFillColor(sf::Color(0, 0, 0, static_cast<std::uint8_t>(fadeAlpha)));
+            window.draw(fadeRect);
+        }
+
         window.display();
     }
 

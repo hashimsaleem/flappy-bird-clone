@@ -16,10 +16,12 @@ public:
         : jumpSound(jumpSnd), scoreSnd(scoreSnd), deathSound(deathSnd),
           bgmMusic(bgmMusic), bgmLoaded(bgmLoaded), highScore(highScoreRef),
           font(&fontRef) {
+        volume = bgmMusic.getVolume();
     }
 
     void update(float dt) override {
-        (void)dt;
+        blinkTimer += dt;
+        if (blinkTimer > 0.5f) blinkTimer -= 0.5f;
         if (selectedOption >= 0) {
             if (selectedOption == 0) {
                 nextActionCode = StateAction::PlayGame;
@@ -36,14 +38,33 @@ public:
         bg.setFillColor(sf::Color(20, 20, 40));
         window.draw(bg);
 
-        auto titleText = makeText(fontRef, "FLAPPY CLONE", 60, Config::TEXT_COLOR, {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 100.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f - 100.f});
+        auto titleText = makeText(fontRef, "FLAPPY CLONE", 60, Config::TEXT_COLOR,
+            {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 100.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f - 120.f});
         window.draw(titleText);
 
-        auto option1 = makeText(fontRef, "Press 1: Play Game", 30, Config::TEXT_COLOR, {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 100.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f});
+        auto option1 = makeText(fontRef, "1: Play Game", 30, Config::TEXT_COLOR,
+            {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 80.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f});
+        centerText(window, option1);
         window.draw(option1);
 
-        auto option2 = makeText(fontRef, "Press 2: High Score", 30, Config::TEXT_COLOR, {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 100.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f + 50.f});
+        auto option2 = makeText(fontRef, "2: High Score", 30, Config::TEXT_COLOR,
+            {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 80.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f + 45.f});
+        centerText(window, option2);
         window.draw(option2);
+
+        auto volText = makeText(fontRef, "Volume: " + std::to_string(static_cast<int>(volume)) + "%  (+/-)",
+            22, sf::Color(180, 180, 180),
+            {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 80.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f + 100.f});
+        centerText(window, volText);
+        window.draw(volText);
+
+        if (blinkTimer < 0.3f) {
+            auto hintText = makeText(fontRef, "Press 1 to Play", 22,
+                sf::Color(200, 200, 255, 180),
+                {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 80.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f - 50.f});
+            centerText(window, hintText);
+            window.draw(hintText);
+        }
     }
 
     void handleKeyPress(sf::Keyboard::Key key) override {
@@ -51,10 +72,18 @@ public:
             selectedOption = 0;
         } else if (key == sf::Keyboard::Key::Num2) {
             selectedOption = 1;
+        } else if (key == sf::Keyboard::Key::Equal || key == sf::Keyboard::Key::Add) {
+            volume = std::min(100.f, volume + 10.f);
+            bgmMusic.setVolume(volume);
+        } else if (key == sf::Keyboard::Key::Hyphen || key == sf::Keyboard::Key::Subtract) {
+            volume = std::max(0.f, volume - 10.f);
+            bgmMusic.setVolume(volume);
         }
     }
 
-    void onEnter() override {}
+    void onEnter() override {
+        blinkTimer = 0.f;
+    }
 
     StateAction nextAction() const override { return nextActionCode; }
 
@@ -69,6 +98,8 @@ private:
 
     int selectedOption = -1;
     StateAction nextActionCode = StateAction::None;
+    float blinkTimer = 0.f;
+    float volume = 50.f;
 };
 
 #endif
