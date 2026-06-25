@@ -79,7 +79,6 @@ void PlayState::triggerGameOver() {
 }
 
 void PlayState::drawSky(sf::RenderWindow& window, float dt) {
-    (void)dt;
     skyTimer += dt;
     float cyclePos = std::fmod(skyTimer, Config::SKY_CYCLE_INTERVAL) / Config::SKY_CYCLE_INTERVAL;
     int idx1 = static_cast<int>(cyclePos * Config::SKY_COLOR_COUNT) % Config::SKY_COLOR_COUNT;
@@ -221,6 +220,7 @@ void PlayState::update(float dt) {
         int idx = pipePool->acquire();
         (*pipePool)[idx].reset(static_cast<float>(Config::SCREEN_WIDTH), randomY, randomGap, currentPipeSpeed, type);
         activePipes.push_back(idx);
+        spawnTimer = 0.f;
     }
 
     for (auto it = activeParticles.begin(); it != activeParticles.end(); ) {

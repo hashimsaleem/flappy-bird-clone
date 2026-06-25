@@ -42,9 +42,6 @@ int main() {
     // Background music
     sf::Music bgmMusic;
     bool bgmLoaded = bgmMusic.openFromFile(Config::BG_MUSIC);
-    if (!bgmLoaded) {
-        bgmLoaded = bgmMusic.openFromFile("assets/bgm.ogg");
-    }
 #ifdef DEBUG
     std::cerr << "[bgm] bgmLoaded=" << bgmLoaded << "\n";
 #endif
@@ -76,15 +73,16 @@ int main() {
             if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
                 if (auto* ms = dynamic_cast<MenuState*>(state.get())) {
                     ms->handleKeyPress(keyPressed->code);
-                    if (ms->selectedOption >= 0) {
-                        if (ms->selectedOption == 0) { state = StateFactory::createPlayState(jumpSound, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScore, font); }
-                        else if (ms->selectedOption == 1) { state = StateFactory::createHighScoreScreenState(); }
+                    int opt = ms->getSelectedOption();
+                    ms->clearSelectedOption();
+                    if (opt >= 0) {
+                        if (opt == 0) { state = StateFactory::createPlayState(jumpSound, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScore, font); }
+                        else if (opt == 1) { state = StateFactory::createHighScoreScreenState(); }
                         else { window.close(); }
-                        ms->selectedOption = -1;
                     }
                 } else if (auto* hs = dynamic_cast<HighScoreScreenState*>(state.get())) {
                     hs->handleKeyPress(keyPressed->code);
-                    if (hs->selectedOption >= 0) { state = StateFactory::createMenuState(jumpSound, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScore, font); hs->selectedOption = -1; }
+                    if (hs->getSelectedOption() >= 0) { hs->clearSelectedOption(); state = StateFactory::createMenuState(jumpSound, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScore, font); }
                 } else {
                     state->handleKeyPress(keyPressed->code);
                 }

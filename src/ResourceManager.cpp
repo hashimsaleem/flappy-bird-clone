@@ -77,7 +77,11 @@ sf::Sound& ResourceManager::getSound(const std::string& path) {
                 soundBuffers[path] = nullptr;
             }
         }
-        sounds[path] = std::make_unique<sf::Sound>(*soundBuffers[path]);
+        if (soundBuffers[path]) {
+            sounds[path] = std::make_unique<sf::Sound>(*soundBuffers[path]);
+        } else {
+            sounds[path] = nullptr;
+        }
     }
     return *sounds[path];
 }

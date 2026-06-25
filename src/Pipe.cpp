@@ -2,19 +2,8 @@
 #include <cmath>
 #include <algorithm>
 
-Pipe::Pipe(float x, float y, float gapHeight, float speed, PipeType type)
-    : velocityX(-speed), type(type), baseY(y), gapHeightValue(gapHeight) {
-    
-    float topPipeHeight = 400.f - (gapHeight / 2.f);
-    float bottomPipeHeight = 400.f - (gapHeight / 2.f);
-
-    topPipe.setSize({60.f, topPipeHeight});
-    topPipe.setPosition({x, (y - gapHeight / 2.f) - topPipeHeight});
-    topPipe.setFillColor(sf::Color(34, 139, 34)); // Forest green
-
-    bottomPipe.setSize({60.f, bottomPipeHeight});
-    bottomPipe.setPosition({x, y + gapHeight / 2.f});
-    bottomPipe.setFillColor(sf::Color(34, 139, 34));
+Pipe::Pipe(float x, float y, float gapHeight, float speed, PipeType type) {
+    reset(x, y, gapHeight, speed, type);
 }
 
 void Pipe::reset(float x, float y, float gapHeight, float speed, PipeType type) {
@@ -24,16 +13,13 @@ void Pipe::reset(float x, float y, float gapHeight, float speed, PipeType type) 
     gapHeightValue = gapHeight;
     passed = false;
 
-    float topPipeHeight = 400.f - (gapHeight / 2.f);
-    float bottomPipeHeight = 400.f - (gapHeight / 2.f);
+    topPipe.setSize({Config::PIPE_WIDTH, Config::PIPE_HEIGHT});
+    topPipe.setPosition({x, (y - gapHeight / 2.f) - Config::PIPE_HEIGHT});
+    topPipe.setFillColor(Config::PIPE_COLOR);
 
-    topPipe.setSize({60.f, topPipeHeight});
-    topPipe.setPosition({x, (y - gapHeight / 2.f) - topPipeHeight});
-    topPipe.setFillColor(sf::Color(34, 139, 34));
-
-    bottomPipe.setSize({60.f, bottomPipeHeight});
+    bottomPipe.setSize({Config::PIPE_WIDTH, Config::PIPE_HEIGHT});
     bottomPipe.setPosition({x, y + gapHeight / 2.f});
-    bottomPipe.setFillColor(sf::Color(34, 139, 34));
+    bottomPipe.setFillColor(Config::PIPE_COLOR);
 }
 
 void Pipe::update(float dt) {

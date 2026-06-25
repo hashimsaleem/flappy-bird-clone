@@ -72,7 +72,11 @@ private:
     int& highScore;
     const sf::Font* font = nullptr;
 
-public: // Made public so main.cpp can access it
+public:
+    int getSelectedOption() const { return selectedOption; }
+    void clearSelectedOption() { selectedOption = -1; }
+
+private:
     int selectedOption = -1;
     int nextActionCode = 0;
 };

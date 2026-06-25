@@ -30,6 +30,10 @@ public:
         }
     }
 
+    int getSelectedOption() const { return selectedOption; }
+    void clearSelectedOption() { selectedOption = -1; }
+
+private:
     int selectedOption = -1;
 };
 

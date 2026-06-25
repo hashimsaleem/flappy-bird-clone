@@ -52,11 +52,10 @@ ConfigLoader::Value ConfigLoader::parseValue(const std::string& s) {
     }
 
     // Number — check for int vs float
-    bool hasDot = false, hasE = false, hasSign = false;
+    bool hasDot = false, hasE = false;
     for (size_t i = 0; i < t.size(); ++i) {
         if (t[i] == '.') hasDot = true;
         if (t[i] == 'e' || t[i] == 'E') hasE = true;
-        if ((t[i] == '+' || t[i] == '-') && i > 0) hasSign = true;
     }
     if (hasDot || hasE) {
         val.type = Value::FLOAT;
