@@ -6,7 +6,6 @@
 class HighScoreTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        // Save any existing high score file and reset cache
         std::ifstream existing("highscore.dat");
         if (existing.good()) {
             hasExistingFile = true;
@@ -15,6 +14,7 @@ protected:
             dst << src.rdbuf();
             src.close();
             dst.close();
+            std::remove("highscore.dat");
         }
         HighScore::reset();
     }

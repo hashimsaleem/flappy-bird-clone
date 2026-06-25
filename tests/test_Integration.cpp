@@ -173,14 +173,14 @@ TEST_F(IntegrationTest, BirdFlapUpdatesVelocity) {
 
 TEST_F(IntegrationTest, ConfigHasAllRequiredKeys) {
     ConfigLoader::load("/home/hashim/trading/assets/gameconfig.json");
-    EXPECT_TRUE(ConfigLoader::get("screen_width").isInt());
-    EXPECT_TRUE(ConfigLoader::get("screen_height").isInt());
-    EXPECT_TRUE(ConfigLoader::get("gravity").isFloat());
-    EXPECT_TRUE(ConfigLoader::get("jump_strength").isFloat());
-    EXPECT_TRUE(ConfigLoader::get("pipe_speed").isFloat());
-    EXPECT_TRUE(ConfigLoader::get("gap_height").isFloat());
-    EXPECT_TRUE(ConfigLoader::get("pipe_spawn_interval").isFloat());
-    EXPECT_TRUE(ConfigLoader::get("ground_height").isInt());
+    EXPECT_TRUE(ConfigLoader::get("screen_width").is_number_integer());
+    EXPECT_TRUE(ConfigLoader::get("screen_height").is_number_integer());
+    EXPECT_TRUE(ConfigLoader::get("gravity").is_number_float());
+    EXPECT_TRUE(ConfigLoader::get("jump_strength").is_number_float());
+    EXPECT_TRUE(ConfigLoader::get("pipe_speed").is_number_float());
+    EXPECT_TRUE(ConfigLoader::get("gap_height").is_number_float());
+    EXPECT_TRUE(ConfigLoader::get("pipe_spawn_interval").is_number_float());
+    EXPECT_TRUE(ConfigLoader::get("ground_height").is_number_integer());
 }
 
 // --- Edge Case: Very Large Numbers ---

@@ -19,8 +19,8 @@ public:
     void update(float dt) override;
     void draw(sf::RenderWindow& window, const sf::Font& font) override;
     void handleKeyPress(sf::Keyboard::Key key) override;
-    int nextAction() const { return nextActionCode; }
-    BirdState getRestartState() const;
+    StateAction nextAction() const override { return nextActionCode; }
+    BirdState getRestartBirdState() const override;
 
 private:
     BirdState birdState;
@@ -31,7 +31,8 @@ private:
     int score;
     int& highScore;
     float overlayAlpha = 0.f;
-    int nextActionCode = 0;
+    StateAction nextActionCode = StateAction::None;
+    bool highScoreSaved = false;
 };
 
-#endif // GAMEOVERSTATE_H
+#endif

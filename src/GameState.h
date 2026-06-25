@@ -3,7 +3,18 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include <memory>
 #include "Config.hpp"
+#include "BirdState.h"
+
+enum class StateAction {
+    None,
+    PlayGame,
+    ShowHighScore,
+    GameOver,
+    ReturnToMenu,
+    Exit
+};
 
 class GameState {
 public:
@@ -13,11 +24,12 @@ public:
     virtual void handleKeyPress(sf::Keyboard::Key key) = 0;
     virtual void handleMouseClick(sf::Vector2f pos) { (void)pos; }
 
-    /// Called when transitioning TO this state (e.g., init resources)
     virtual void onEnter() {}
 
+    virtual StateAction nextAction() const { return StateAction::None; }
+    virtual BirdState getRestartBirdState() const { return {}; }
+
 protected:
-    /// Helper: create a styled sf::Text
     static sf::Text makeText(const sf::Font& font, const std::string& str,
                              unsigned int charSize, sf::Color color, sf::Vector2f pos) {
         sf::Text t(font, str, charSize);
@@ -26,7 +38,6 @@ protected:
         return t;
     }
 
-    /// Center text horizontally in window
     static void centerText(sf::RenderWindow& window, sf::Text& text) {
         auto sz = text.getLocalBounds().size;
         text.setPosition(sf::Vector2f(
@@ -35,4 +46,4 @@ protected:
     }
 };
 
-#endif // GAMESTATE_H
+#endif

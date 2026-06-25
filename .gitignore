@@ -1,9 +1,23 @@
 # Build artifacts
 build/
+build_tests/
 *.o
 *.a
 *.so
 *.exe
+
+# Runtime data
+highscore.dat
+
+# Test temp files
+test_*.json
+test_config_*.json
+
+# Misc artifacts
+104963587
+build_log
+src/grep
+=8
 
 # IDE
 .vscode/

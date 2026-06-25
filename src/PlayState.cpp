@@ -23,16 +23,12 @@ PlayState::PlayState(sf::Sound jumpSnd, sf::Sound scoreSnd, sf::Sound deathSnd,
     restartPosY = posY;
     restartVel = vel;
 
-    // Initialize Pools
     pipePool = std::make_unique<ObjectPool<Pipe>>([&]() {
         return Pipe(0, 0, Config::GAP_HEIGHT, Config::PIPE_SPEED);
     });
     particlePool = std::make_unique<ObjectPool<Particle>>([]() {
         return Particle({0.f, 0.f}, {0.f, 0.f}, 1.0f);
     });
-
-    // Pre-allocate some pipes
-    for (int i = 0; i < 20; ++i) pipePool->acquire();
 }
 
 void PlayState::onEnter() {
@@ -42,12 +38,6 @@ void PlayState::onEnter() {
     bird.setRestartVel(restartVel);
 }
 
-void PlayState::setRestartState(float posX, float posY, float vel) {
-    restartPosX = posX;
-    restartPosY = posY;
-    restartVel = vel;
-}
-
 void PlayState::handleKeyPress(sf::Keyboard::Key key) {
     if (key == sf::Keyboard::Key::Space) {
         bird.flap();
@@ -55,7 +45,10 @@ void PlayState::handleKeyPress(sf::Keyboard::Key key) {
 }
 
 void PlayState::triggerGameOver() {
-    nextActionCode = 1;
+    if (gameOverTriggered) return;
+    gameOverTriggered = true;
+    gameOverSnapshot = takeSnapshot();
+
     deathSound.play();
     bird.setDying();
 
@@ -146,6 +139,11 @@ void PlayState::drawGround(sf::RenderWindow& window, float dt) {
 }
 
 void PlayState::update(float dt) {
+    if (gameOverTriggered) {
+        bird.update(dt);
+        return;
+    }
+
     if (shakeTimer > 0.f) {
         shakeTimer -= dt;
         float decay = shakeTimer / Config::SCREEN_SHAKE_DURATION;
@@ -162,13 +160,6 @@ void PlayState::update(float dt) {
     skyTimer += dt;
     groundScrollOffset += currentPipeSpeed * dt;
 
-    if (bird.isDyingFlag()) {
-        bird.update(dt);
-        shakeOffset = {0.f, 0.f};
-        shakeTimer = 0.f;
-        return;
-    }
-
     bird.update(dt);
 
     float groundY = static_cast<float>(Config::SCREEN_HEIGHT - ConfigLoader::getFloat("ground_height", Config::GROUND_HEIGHT));
@@ -182,7 +173,7 @@ void PlayState::update(float dt) {
         Pipe& pipe = (*pipePool)[idx];
         pipe.update(dt);
         float currentGap = ConfigLoader::getFloat("gap_height", Config::GAP_HEIGHT);
-        if (!bird.isDyingFlag() && pipe.checkCollision(bird.getBoundingBox())) {
+        if (pipe.checkCollision(bird.getBoundingBox())) {
             triggerGameOver();
             return;
         }
@@ -277,26 +268,25 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
     window.popGLStates();
 }
 
-void PlayState::getSnapshot(PlayStateSnapshot& out) const {
+PlayStateSnapshot PlayState::takeSnapshot() const {
+    PlayStateSnapshot snap;
     BirdState bs;
     bs.posX = bird.getX();
-    // Fix #9: Store actual center posY
     bs.posY = bird.getBoundingBox().position.y + bird.getBoundingBox().size.y / 2.f;
-    // Fix #8: Set isDying correctly
     bs.isDying = bird.isDyingFlag();
     bs.velocityY = bird.getVelocity();
     bs.tiltAngle = 0.0f;
     bs.flapTimer = 0.0f;
-    out.birdState = bs;
-    out.score = score;
+    snap.birdState = bs;
+    snap.score = score;
 
-    // Fix #7: Populate pipes and particles from pools
     for (int idx : activePipes) {
-        out.pipes.push_back((*pipePool)[idx]);
+        snap.pipes.push_back((*pipePool)[idx]);
     }
     for (int idx : activeParticles) {
-        out.particles.push_back((*particlePool)[idx]);
+        snap.particles.push_back((*particlePool)[idx]);
     }
 
-    out.scoreFloats = scoreFloats; // shared_ptr is copyable
+    snap.scoreFloats = scoreFloats;
+    return snap;
 }

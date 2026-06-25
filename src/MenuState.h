@@ -19,28 +19,26 @@ public:
     }
 
     void update(float dt) override {
+        (void)dt;
         if (selectedOption >= 0) {
             if (selectedOption == 0) {
-                nextActionCode = 1;
+                nextActionCode = StateAction::PlayGame;
             } else if (selectedOption == 1) {
-                nextActionCode = 2;
+                nextActionCode = StateAction::ShowHighScore;
             }
         }
     }
 
     void draw(sf::RenderWindow& window, const sf::Font& fontRef) override {
         (void)fontRef;
-        // Draw background
         sf::RectangleShape bg;
         bg.setSize({static_cast<float>(Config::SCREEN_WIDTH), static_cast<float>(Config::SCREEN_HEIGHT)});
         bg.setFillColor(sf::Color(20, 20, 40));
         window.draw(bg);
 
-        // Draw Title
         auto titleText = makeText(fontRef, "FLAPPY CLONE", 60, Config::TEXT_COLOR, {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 100.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f - 100.f});
         window.draw(titleText);
 
-        // Draw Options
         auto option1 = makeText(fontRef, "Press 1: Play Game", 30, Config::TEXT_COLOR, {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 100.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f});
         window.draw(option1);
 
@@ -49,9 +47,7 @@ public:
     }
 
     void handleKeyPress(sf::Keyboard::Key key) override {
-        if (key == sf::Keyboard::Key::Space) {
-            // Do nothing
-        } else if (key == sf::Keyboard::Key::Num1) {
+        if (key == sf::Keyboard::Key::Num1) {
             selectedOption = 0;
         } else if (key == sf::Keyboard::Key::Num2) {
             selectedOption = 1;
@@ -60,8 +56,7 @@ public:
 
     void onEnter() override {}
 
-    int nextAction() const { return nextActionCode; }
-    void setRestartState(float posX, float posY, float vel) {}
+    StateAction nextAction() const override { return nextActionCode; }
 
 private:
     sf::Sound jumpSound;
@@ -72,13 +67,8 @@ private:
     int& highScore;
     const sf::Font* font = nullptr;
 
-public:
-    int getSelectedOption() const { return selectedOption; }
-    void clearSelectedOption() { selectedOption = -1; }
-
-private:
     int selectedOption = -1;
-    int nextActionCode = 0;
+    StateAction nextActionCode = StateAction::None;
 };
 
-#endif // MENUSTATE_H
+#endif

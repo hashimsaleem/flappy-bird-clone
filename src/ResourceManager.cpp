@@ -1,11 +1,8 @@
 #include "ResourceManager.hpp"
 
-std::unordered_map<std::string, sf::Texture> ResourceManager::textures;
-std::unordered_map<std::string, std::pair<sf::Font, unsigned int>> ResourceManager::fonts;
-std::unordered_map<std::string, std::shared_ptr<sf::SoundBuffer>> ResourceManager::soundBuffers;
-std::unordered_map<std::string, std::unique_ptr<sf::Sound>> ResourceManager::sounds;
-std::unordered_map<std::string, std::unique_ptr<sf::Music>> ResourceManager::music;
-bool ResourceManager::initialized = false;
+ResourceManager::ResourceManager() {
+    init();
+}
 
 void ResourceManager::init() {
     if (!initialized) {
@@ -25,6 +22,7 @@ sf::Texture& ResourceManager::getTexture(const std::string& path) {
         if (tex.loadFromFile(path)) {
             textures[path] = tex;
         } else {
+            std::cerr << "Warning: Could not load texture from '" << path << "'" << std::endl;
             // Fallback: white placeholder
             sf::Image img({1, 1}, sf::Color::White);
             [[maybe_unused]] auto ok = tex.loadFromImage(img);
@@ -42,6 +40,7 @@ const sf::Font& ResourceManager::getFont(const std::string& path, unsigned int s
         if (font.openFromFile(path)) {
             fonts[key] = std::make_pair(std::move(font), size);
         } else {
+            std::cerr << "Warning: Could not load font from '" << path << "'" << std::endl;
             // Fallback: default font
             fonts[key] = std::make_pair(sf::Font(), size);
         }
@@ -56,6 +55,7 @@ sf::Sound& ResourceManager::getSound(const std::string& path) {
         if (buffer->loadFromFile(path)) {
             soundBuffers[path] = buffer;
         } else {
+            std::cerr << "Warning: Could not load sound from '" << path << "'" << std::endl;
             // Silent fallback: minimal valid WAV (1 sample, 44100 Hz, mono, 16-bit)
             static const unsigned char silentWav[] = {
                 'R','I','F','F', 0x24,0x00,0x00,0x00, // RIFF header, size
@@ -93,8 +93,8 @@ sf::Music* ResourceManager::getMusic(const std::string& path) {
         if (mus->openFromFile(path)) {
             music[path] = std::move(mus);
         } else {
-            // Fallback: null pointer or some dummy? 
-            // For now, we'll just leave it as nullptr if it fails to load.
+            std::cerr << "Warning: Could not load music from '" << path << "'" << std::endl;
+            // Fallback: null pointer
             music[path] = nullptr;
         }
     }

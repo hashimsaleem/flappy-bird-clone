@@ -14,7 +14,6 @@
 #include "BirdState.h"
 #include "ObjectPool.h"
 
-
 struct PlayStateSnapshot {
     BirdState birdState;
     int score;
@@ -36,9 +35,8 @@ public:
     void handleKeyPress(sf::Keyboard::Key key) override;
     void onEnter() override;
 
-    void getSnapshot(PlayStateSnapshot& out) const;
-    int nextAction() const { return nextActionCode; }
-    void setRestartState(float posX, float posY, float vel);
+    StateAction nextAction() const override { return gameOverTriggered ? StateAction::GameOver : StateAction::None; }
+    PlayStateSnapshot takeSnapshot() const;
 
 private:
     void triggerGameOver();
@@ -77,10 +75,11 @@ private:
     std::uniform_real_distribution<float> gapDist;
     std::uniform_int_distribution<int> typeDist;
 
-    int nextActionCode = 0;
+    bool gameOverTriggered = false;
+    PlayStateSnapshot gameOverSnapshot;
     float restartPosX = Config::BIRD_START_X;
     float restartPosY = Config::BIRD_START_Y;
     float restartVel = 0.0f;
 };
 
-#endif // PLAYSTATE_H
+#endif

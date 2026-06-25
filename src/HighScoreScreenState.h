@@ -26,15 +26,16 @@ public:
 
     void handleKeyPress(sf::Keyboard::Key key) override {
         if (key == sf::Keyboard::Key::Escape) {
-            selectedOption = 2;
+            returnToMenu = true;
         }
     }
 
-    int getSelectedOption() const { return selectedOption; }
-    void clearSelectedOption() { selectedOption = -1; }
+    StateAction nextAction() const override {
+        return returnToMenu ? StateAction::ReturnToMenu : StateAction::None;
+    }
 
 private:
-    int selectedOption = -1;
+    bool returnToMenu = false;
 };
 
-#endif // HIGHSCORESCREENSTATE_H
+#endif

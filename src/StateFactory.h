@@ -24,4 +24,4 @@ public:
     static std::unique_ptr<GameState> createHighScoreScreenState();
 };
 
-#endif // STATE_FACTORY_H
+#endif

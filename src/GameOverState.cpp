@@ -10,6 +10,12 @@ GameOverState::GameOverState(BirdState birdState, std::vector<Pipe> pipes,
     : birdState(birdState), pipes(std::move(pipes)), particles(std::move(particles)),
       scoreFloats(std::move(scoreFloats)), score(score), highScore(highScoreRef) {
     restartBirdState = birdState;
+
+    if (score > highScore) {
+        highScore = score;
+        HighScore::save(highScore);
+    }
+    highScoreSaved = true;
 }
 
 void GameOverState::update(float dt) {
@@ -25,19 +31,12 @@ void GameOverState::update(float dt) {
         birdState.velocityY += Config::GRAVITY * 1.5f * dt;
         birdState.posY += birdState.velocityY * dt;
         birdState.tiltAngle += 360.0f * dt;
-        
-        // Fix #16: Clamp to ground line
+
         float groundY = static_cast<float>(Config::SCREEN_HEIGHT - Config::GROUND_HEIGHT);
         if (birdState.posY + Config::BIRD_HEIGHT > groundY) {
             birdState.posY = groundY - Config::BIRD_HEIGHT;
             birdState.velocityY = 0.f;
         }
-    }
-
-    // Fix #19: Move HighScore save to update()
-    if (score > highScore) {
-        highScore = score;
-        HighScore::save(highScore);
     }
 }
 
@@ -88,13 +87,12 @@ void GameOverState::draw(sf::RenderWindow& window, const sf::Font& font) {
 
 void GameOverState::handleKeyPress(sf::Keyboard::Key key) {
     if (key == sf::Keyboard::Key::Space) {
-        nextActionCode = 1;
+        nextActionCode = StateAction::PlayGame;
     } else if (key == sf::Keyboard::Key::Escape) {
-        // Fix #15: Return to menu on Escape
-        nextActionCode = 2;
+        nextActionCode = StateAction::ReturnToMenu;
     }
 }
 
-BirdState GameOverState::getRestartState() const {
+BirdState GameOverState::getRestartBirdState() const {
     return restartBirdState;
 }

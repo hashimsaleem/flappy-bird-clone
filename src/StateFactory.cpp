@@ -11,9 +11,7 @@ std::unique_ptr<GameState> StateFactory::createPlayState(sf::Sound& jumpSnd, sf:
                                                             sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
                                                             const sf::Font& fontRef,
                                                             float posX, float posY, float vel) {
-    auto state = std::make_unique<PlayState>(jumpSnd, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScoreRef, fontRef, posX, posY, vel);
-    static_cast<PlayState*>(state.get())->onEnter();
-    return state;
+    return std::make_unique<PlayState>(jumpSnd, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScoreRef, fontRef, posX, posY, vel);
 }
 
 std::unique_ptr<GameState> StateFactory::createGameOverState(PlayStateSnapshot snap, int score, int& highScoreRef) {

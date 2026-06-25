@@ -6,26 +6,29 @@
 #include <unordered_map>
 #include <string>
 #include <memory>
+#include <iostream>
 
 class ResourceManager {
 public:
-    static sf::Texture& getTexture(const std::string& path);
-    static const sf::Font& getFont(const std::string& path, unsigned int size);
-    static sf::Sound&     getSound(const std::string& path);
-    static sf::Music*     getMusic(const std::string& path);
+    ResourceManager();
 
-    static void reload(const std::string& path);
-    static void clear();
+    sf::Texture& getTexture(const std::string& path);
+    const sf::Font& getFont(const std::string& path, unsigned int size);
+    sf::Sound&     getSound(const std::string& path);
+    sf::Music*     getMusic(const std::string& path);
+
+    void reload(const std::string& path);
+    void clear();
 
 private:
-    static std::unordered_map<std::string, sf::Texture> textures;
-    static std::unordered_map<std::string, std::pair<sf::Font, unsigned int>> fonts;
-    static std::unordered_map<std::string, std::shared_ptr<sf::SoundBuffer>> soundBuffers;
-    static std::unordered_map<std::string, std::unique_ptr<sf::Sound>> sounds;
-    static std::unordered_map<std::string, std::unique_ptr<sf::Music>> music;
-    static bool initialized;
+    std::unordered_map<std::string, sf::Texture> textures;
+    std::unordered_map<std::string, std::pair<sf::Font, unsigned int>> fonts;
+    std::unordered_map<std::string, std::shared_ptr<sf::SoundBuffer>> soundBuffers;
+    std::unordered_map<std::string, std::unique_ptr<sf::Sound>> sounds;
+    std::unordered_map<std::string, std::unique_ptr<sf::Music>> music;
+    bool initialized;
 
-    static void init();
+    void init();
 };
 
 #endif // RESOURCE_MANAGER_HPP
