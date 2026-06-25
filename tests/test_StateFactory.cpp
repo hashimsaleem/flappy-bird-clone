@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <string>
 #include "StateFactory.h"
 #include "GameState.h"
 #include "PlayState.h"
@@ -13,9 +14,12 @@ protected:
 
 TEST_F(StateFactoryTest, CreateMenuStateReturnsNonNull) {
     sf::SoundBuffer dummyBuffer;
-    sf::Sound jumpSnd(dummyBuffer);
-    sf::Sound scoreSnd(dummyBuffer);
-    sf::Sound deathSnd(dummyBuffer);
+    sf::Sound jumpSndObj(dummyBuffer);
+    sf::Sound scoreSndObj(dummyBuffer);
+    sf::Sound deathSndObj(dummyBuffer);
+    sf::Sound* jumpSnd = &jumpSndObj;
+    sf::Sound* scoreSnd = &scoreSndObj;
+    sf::Sound* deathSnd = &deathSndObj;
     sf::Music bgmMusic;
     bool bgmLoaded = false;
     int highScore = 0;
@@ -27,15 +31,19 @@ TEST_F(StateFactoryTest, CreateMenuStateReturnsNonNull) {
 
 TEST_F(StateFactoryTest, CreatePlayStateReturnsNonNull) {
     sf::SoundBuffer dummyBuffer;
-    sf::Sound jumpSnd(dummyBuffer);
-    sf::Sound scoreSnd(dummyBuffer);
-    sf::Sound deathSnd(dummyBuffer);
+    sf::Sound jumpSndObj(dummyBuffer);
+    sf::Sound scoreSndObj(dummyBuffer);
+    sf::Sound deathSndObj(dummyBuffer);
+    sf::Sound* jumpSnd = &jumpSndObj;
+    sf::Sound* scoreSnd = &scoreSndObj;
+    sf::Sound* deathSnd = &deathSndObj;
     sf::Music bgmMusic;
     bool bgmLoaded = false;
     int highScore = 0;
     sf::Font font;
 
-    auto state = StateFactory::createPlayState(jumpSnd, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScore, font);
+    std::string assetDir = "./";
+    auto state = StateFactory::createPlayState(jumpSnd, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScore, font, assetDir);
     EXPECT_NE(state, nullptr);
 }
 

@@ -17,6 +17,7 @@ test_config_*.json
 104963587
 build_log
 src/grep
+src/build.log
 =8
 
 # IDE

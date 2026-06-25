@@ -25,6 +25,6 @@ set_target_properties(FlappyBirdClone PROPERTIES
 add_custom_command(TARGET FlappyBirdClone POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/assets
-        ${CMAKE_SOURCE_DIR}/build/assets
+        $<TARGET_FILE_DIR:FlappyBirdClone>/assets
     COMMENT "Copying assets to build directory"
 )

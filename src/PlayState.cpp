@@ -5,14 +5,14 @@
 #include <cmath>
 #include <cstdlib>
 
-PlayState::PlayState(sf::Sound jumpSnd, sf::Sound scoreSnd, sf::Sound deathSnd,
+PlayState::PlayState(sf::Sound* jumpSnd, sf::Sound* scoreSnd, sf::Sound* deathSnd,
                      sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-                     const sf::Font& fontRef,
+                     const sf::Font& fontRef, const std::string& assetDir,
                      float posX, float posY, float vel, int difficulty)
     : jumpSound(jumpSnd), scoreSound(scoreSnd), deathSound(deathSnd),
       bgmMusic(bgmMusic), bgmLoaded(bgmLoaded), highScore(highScoreRef),
       font(&fontRef), difficulty(difficulty) {
-    jumpSound.setVolume(60.f);
+    jumpSound->setVolume(60.f);
 
     currentPipeSpeed = ConfigLoader::getFloat("pipe_speed", Config::PIPE_SPEED);
     currentSpawnInterval = ConfigLoader::getFloat("pipe_spawn_interval", Config::PIPE_SPAWN_INTERVAL);
@@ -29,7 +29,7 @@ PlayState::PlayState(sf::Sound jumpSnd, sf::Sound scoreSnd, sf::Sound deathSnd,
     gapDist = std::uniform_real_distribution<float>(Config::PIPE_GAP_RANGE * 0.6f, Config::PIPE_GAP_RANGE);
     typeDist = std::uniform_int_distribution<int>(0, 4);
 
-    bird.load(Config::BIRD_PATH);
+    bird.load(assetDir + Config::BIRD_PATH);
     restartPosX = posX;
     restartPosY = posY;
     restartVel = vel;
@@ -54,7 +54,6 @@ PlayState::PlayState(sf::Sound jumpSnd, sf::Sound scoreSnd, sf::Sound deathSnd,
 
 void PlayState::onEnter() {
     bird.reset();
-    bird.load(Config::BIRD_PATH);
     bird.setRestartPos(restartPosX, restartPosY);
     bird.setRestartVel(restartVel);
     countdownTimer = 3.0f;
@@ -98,7 +97,7 @@ void PlayState::triggerGameOver() {
     gameOverTriggered = true;
     gameOverSnapshot = takeSnapshot();
 
-    deathSound.play();
+    deathSound->play();
     bird.setDying();
 
     sf::FloatRect birdBounds = bird.getBoundingBox();
@@ -251,7 +250,7 @@ void PlayState::update(float dt) {
             pipe.passed = true;
             score++;
             scoreBounceTimer = 0.3f;
-            scoreSound.play();
+            scoreSound->play();
             scoreFloats.push_back(std::make_shared<ScoreFloat>(*font, sf::Vector2f(bird.getBoundingBox().position.x, bird.getBoundingBox().position.y - 20.f)));
 
             if (score % 5 == 0) {
@@ -297,8 +296,6 @@ void PlayState::update(float dt) {
 }
 
 void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
-    window.pushGLStates();
-
     sf::View originalView = window.getView();
     sf::View shakeView = originalView;
     shakeView.setCenter(originalView.getCenter() + sf::Vector2f(shakeOffset.x, shakeOffset.y));
@@ -382,7 +379,6 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
     }
 
     window.setView(originalView);
-    window.popGLStates();
 }
 
 PlayStateSnapshot PlayState::takeSnapshot() const {

@@ -10,7 +10,7 @@
 
 class MenuState : public GameState {
 public:
-    MenuState(sf::Sound jumpSnd, sf::Sound scoreSnd, sf::Sound deathSnd,
+    MenuState(sf::Sound* jumpSnd, sf::Sound* scoreSnd, sf::Sound* deathSnd,
               sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
               const sf::Font& fontRef)
         : jumpSound(jumpSnd), scoreSnd(scoreSnd), deathSound(deathSnd),
@@ -103,9 +103,9 @@ public:
     int selectedDifficulty() const override { return difficulty; }
 
 private:
-    sf::Sound jumpSound;
-    sf::Sound scoreSnd;
-    sf::Sound deathSound;
+    sf::Sound* jumpSound;
+    sf::Sound* scoreSnd;
+    sf::Sound* deathSound;
     sf::Music& bgmMusic;
     bool bgmLoaded;
     int& highScore;

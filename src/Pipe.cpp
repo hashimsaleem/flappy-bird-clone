@@ -39,18 +39,16 @@ void Pipe::draw(sf::RenderWindow& window) const {
     window.draw(bottomPipe);
 }
 
-bool Pipe::checkCollision(sf::FloatRect birdBounds) const {
-    sf::FloatRect topBounds = topPipe.getGlobalBounds();
-    sf::FloatRect bottomBounds = bottomPipe.getGlobalBounds();
+static bool aabbOverlap(const sf::FloatRect& a, const sf::FloatRect& b) {
+    return a.position.x < b.position.x + b.size.x &&
+           a.position.x + a.size.x > b.position.x &&
+           a.position.y < b.position.y + b.size.y &&
+           a.position.y + a.size.y > b.position.y;
+}
 
-    return (birdBounds.position.x < topBounds.position.x + topBounds.size.x &&
-            birdBounds.position.x + birdBounds.size.x > topBounds.position.x &&
-            birdBounds.position.y < topBounds.position.y + topBounds.size.y &&
-            birdBounds.position.y + birdBounds.size.y > topBounds.position.y) ||
-           (birdBounds.position.x < bottomBounds.position.x + bottomBounds.size.x &&
-            birdBounds.position.x + birdBounds.size.x > bottomBounds.position.x &&
-            birdBounds.position.y < bottomBounds.position.y + bottomBounds.size.y &&
-            birdBounds.position.y + birdBounds.size.y > bottomBounds.position.y);
+bool Pipe::checkCollision(sf::FloatRect birdBounds) const {
+    return aabbOverlap(birdBounds, topPipe.getGlobalBounds()) ||
+           aabbOverlap(birdBounds, bottomPipe.getGlobalBounds());
 }
 
 bool Pipe::isOffScreen() const {

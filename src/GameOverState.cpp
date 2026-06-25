@@ -1,5 +1,6 @@
 #include "GameOverState.h"
 #include "Config.hpp"
+#include "ConfigLoader.hpp"
 #include "HighScore.hpp"
 #include <algorithm>
 
@@ -33,7 +34,7 @@ void GameOverState::update(float dt) {
         birdState.posY += birdState.velocityY * dt;
         birdState.tiltAngle += 360.0f * dt;
 
-        float groundY = static_cast<float>(Config::SCREEN_HEIGHT - Config::GROUND_HEIGHT);
+        float groundY = static_cast<float>(Config::SCREEN_HEIGHT - ConfigLoader::getFloat("ground_height", Config::GROUND_HEIGHT));
         if (birdState.posY + Config::BIRD_HEIGHT > groundY) {
             birdState.posY = groundY - Config::BIRD_HEIGHT;
             birdState.velocityY = 0.f;

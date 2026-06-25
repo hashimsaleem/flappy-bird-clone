@@ -30,9 +30,9 @@ struct Cloud {
 
 class PlayState : public GameState {
 public:
-    PlayState(sf::Sound jumpSnd, sf::Sound scoreSnd, sf::Sound deathSnd,
+    PlayState(sf::Sound* jumpSnd, sf::Sound* scoreSnd, sf::Sound* deathSnd,
               sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-              const sf::Font& fontRef,
+              const sf::Font& fontRef, const std::string& assetDir,
               float posX = Config::BIRD_START_X, float posY = Config::BIRD_START_Y,
               float vel = 0.0f, int difficulty = 1);
 
@@ -54,9 +54,9 @@ private:
     void drawGround(sf::RenderWindow& window, float dt);
     void drawSky(sf::RenderWindow& window, float dt);
 
-    sf::Sound jumpSound;
-    sf::Sound scoreSound;
-    sf::Sound deathSound;
+    sf::Sound* jumpSound;
+    sf::Sound* scoreSound;
+    sf::Sound* deathSound;
     sf::Music& bgmMusic;
     bool bgmLoaded;
     int& highScore;

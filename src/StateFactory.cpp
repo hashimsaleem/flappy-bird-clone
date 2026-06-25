@@ -1,17 +1,17 @@
 #include "StateFactory.h"
 #include "Config.hpp"
 
-std::unique_ptr<GameState> StateFactory::createMenuState(sf::Sound& jumpSnd, sf::Sound& scoreSnd, sf::Sound& deathSnd,
+std::unique_ptr<GameState> StateFactory::createMenuState(sf::Sound* jumpSnd, sf::Sound* scoreSnd, sf::Sound* deathSnd,
                                                             sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
                                                             const sf::Font& fontRef) {
     return std::make_unique<MenuState>(jumpSnd, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScoreRef, fontRef);
 }
 
-std::unique_ptr<GameState> StateFactory::createPlayState(sf::Sound& jumpSnd, sf::Sound& scoreSnd, sf::Sound& deathSnd,
+std::unique_ptr<GameState> StateFactory::createPlayState(sf::Sound* jumpSnd, sf::Sound* scoreSnd, sf::Sound* deathSnd,
                                                             sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-                                                            const sf::Font& fontRef,
+                                                            const sf::Font& fontRef, const std::string& assetDir,
                                                             float posX, float posY, float vel, int difficulty) {
-    return std::make_unique<PlayState>(jumpSnd, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScoreRef, fontRef, posX, posY, vel, difficulty);
+    return std::make_unique<PlayState>(jumpSnd, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScoreRef, fontRef, assetDir, posX, posY, vel, difficulty);
 }
 
 std::unique_ptr<GameState> StateFactory::createGameOverState(PlayStateSnapshot snap, int score, int& highScoreRef) {

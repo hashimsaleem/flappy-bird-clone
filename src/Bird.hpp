@@ -69,7 +69,6 @@ public:
      * @brief Resets the bird to its initial state (called on game restart).
      */
     void reset() {
-        sprite.reset();
         velocityY = 0.0f;
         posX = Config::BIRD_START_X;
         posY = Config::BIRD_START_Y;
@@ -78,6 +77,11 @@ public:
         isDying = false;
         wingFlapActive = false;
         wingFlapTimer = 0.0f;
+        if (sprite) {
+            sprite->setPosition({posX, posY});
+            sprite->setRotation(sf::degrees(0.f));
+            sprite->setScale({1.f, 1.f});
+        }
     }
 
 private:

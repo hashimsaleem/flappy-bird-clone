@@ -20,8 +20,8 @@ add_executable(flappy_tests ${TEST_SOURCES})
 target_link_libraries(flappy_tests PRIVATE FlappyBirdLib GTest::gtest GTest::gtest_main)
 
 add_custom_command(TARGET flappy_tests POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets" "${CMAKE_BINARY_DIR}"
-    COMMENT "Copying assets")
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets" "$<TARGET_FILE_DIR:flappy_tests>/assets"
+    COMMENT "Copying assets to test directory")
 
 include(CTest)
 gtest_discover_tests(flappy_tests)
