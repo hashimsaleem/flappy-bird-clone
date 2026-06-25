@@ -28,6 +28,7 @@ public:
 
     virtual StateAction nextAction() const { return StateAction::None; }
     virtual BirdState getRestartBirdState() const { return {}; }
+    virtual int selectedDifficulty() const { return 1; }
 
     static sf::Text makeText(const sf::Font& font, const std::string& str,
                              unsigned int charSize, sf::Color color, sf::Vector2f pos) {

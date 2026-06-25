@@ -68,22 +68,15 @@ void Bird::update(float dt) {
 }
 
 void Bird::animateTilt(float dt) {
-    // Handle wing flap color animation
     if (wingFlapActive) {
         wingFlapTimer -= dt;
+        float t = std::max(0.0f, wingFlapTimer / 0.15f);
+        float sx = 1.0f + 0.25f * t;
+        float sy = 1.0f - 0.35f * t;
+        if (sprite) sprite->setScale({sx, sy});
         if (wingFlapTimer <= 0.0f) {
             wingFlapActive = false;
-            if (sprite) sprite->setColor(sf::Color::White);
-        } else {
-            // Pulse the color during flap
-            float pulse = std::sin(wingFlapTimer * birdFlapRate) * 0.5f + 0.5f;
-            float r = 255.0f;
-            float g = 255.0f * pulse;
-            float b = 200.0f * (1.0f - pulse);
-            if (sprite) sprite->setColor(sf::Color(
-                static_cast<unsigned char>(r),
-                static_cast<unsigned char>(g),
-                static_cast<unsigned char>(b)));
+            if (sprite) sprite->setScale({1.0f, 1.0f});
         }
     }
 
@@ -137,9 +130,7 @@ void Bird::setRestartVel(float vel) {
 }
 
 void Bird::flap() {
-    // Set a strong negative (upward) velocity
     velocityY = jumpStrength;
-    // Trigger visual wing flap: brighten sprite briefly
     wingFlapTimer = 0.15f;
     wingFlapActive = true;
 }

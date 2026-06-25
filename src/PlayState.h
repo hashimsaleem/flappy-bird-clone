@@ -17,9 +17,15 @@
 struct PlayStateSnapshot {
     BirdState birdState;
     int score;
+    int difficulty;
     std::vector<Pipe> pipes;
     std::vector<Particle> particles;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
+};
+
+struct Cloud {
+    float x, y, speed, radius;
+    unsigned char alpha;
 };
 
 class PlayState : public GameState {
@@ -28,7 +34,7 @@ public:
               sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
               const sf::Font& fontRef,
               float posX = Config::BIRD_START_X, float posY = Config::BIRD_START_Y,
-              float vel = 0.0f);
+              float vel = 0.0f, int difficulty = 1);
 
     void update(float dt) override;
     void draw(sf::RenderWindow& window, const sf::Font& font) override;
@@ -40,6 +46,7 @@ public:
         if (gameOverTriggered) return StateAction::GameOver;
         return StateAction::None;
     }
+    int selectedDifficulty() const override { return difficulty; }
     PlayStateSnapshot takeSnapshot() const;
 
 private:
@@ -78,6 +85,12 @@ private:
     std::uniform_real_distribution<float> yDist;
     std::uniform_real_distribution<float> gapDist;
     std::uniform_int_distribution<int> typeDist;
+
+    int difficulty = 1;
+    float scoreBounceTimer = 0.f;
+    float scoreScale = 1.f;
+    std::vector<Cloud> clouds;
+    float cloudOffset = 0.f;
 
     bool gameOverTriggered = false;
     bool paused = false;

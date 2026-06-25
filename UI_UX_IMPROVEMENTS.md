@@ -3,18 +3,18 @@
 ## Visual Polish
 - [x] **Fade transitions between states** — smooth fade-in on state change
 - [x] **Medal/badge on game over** — bronze/silver/gold/platinum tier based on score
-- [ ] **Bird wing-flap animation** — cycle through 2-3 sprites for flapping wings
-- [ ] **Parallax sky background** — clouds/mountains scrolling at different speeds
-- [ ] **Animated score digits** — rollover effect on score counter
+- [x] **Bird wing-flap animation** — procedural scale squish (stretch X, squish Y) on each flap
+- [x] **Parallax sky background** — drifting cloud layer at multiple speeds
+- [x] **Animated score digits** — bounce scale effect on score increment
 
 ## Gameplay UX
 - [x] **Pause menu** — Escape key pauses with resume/quit options
 - [x] **Countdown before game starts** — 3-2-1-GO! overlay
-- [ ] **Difficulty selection** — easy/medium/hard presets (pipe speed, gap size)
+- [x] **Difficulty selection** — 3=Easy/4=Medium/5=Hard (pipe speed, spawn interval)
 
 ## Audio
 - [x] **Volume control** — +/- keys in menu, applied to bgm
-- [ ] **Softer flap sound** — quieter/smoother jump audio
+- [x] **Softer flap sound** — jump sound at 60% volume
 
 ## Quality of Life
 - [x] **Fullscreen toggle** — F11 key

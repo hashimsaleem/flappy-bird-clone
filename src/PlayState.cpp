@@ -3,16 +3,27 @@
 #include "ConfigLoader.hpp"
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 
 PlayState::PlayState(sf::Sound jumpSnd, sf::Sound scoreSnd, sf::Sound deathSnd,
                      sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
                      const sf::Font& fontRef,
-                     float posX, float posY, float vel)
+                     float posX, float posY, float vel, int difficulty)
     : jumpSound(jumpSnd), scoreSound(scoreSnd), deathSound(deathSnd),
       bgmMusic(bgmMusic), bgmLoaded(bgmLoaded), highScore(highScoreRef),
-      font(&fontRef) {
+      font(&fontRef), difficulty(difficulty) {
+    jumpSound.setVolume(60.f);
+
     currentPipeSpeed = ConfigLoader::getFloat("pipe_speed", Config::PIPE_SPEED);
     currentSpawnInterval = ConfigLoader::getFloat("pipe_spawn_interval", Config::PIPE_SPAWN_INTERVAL);
+
+    if (difficulty == 0) {
+        currentPipeSpeed *= 0.7f;
+        currentSpawnInterval *= 1.5f;
+    } else if (difficulty == 2) {
+        currentPipeSpeed *= 1.3f;
+        currentSpawnInterval *= 0.7f;
+    }
 
     yDist = std::uniform_real_distribution<float>(Config::PIPE_MIN_Y, Config::PIPE_MAX_Y);
     gapDist = std::uniform_real_distribution<float>(Config::PIPE_GAP_RANGE * 0.6f, Config::PIPE_GAP_RANGE);
@@ -29,6 +40,16 @@ PlayState::PlayState(sf::Sound jumpSnd, sf::Sound scoreSnd, sf::Sound deathSnd,
     particlePool = std::make_unique<ObjectPool<Particle>>([]() {
         return Particle({0.f, 0.f}, {0.f, 0.f}, 1.0f);
     });
+
+    for (int i = 0; i < 6; i++) {
+        Cloud c;
+        c.x = (static_cast<float>(i) / 6.f) * Config::SCREEN_WIDTH + static_cast<float>(rand() % 100);
+        c.y = 30.f + static_cast<float>(rand() % 120);
+        c.speed = 15.f + static_cast<float>(rand() % 25);
+        c.radius = 20.f + static_cast<float>(rand() % 40);
+        c.alpha = static_cast<unsigned char>(60 + rand() % 80);
+        clouds.push_back(c);
+    }
 }
 
 void PlayState::onEnter() {
@@ -199,6 +220,13 @@ void PlayState::update(float dt) {
 
     skyTimer += dt;
     groundScrollOffset += currentPipeSpeed * dt;
+    cloudOffset += Config::BACKGROUND_SPEED * dt;
+
+    if (scoreBounceTimer > 0.f) {
+        scoreBounceTimer -= dt;
+        scoreScale = 1.f + 0.4f * std::min(scoreBounceTimer / 0.3f, 1.f);
+        if (scoreBounceTimer <= 0.f) scoreScale = 1.f;
+    }
 
     bird.update(dt);
 
@@ -222,6 +250,7 @@ void PlayState::update(float dt) {
         if (!pipe.passed && pipe.getX() < birdX) {
             pipe.passed = true;
             score++;
+            scoreBounceTimer = 0.3f;
             scoreSound.play();
             scoreFloats.push_back(std::make_shared<ScoreFloat>(*font, sf::Vector2f(bird.getBoundingBox().position.x, bird.getBoundingBox().position.y - 20.f)));
 
@@ -277,6 +306,18 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
 
     drawSky(window, 0.f);
 
+    for (const auto& c : clouds) {
+        float cx = std::fmod(c.x + cloudOffset * (c.speed / 40.f), Config::SCREEN_WIDTH + c.radius * 2.f) - c.radius;
+        sf::CircleShape shape(c.radius);
+        shape.setFillColor(sf::Color(255, 255, 255, c.alpha));
+        shape.setPosition({cx, c.y});
+        window.draw(shape);
+        sf::CircleShape shape2(c.radius * 0.7f);
+        shape2.setFillColor(sf::Color(255, 255, 255, c.alpha - 20));
+        shape2.setPosition({cx + c.radius * 0.5f, c.y - c.radius * 0.3f});
+        window.draw(shape2);
+    }
+
     float groundY = static_cast<float>(Config::SCREEN_HEIGHT - ConfigLoader::getFloat("ground_height", Config::GROUND_HEIGHT));
     sf::RectangleShape bgLayer;
     bgLayer.setSize(sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH), 150.f));
@@ -294,8 +335,9 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
     for (const auto& sf : scoreFloats) sf->draw(window);
 
     auto scoreText = makeText(font, "Score: " + std::to_string(score),
-                              30, Config::TEXT_COLOR,
-                              sf::Vector2f(10.f, 10.f));
+                               30, Config::TEXT_COLOR,
+                               sf::Vector2f(10.f, 10.f));
+    scoreText.setScale({scoreScale, scoreScale});
     window.draw(scoreText);
 
     auto hsText = makeText(font, "High Score: " + std::to_string(highScore),
@@ -354,6 +396,7 @@ PlayStateSnapshot PlayState::takeSnapshot() const {
     bs.flapTimer = 0.0f;
     snap.birdState = bs;
     snap.score = score;
+    snap.difficulty = difficulty;
 
     for (int idx : activePipes) {
         snap.pipes.push_back((*pipePool)[idx]);

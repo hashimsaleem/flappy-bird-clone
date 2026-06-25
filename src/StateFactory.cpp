@@ -10,14 +10,14 @@ std::unique_ptr<GameState> StateFactory::createMenuState(sf::Sound& jumpSnd, sf:
 std::unique_ptr<GameState> StateFactory::createPlayState(sf::Sound& jumpSnd, sf::Sound& scoreSnd, sf::Sound& deathSnd,
                                                             sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
                                                             const sf::Font& fontRef,
-                                                            float posX, float posY, float vel) {
-    return std::make_unique<PlayState>(jumpSnd, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScoreRef, fontRef, posX, posY, vel);
+                                                            float posX, float posY, float vel, int difficulty) {
+    return std::make_unique<PlayState>(jumpSnd, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScoreRef, fontRef, posX, posY, vel, difficulty);
 }
 
 std::unique_ptr<GameState> StateFactory::createGameOverState(PlayStateSnapshot snap, int score, int& highScoreRef) {
     return std::make_unique<GameOverState>(std::move(snap.birdState), std::move(snap.pipes),
                                            std::move(snap.particles),
-                                           std::move(snap.scoreFloats), score, highScoreRef);
+                                           std::move(snap.scoreFloats), score, highScoreRef, snap.difficulty);
 }
 
 std::unique_ptr<GameState> StateFactory::createHighScoreScreenState() {

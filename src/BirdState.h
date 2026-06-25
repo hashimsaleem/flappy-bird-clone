@@ -11,6 +11,7 @@ struct BirdState {
     float flapTimer = 0.0f;
     bool isDying = false;
     float velocityY = 0.0f;
+    int difficulty = 1;
 };
 
 #endif // BIRDSTATE_H

@@ -58,6 +58,14 @@ public:
         centerText(window, volText);
         window.draw(volText);
 
+        static const char* diffNames[] = {"Easy", "Medium", "Hard"};
+        auto diffText = makeText(fontRef,
+            std::string("Difficulty: ") + diffNames[difficulty] + "  (3/4/5)",
+            22, sf::Color(180, 180, 180),
+            {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 80.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f + 130.f});
+        centerText(window, diffText);
+        window.draw(diffText);
+
         if (blinkTimer < 0.3f) {
             auto hintText = makeText(fontRef, "Press 1 to Play", 22,
                 sf::Color(200, 200, 255, 180),
@@ -72,6 +80,12 @@ public:
             selectedOption = 0;
         } else if (key == sf::Keyboard::Key::Num2) {
             selectedOption = 1;
+        } else if (key == sf::Keyboard::Key::Num3) {
+            difficulty = 0;
+        } else if (key == sf::Keyboard::Key::Num4) {
+            difficulty = 1;
+        } else if (key == sf::Keyboard::Key::Num5) {
+            difficulty = 2;
         } else if (key == sf::Keyboard::Key::Equal || key == sf::Keyboard::Key::Add) {
             volume = std::min(100.f, volume + 10.f);
             bgmMusic.setVolume(volume);
@@ -86,6 +100,7 @@ public:
     }
 
     StateAction nextAction() const override { return nextActionCode; }
+    int selectedDifficulty() const override { return difficulty; }
 
 private:
     sf::Sound jumpSound;
@@ -100,6 +115,7 @@ private:
     StateAction nextActionCode = StateAction::None;
     float blinkTimer = 0.f;
     float volume = 50.f;
+    int difficulty = 1;
 };
 
 #endif

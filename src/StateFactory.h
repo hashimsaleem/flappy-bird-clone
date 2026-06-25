@@ -19,7 +19,7 @@ public:
                                                        sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
                                                        const sf::Font& fontRef,
                                                        float posX = Config::BIRD_START_X, float posY = Config::BIRD_START_Y,
-                                                       float vel = 0.0f);
+                                                       float vel = 0.0f, int difficulty = 1);
     static std::unique_ptr<GameState> createGameOverState(PlayStateSnapshot snap, int score, int& highScoreRef);
     static std::unique_ptr<GameState> createHighScoreScreenState();
 };

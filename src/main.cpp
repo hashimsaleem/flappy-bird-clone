@@ -109,8 +109,9 @@ int main() {
             switch (action) {
             case StateAction::PlayGame: {
                 BirdState rs = state->getRestartBirdState();
+                int diff = state->selectedDifficulty();
                 next = StateFactory::createPlayState(jumpSound, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScore, font,
-                                                      rs.posX, rs.posY, rs.velocityY);
+                                                      rs.posX, rs.posY, rs.velocityY, diff);
                 break;
             }
             case StateAction::ShowHighScore:
@@ -157,7 +158,7 @@ int main() {
         if (fadeAlpha > 0.f) {
             fadeAlpha = std::max(0.f, fadeAlpha - 600.f * fixedDt);
             sf::RectangleShape fadeRect(sf::Vector2f(static_cast<float>(screenW), static_cast<float>(screenH)));
-            fadeRect.setFillColor(sf::Color(0, 0, 0, static_cast<std::uint8_t>(fadeAlpha)));
+            fadeRect.setFillColor(sf::Color(0, 0, 0, static_cast<unsigned char>(fadeAlpha)));
             window.draw(fadeRect);
         }
 

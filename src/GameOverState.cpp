@@ -6,10 +6,11 @@
 GameOverState::GameOverState(BirdState birdState, std::vector<Pipe> pipes,
                              std::vector<Particle> particles,
                              std::vector<std::shared_ptr<ScoreFloat>> scoreFloats,
-                             int score, int& highScoreRef)
+                             int score, int& highScoreRef, int difficulty)
     : birdState(birdState), pipes(std::move(pipes)), particles(std::move(particles)),
-      scoreFloats(std::move(scoreFloats)), score(score), highScore(highScoreRef) {
+      scoreFloats(std::move(scoreFloats)), score(score), highScore(highScoreRef), difficulty(difficulty) {
     restartBirdState = birdState;
+    restartBirdState.difficulty = difficulty;
 
     if (score > highScore) {
         highScore = score;
