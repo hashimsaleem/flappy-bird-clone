@@ -40,7 +40,7 @@ int main() {
     sf::RenderWindow window(sf::VideoMode({screenW, screenH}), "Flappy Clone SFML");
     window.setFramerateLimit(Config::TARGET_FPS);
 
-    ResourceManager resMgr;
+    ResourceManager& resMgr = ResourceManager::getInstance();
     std::string fontPath = exeDir + Config::FONT_PATH;
     const sf::Font& font = resMgr.getFont(fontPath, 30);
 

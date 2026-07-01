@@ -9,6 +9,7 @@ set(SOURCES
     PlayState.cpp
     GameOverState.cpp
     StateFactory.cpp
+    PowerUp.cpp
 )
 
 add_library(FlappyBirdLib STATIC ${SOURCES})

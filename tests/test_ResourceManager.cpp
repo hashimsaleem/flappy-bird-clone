@@ -4,11 +4,12 @@
 
 class ResourceManagerTest : public ::testing::Test {
 protected:
-    ResourceManager resMgr;
+    ResourceManager& resMgr = ResourceManager::getInstance();
 };
 
 TEST_F(ResourceManagerTest, GetFontReturnsNonNull) {
     const sf::Font& font = resMgr.getFont(Config::FONT_PATH, 30);
+    // Note: sf::Font is not nullable, but we check it's accessible.
 }
 
 TEST_F(ResourceManagerTest, GetSoundReturnsNonNull) {

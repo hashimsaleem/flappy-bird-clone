@@ -37,6 +37,9 @@ PlayState::PlayState(sf::Sound* jumpSnd, sf::Sound* scoreSnd, sf::Sound* deathSn
     pipePool = std::make_unique<ObjectPool<Pipe>>([&]() {
         return Pipe(0, 0, Config::GAP_HEIGHT, Config::PIPE_SPEED);
     });
+    powerUpPool = std::make_unique<ObjectPool<PowerUp>>([]() {
+        return PowerUp(0, 0, PowerUpType::INVINCIBILITY);
+    });
     particlePool = std::make_unique<ObjectPool<Particle>>([]() {
         return Particle({0.f, 0.f}, {0.f, 0.f}, 1.0f);
     });
@@ -187,10 +190,10 @@ void PlayState::drawGround(sf::RenderWindow& window, float dt) {
 }
 
 void PlayState::update(float dt) {
-    if (paused || quitToMenu) return;
+    float effectiveDt = dt * slowMoFactor;
 
     if (gameOverTriggered) {
-        bird.update(dt);
+    bird.update(effectiveDt);
         return;
     }
 
@@ -199,8 +202,8 @@ void PlayState::update(float dt) {
         if (countdownTimer <= 0.0f) {
             gameStarted = true;
         }
-        skyTimer += dt;
-        groundScrollOffset += currentPipeSpeed * dt;
+        skyTimer += effectiveDt;
+        groundScrollOffset += currentPipeSpeed * effectiveDt;
         return;
     }
 
@@ -213,21 +216,21 @@ void PlayState::update(float dt) {
         shakeOffset = {0.f, 0.f};
     }
 
-    for (auto& sf : scoreFloats) sf->update(dt);
+    for (auto& sf : scoreFloats) sf->update(effectiveDt);
     scoreFloats.erase(std::remove_if(scoreFloats.begin(), scoreFloats.end(),
         [](const std::shared_ptr<ScoreFloat>& s) { return !s->alive(); }), scoreFloats.end());
 
-    skyTimer += dt;
-    groundScrollOffset += currentPipeSpeed * dt;
-    cloudOffset += Config::BACKGROUND_SPEED * dt;
+    skyTimer += effectiveDt;
+    groundScrollOffset += currentPipeSpeed * effectiveDt;
+    cloudOffset += Config::BACKGROUND_SPEED * effectiveDt;
 
     if (scoreBounceTimer > 0.f) {
-        scoreBounceTimer -= dt;
+        scoreBounceTimer -= effectiveDt;
         scoreScale = 1.f + 0.4f * std::min(scoreBounceTimer / 0.3f, 1.f);
         if (scoreBounceTimer <= 0.f) scoreScale = 1.f;
     }
 
-    bird.update(dt);
+    bird.update(effectiveDt);
 
     float groundY = static_cast<float>(Config::SCREEN_HEIGHT - ConfigLoader::getFloat("ground_height", Config::GROUND_HEIGHT));
     if (bird.getBoundingBox().position.y < 0 || bird.getBoundingBox().position.y + bird.getBoundingBox().size.y > groundY) {
@@ -238,7 +241,7 @@ void PlayState::update(float dt) {
     for (auto it = activePipes.begin(); it != activePipes.end(); ) {
         int idx = *it;
         Pipe& pipe = (*pipePool)[idx];
-        pipe.update(dt);
+        pipe.update(effectiveDt);
         float currentGap = ConfigLoader::getFloat("gap_height", Config::GAP_HEIGHT);
         if (pipe.checkCollision(bird.getBoundingBox())) {
             triggerGameOver();
@@ -271,7 +274,7 @@ void PlayState::update(float dt) {
         }
     }
 
-    spawnTimer += dt;
+    spawnTimer += effectiveDt;
     if (spawnTimer > currentSpawnInterval) {
         float randomY = yDist(rng);
         float randomGap = gapDist(rng);
@@ -285,12 +288,42 @@ void PlayState::update(float dt) {
     for (auto it = activeParticles.begin(); it != activeParticles.end(); ) {
         int idx = *it;
         Particle& p = (*particlePool)[idx];
-        p.update(dt);
+        p.update(effectiveDt);
         if (p.lifetime <= 0) {
             particlePool->release(idx);
             it = activeParticles.erase(it);
         } else {
             ++it;
+        }
+    }
+
+    for (auto it = activePowerUps.begin(); it != activePowerUps.end(); ) {
+        int idx = *it;
+        PowerUp& p = (*powerUpPool)[idx];
+        p.update(effectiveDt);
+        if (p.checkCollision(bird.getBoundingBox())) {
+            if (p.getType() == PowerUpType::INVINCIBILITY) {
+                bird.setInvincible(true);
+                scoreBounceTimer = 5.0f;
+            } else if (p.getType() == PowerUpType::SLOW_MOTION) {
+                slowMoFactor = 0.5f;
+                scoreBounceTimer = 5.0f;
+            }
+            powerUpPool->release(idx);
+            it = activePowerUps.erase(it);
+        } else if (p.isOffScreen()) {
+            powerUpPool->release(idx);
+            it = activePowerUps.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    if (scoreBounceTimer > 0.f) {
+        scoreBounceTimer -= effectiveDt;
+        if (scoreBounceTimer <= 0.f) {
+            bird.setInvincible(false);
+            slowMoFactor = 1.0f;
         }
     }
 }
@@ -326,7 +359,7 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
     window.draw(bgLayer);
 
     for (int idx : activePipes) (*pipePool)[idx].draw(window);
-
+    for (int idx : activePowerUps) (*powerUpPool)[idx].draw(window);
     bird.draw(window);
 
     for (const auto& sf : scoreFloats) sf->draw(window);

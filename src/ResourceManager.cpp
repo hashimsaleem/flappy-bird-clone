@@ -1,9 +1,5 @@
 #include "ResourceManager.hpp"
-
-ResourceManager::ResourceManager() {
-    init();
-}
-
+ 
 void ResourceManager::init() {
     if (!initialized) {
         textures.clear();
@@ -14,7 +10,7 @@ void ResourceManager::init() {
         initialized = true;
     }
 }
-
+ 
 sf::Texture& ResourceManager::getTexture(const std::string& path) {
     init();
     if (textures.find(path) == textures.end()) {
@@ -31,7 +27,7 @@ sf::Texture& ResourceManager::getTexture(const std::string& path) {
     }
     return textures[path];
 }
-
+ 
 const sf::Font& ResourceManager::getFont(const std::string& path, unsigned int size) {
     init();
     std::string key = path + "::" + std::to_string(size);
@@ -47,7 +43,7 @@ const sf::Font& ResourceManager::getFont(const std::string& path, unsigned int s
     }
     return fonts[key].first;
 }
-
+ 
 sf::Sound& ResourceManager::getSound(const std::string& path) {
     init();
     if (sounds.find(path) == sounds.end()) {
@@ -85,7 +81,7 @@ sf::Sound& ResourceManager::getSound(const std::string& path) {
     }
     return *sounds[path];
 }
-
+ 
 sf::Music* ResourceManager::getMusic(const std::string& path) {
     init();
     if (music.find(path) == music.end()) {
@@ -100,7 +96,7 @@ sf::Music* ResourceManager::getMusic(const std::string& path) {
     }
     return music[path].get();
 }
-
+ 
 void ResourceManager::reload(const std::string& path) {
     init();
     for (auto it = textures.begin(); it != textures.end(); ) {
@@ -121,7 +117,7 @@ void ResourceManager::reload(const std::string& path) {
     sounds.erase(path);
     music.erase(path);
 }
-
+ 
 void ResourceManager::clear() {
     textures.clear();
     fonts.clear();
@@ -130,3 +126,4 @@ void ResourceManager::clear() {
     music.clear();
     initialized = false;
 }
+

@@ -44,6 +44,8 @@ public:
      */
     void setDying() { isDying = true; }
     bool isDyingFlag() const { return isDying; }
+    void setInvincible(bool invincible) { isInvincible = invincible; }
+    bool isInvincibleFlag() const { return isInvincible; }
 
     /**\n     * @brief Makes the bird jump (resets vertical velocity).
      */
@@ -94,7 +96,9 @@ private:
     float posY;    // Y position tracker (needed for collision and physics)
     float tiltAngle = 0.0f;  // Current visual tilt angle (degrees)
     float flapTimer = 0.0f;  // Timer for wing flap oscillation
-    bool isDying = false;    // Flag for death animation
+    bool isDying = false;     // Death state flag
+    bool isInvincible = false;
+    float slowMoFactor = 1.0f;
 };
 
 #endif // BIRD_HPP

@@ -9,6 +9,7 @@
 #include "GameState.h"
 #include "Bird.hpp"
 #include "Pipe.hpp"
+#include "PowerUp.hpp"
 #include "Particle.hpp"
 #include "ScoreFloat.h"
 #include "BirdState.h"
@@ -64,10 +65,13 @@ private:
 
     Bird bird;
     std::vector<int> activePipes;
+    std::vector<int> activePowerUps;
     std::vector<int> activeParticles;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
+    float slowMoFactor = 1.0f;
 
     std::unique_ptr<ObjectPool<Pipe>> pipePool;
+    std::unique_ptr<ObjectPool<PowerUp>> powerUpPool;
     std::unique_ptr<ObjectPool<Particle>> particlePool;
 
     float groundScrollOffset = 0.f;
