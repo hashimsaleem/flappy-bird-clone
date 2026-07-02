@@ -40,19 +40,7 @@ PlayState::PlayState(sf::Sound* jumpSnd, sf::Sound* scoreSnd, sf::Sound* deathSn
     powerUpPool = std::make_unique<ObjectPool<PowerUp>>([]() {
         return PowerUp(0, 0, PowerUpType::INVINCIBILITY);
     });
-    particlePool = std::make_unique<ObjectPool<Particle>>([]() {
-        return Particle({0.f, 0.f}, {0.f, 0.f}, 1.0f);
-    });
-
-    for (int i = 0; i < 6; i++) {
-        Cloud c;
-        c.x = (static_cast<float>(i) / 6.f) * Config::SCREEN_WIDTH + static_cast<float>(rand() % 100);
-        c.y = 30.f + static_cast<float>(rand() % 120);
-        c.speed = 15.f + static_cast<float>(rand() % 25);
-        c.radius = 20.f + static_cast<float>(rand() % 40);
-        c.alpha = static_cast<unsigned char>(60 + rand() % 80);
-        clouds.push_back(c);
-    }
+    visualEffects = std::make_unique<VisualEffectManager>();
 }
 
 void PlayState::onEnter() {
@@ -103,17 +91,7 @@ void PlayState::triggerGameOver() {
     deathSound->play();
     bird.setDying();
 
-    sf::FloatRect birdBounds = bird.getBoundingBox();
-    for (int i = 0; i < 20; ++i) {
-        float vx = (static_cast<float>(typeDist(rng)) - 2.0f) * 200.0f;
-        float vy = (static_cast<float>(typeDist(rng)) - 2.0f) * 200.0f;
-        int idx = particlePool->acquire();
-        Particle& p = (*particlePool)[idx];
-        p.shape.setPosition(birdBounds.position);
-        p.velocity = {vx, vy};
-        p.lifetime = 1.0f;
-        activeParticles.push_back(idx);
-    }
+    visualEffects->spawnParticles(bird.getBoundingBox().position, 20, {0.f, 0.f});
 
     shakeTimer = Config::SCREEN_SHAKE_DURATION;
     shakeIntensity = Config::SCREEN_SHAKE_INTENSITY;
@@ -122,72 +100,7 @@ void PlayState::triggerGameOver() {
         bgmMusic.stop();
 }
 
-void PlayState::drawSky(sf::RenderWindow& window, float dt) {
-    skyTimer += dt;
-    float cyclePos = std::fmod(skyTimer, Config::SKY_CYCLE_INTERVAL) / Config::SKY_CYCLE_INTERVAL;
-    int idx1 = static_cast<int>(cyclePos * Config::SKY_COLOR_COUNT) % Config::SKY_COLOR_COUNT;
-    int idx2 = (idx1 + 1) % Config::SKY_COLOR_COUNT;
-    float t = (cyclePos * Config::SKY_COLOR_COUNT) - idx1;
 
-    auto lerp = [](float a, float b, float t) -> unsigned char {
-        return static_cast<unsigned char>(a * (1 - t) + b * t);
-    };
-
-    sf::Color top(
-        lerp(Config::SKY_TOP[idx1].r, Config::SKY_TOP[idx2].r, t),
-        lerp(Config::SKY_TOP[idx1].g, Config::SKY_TOP[idx2].g, t),
-        lerp(Config::SKY_TOP[idx1].b, Config::SKY_TOP[idx2].b, t)
-    );
-    sf::Color bot(
-        lerp(Config::SKY_BOT[idx1].r, Config::SKY_BOT[idx2].r, t),
-        lerp(Config::SKY_BOT[idx1].g, Config::SKY_BOT[idx2].g, t),
-        lerp(Config::SKY_BOT[idx1].b, Config::SKY_BOT[idx2].b, t)
-    );
-
-    float halfH = static_cast<float>(Config::SCREEN_HEIGHT) / 2.f;
-    sf::RectangleShape topRect;
-    topRect.setSize(sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH), halfH));
-    topRect.setFillColor(top);
-    window.draw(topRect);
-
-    sf::RectangleShape botRect;
-    botRect.setSize(sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH), halfH));
-    botRect.setPosition(sf::Vector2f(0.f, halfH));
-    botRect.setFillColor(bot);
-    window.draw(botRect);
-}
-
-void PlayState::drawGround(sf::RenderWindow& window, float dt) {
-    float totalW = static_cast<float>(Config::SCREEN_WIDTH);
-    float groundY = static_cast<float>(Config::SCREEN_HEIGHT - ConfigLoader::getFloat("ground_height", Config::GROUND_HEIGHT));
-    float scroll = std::fmod(groundScrollOffset, Config::GROUND_TILE_W);
-
-    sf::RectangleShape base;
-    base.setSize(sf::Vector2f(totalW, static_cast<float>(Config::GROUND_HEIGHT)));
-    base.setPosition(sf::Vector2f(0.f, groundY));
-    base.setFillColor(Config::GROUND_COLOR);
-    window.draw(base);
-
-    for (float x = -scroll - Config::GROUND_TILE_W; x < totalW + Config::GROUND_TILE_W; x += Config::GROUND_TILE_W) {
-        int idx = static_cast<int>(std::floor((x + scroll) / Config::GROUND_TILE_W)) % Config::GROUND_TILE_COUNT;
-        if (idx < 0) idx += Config::GROUND_TILE_COUNT;
-        sf::RectangleShape tile;
-        tile.setSize(sf::Vector2f(static_cast<float>(Config::GROUND_TILE_W), 8.f));
-        tile.setPosition(sf::Vector2f(x, groundY));
-        tile.setFillColor(Config::GROUND_TOP_COLORS[idx]);
-        window.draw(tile);
-    }
-
-    float grassY = groundY - 2.f;
-    for (float x = -scroll; x < totalW; x += 12.f) {
-        float h = std::sin(x * 0.5f) * 2.f + 3.f;
-        sf::RectangleShape blade;
-        blade.setSize(sf::Vector2f(2.f, h));
-        blade.setPosition(sf::Vector2f(x, grassY - h));
-        blade.setFillColor(sf::Color(80, 140, 60));
-        window.draw(blade);
-    }
-}
 
 void PlayState::update(float dt) {
     float effectiveDt = dt * slowMoFactor;
@@ -202,8 +115,7 @@ void PlayState::update(float dt) {
         if (countdownTimer <= 0.0f) {
             gameStarted = true;
         }
-        skyTimer += effectiveDt;
-        groundScrollOffset += currentPipeSpeed * effectiveDt;
+        visualEffects->update(effectiveDt, currentPipeSpeed);
         return;
     }
 
@@ -220,9 +132,7 @@ void PlayState::update(float dt) {
     scoreFloats.erase(std::remove_if(scoreFloats.begin(), scoreFloats.end(),
         [](const std::shared_ptr<ScoreFloat>& s) { return !s->alive(); }), scoreFloats.end());
 
-    skyTimer += effectiveDt;
-    groundScrollOffset += currentPipeSpeed * effectiveDt;
-    cloudOffset += Config::BACKGROUND_SPEED * effectiveDt;
+    visualEffects->update(effectiveDt, currentPipeSpeed);
 
     if (scoreBounceTimer > 0.f) {
         scoreBounceTimer -= effectiveDt;
@@ -285,17 +195,7 @@ void PlayState::update(float dt) {
         spawnTimer = 0.f;
     }
 
-    for (auto it = activeParticles.begin(); it != activeParticles.end(); ) {
-        int idx = *it;
-        Particle& p = (*particlePool)[idx];
-        p.update(effectiveDt);
-        if (p.lifetime <= 0) {
-            particlePool->release(idx);
-            it = activeParticles.erase(it);
-        } else {
-            ++it;
-        }
-    }
+    visualEffects->update(effectiveDt);
 
     for (auto it = activePowerUps.begin(); it != activePowerUps.end(); ) {
         int idx = *it;
@@ -334,29 +234,8 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
     shakeView.setCenter(originalView.getCenter() + sf::Vector2f(shakeOffset.x, shakeOffset.y));
     window.setView(shakeView);
 
-    drawSky(window, 0.f);
 
-    for (const auto& c : clouds) {
-        float cx = std::fmod(c.x + cloudOffset * (c.speed / 40.f), Config::SCREEN_WIDTH + c.radius * 2.f) - c.radius;
-        sf::CircleShape shape(c.radius);
-        shape.setFillColor(sf::Color(255, 255, 255, c.alpha));
-        shape.setPosition({cx, c.y});
-        window.draw(shape);
-        sf::CircleShape shape2(c.radius * 0.7f);
-        shape2.setFillColor(sf::Color(255, 255, 255, c.alpha - 20));
-        shape2.setPosition({cx + c.radius * 0.5f, c.y - c.radius * 0.3f});
-        window.draw(shape2);
-    }
-
-    float groundY = static_cast<float>(Config::SCREEN_HEIGHT - ConfigLoader::getFloat("ground_height", Config::GROUND_HEIGHT));
-    sf::RectangleShape bgLayer;
-    bgLayer.setSize(sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH), 150.f));
-    bgLayer.setPosition(sf::Vector2f(bgOffset, groundY - 150.f));
-    bgLayer.setFillColor(sf::Color(100, 150, 100));
-    window.draw(bgLayer);
-
-    bgLayer.setPosition(sf::Vector2f(bgOffset + static_cast<float>(Config::SCREEN_WIDTH), groundY - 150.f));
-    window.draw(bgLayer);
+    visualEffects->draw(window);
 
     for (int idx : activePipes) (*pipePool)[idx].draw(window);
     for (int idx : activePowerUps) (*powerUpPool)[idx].draw(window);

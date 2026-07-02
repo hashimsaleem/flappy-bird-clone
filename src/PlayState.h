@@ -10,23 +10,17 @@
 #include "Bird.hpp"
 #include "Pipe.hpp"
 #include "PowerUp.hpp"
-#include "Particle.hpp"
 #include "ScoreFloat.h"
 #include "BirdState.h"
 #include "ObjectPool.h"
+#include "VisualEffectManager.hpp"
 
 struct PlayStateSnapshot {
     BirdState birdState;
     int score;
     int difficulty;
     std::vector<Pipe> pipes;
-    std::vector<Particle> particles;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
-};
-
-struct Cloud {
-    float x, y, speed, radius;
-    unsigned char alpha;
 };
 
 class PlayState : public GameState {
@@ -52,8 +46,7 @@ public:
 
 private:
     void triggerGameOver();
-    void drawGround(sf::RenderWindow& window, float dt);
-    void drawSky(sf::RenderWindow& window, float dt);
+
 
     sf::Sound* jumpSound;
     sf::Sound* scoreSound;
@@ -66,24 +59,13 @@ private:
     Bird bird;
     std::vector<int> activePipes;
     std::vector<int> activePowerUps;
-    std::vector<int> activeParticles;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
     float slowMoFactor = 1.0f;
 
     std::unique_ptr<ObjectPool<Pipe>> pipePool;
     std::unique_ptr<ObjectPool<PowerUp>> powerUpPool;
-    std::unique_ptr<ObjectPool<Particle>> particlePool;
+    std::unique_ptr<VisualEffectManager> visualEffects;
 
-    float groundScrollOffset = 0.f;
-    float bgOffset = 0.f;
-    float spawnTimer = 0.f;
-    float currentPipeSpeed = Config::PIPE_SPEED;
-    float currentSpawnInterval = Config::PIPE_SPAWN_INTERVAL;
-    float shakeTimer = 0.f;
-    float shakeIntensity = 0.f;
-    sf::Vector2f shakeOffset = {0.f, 0.f};
-    int score = 0;
-    float skyTimer = 0.f;
 
     std::default_random_engine rng;
     std::uniform_real_distribution<float> yDist;
@@ -93,8 +75,6 @@ private:
     int difficulty = 1;
     float scoreBounceTimer = 0.f;
     float scoreScale = 1.f;
-    std::vector<Cloud> clouds;
-    float cloudOffset = 0.f;
 
     bool gameOverTriggered = false;
     bool paused = false;
