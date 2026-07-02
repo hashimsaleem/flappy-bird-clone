@@ -5,14 +5,13 @@
 #include <cmath>
 #include <cstdlib>
 
-PlayState::PlayState(sf::Sound* jumpSnd, sf::Sound* scoreSnd, sf::Sound* deathSnd,
-                     sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-                     const sf::Font& fontRef, const std::string& assetDir,
-                     float posX, float posY, float vel, int difficulty)
-    : jumpSound(jumpSnd), scoreSound(scoreSnd), deathSound(deathSnd),
+PlayState::PlayState(sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
+                      const sf::Font& fontRef, const std::string& assetDir,
+                      float posX, float posY, float vel, int difficulty)
+    : soundManager(std::make_unique<SoundManager>(bgmMusic, bgmLoaded)),
       bgmMusic(bgmMusic), bgmLoaded(bgmLoaded), highScore(highScoreRef),
-      font(&fontRef), difficulty(difficulty) {
-    jumpSound->setVolume(60.f);
+      font(&fontRef), difficulty(difficulty),
+      scoreManager(std::make_unique<ScoreManager>(fontRef, difficulty)) {
 
     currentPipeSpeed = ConfigLoader::getFloat("pipe_speed", Config::PIPE_SPEED);
     currentSpawnInterval = ConfigLoader::getFloat("pipe_spawn_interval", Config::PIPE_SPAWN_INTERVAL);
@@ -88,7 +87,7 @@ void PlayState::triggerGameOver() {
     gameOverTriggered = true;
     gameOverSnapshot = takeSnapshot();
 
-    deathSound->play();
+    soundManager->playDeath();
     bird.setDying();
 
     visualEffects->spawnParticles(bird.getBoundingBox().position, 20, {0.f, 0.f});
@@ -100,13 +99,11 @@ void PlayState::triggerGameOver() {
         bgmMusic.stop();
 }
 
-
-
 void PlayState::update(float dt) {
     float effectiveDt = dt * slowMoFactor;
 
     if (gameOverTriggered) {
-    bird.update(effectiveDt);
+        bird.update(effectiveDt);
         return;
     }
 
@@ -115,7 +112,7 @@ void PlayState::update(float dt) {
         if (countdownTimer <= 0.0f) {
             gameStarted = true;
         }
-        visualEffects->update(effectiveDt, currentPipeSpeed);
+        visualEffects->update(effectiveDt, scoreManager->getCurrentPipeSpeed());
         return;
     }
 
@@ -128,16 +125,19 @@ void PlayState::update(float dt) {
         shakeOffset = {0.f, 0.f};
     }
 
-    for (auto& sf : scoreFloats) sf->update(effectiveDt);
-    scoreFloats.erase(std::remove_if(scoreFloats.begin(), scoreFloats.end(),
-        [](const std::shared_ptr<ScoreFloat>& s) { return !s->alive(); }), scoreFloats.end());
+    for (auto& sf : scoreManager->getScoreFloats()) sf->update(dt);
+    scoreManager->removeExpiredScoreFloats();
 
-    visualEffects->update(effectiveDt, currentPipeSpeed);
+    visualEffects->update(effectiveDt, scoreManager->getCurrentPipeSpeed());
 
-    if (scoreBounceTimer > 0.f) {
-        scoreBounceTimer -= effectiveDt;
-        scoreScale = 1.f + 0.4f * std::min(scoreBounceTimer / 0.3f, 1.f);
-        if (scoreBounceTimer <= 0.f) scoreScale = 1.f;
+    float currentBounceTimer = scoreManager->getScoreBounceTimer();
+    if (currentBounceTimer > 0.f) {
+        float newTimer = currentBounceTimer - dt;
+        scoreManager->setScoreBounceTimer(newTimer);
+        float newScale = 1.f + 0.4f * std::min(newTimer / 0.3f, 1.f);
+        scoreManager->setScoreScale(newScale > 1.f ? newScale : 1.f);
+    } else {
+        scoreManager->setScoreScale(1.f);
     }
 
     bird.update(effectiveDt);
@@ -161,18 +161,16 @@ void PlayState::update(float dt) {
         float birdX = bird.getX();
         if (!pipe.passed && pipe.getX() < birdX) {
             pipe.passed = true;
-            score++;
-            scoreBounceTimer = 0.3f;
-            scoreSound->play();
-            scoreFloats.push_back(std::make_shared<ScoreFloat>(*font, sf::Vector2f(bird.getBoundingBox().position.x, bird.getBoundingBox().position.y - 20.f)));
+            scoreManager->addScore();
+            scoreManager->setScoreBounceTimer(0.3f);
+            soundManager->playScore();
+            scoreManager->pushScoreFloat(*font, sf::Vector2f(bird.getBoundingBox().position.x, bird.getBoundingBox().position.y - 20.f));
 
-            if (score % 5 == 0) {
-                currentPipeSpeed *= 1.05f;
-                currentSpawnInterval *= 0.95f;
+            if (scoreManager->getScore() % 5 == 0) {
                 float pipeSpeedMax = ConfigLoader::getFloat("pipe_speed_max", Config::PIPE_SPEED_MAX);
                 float spawnIntervalMin = ConfigLoader::getFloat("spawn_interval_min", Config::SPAWN_INTERVAL_MIN);
-                if (currentPipeSpeed > pipeSpeedMax) currentPipeSpeed = pipeSpeedMax;
-                if (currentSpawnInterval < spawnIntervalMin) currentSpawnInterval = spawnIntervalMin;
+                if (scoreManager->getCurrentPipeSpeed() > pipeSpeedMax) scoreManager->setCurrentPipeSpeed(pipeSpeedMax);
+                if (scoreManager->getCurrentSpawnInterval() < spawnIntervalMin) scoreManager->setCurrentSpawnInterval(spawnIntervalMin);
             }
         }
 
@@ -185,17 +183,17 @@ void PlayState::update(float dt) {
     }
 
     spawnTimer += effectiveDt;
-    if (spawnTimer > currentSpawnInterval) {
+    if (spawnTimer > scoreManager->getCurrentSpawnInterval()) {
         float randomY = yDist(rng);
         float randomGap = gapDist(rng);
         PipeType type = (typeDist(rng) == 0) ? PipeType::MOVING : PipeType::STATIC;
         int idx = pipePool->acquire();
-        (*pipePool)[idx].reset(static_cast<float>(Config::SCREEN_WIDTH), randomY, randomGap, currentPipeSpeed, type);
+        (*pipePool)[idx].reset(static_cast<float>(Config::SCREEN_WIDTH), randomY, randomGap, scoreManager->getCurrentPipeSpeed(), type);
         activePipes.push_back(idx);
         spawnTimer = 0.f;
     }
 
-    visualEffects->update(effectiveDt, currentPipeSpeed);
+    visualEffects->update(effectiveDt, scoreManager->getCurrentPipeSpeed());
 
     for (auto it = activePowerUps.begin(); it != activePowerUps.end(); ) {
         int idx = *it;
@@ -204,10 +202,10 @@ void PlayState::update(float dt) {
         if (p.checkCollision(bird.getBoundingBox())) {
             if (p.getType() == PowerUpType::INVINCIBILITY) {
                 bird.setInvincible(true);
-                scoreBounceTimer = 5.0f;
+                scoreManager->setScoreBounceTimer(5.0f);
             } else if (p.getType() == PowerUpType::SLOW_MOTION) {
                 slowMoFactor = 0.5f;
-                scoreBounceTimer = 5.0f;
+                scoreManager->setScoreBounceTimer(5.0f);
             }
             powerUpPool->release(idx);
             it = activePowerUps.erase(it);
@@ -219,9 +217,11 @@ void PlayState::update(float dt) {
         }
     }
 
-    if (scoreBounceTimer > 0.f) {
-        scoreBounceTimer -= effectiveDt;
-        if (scoreBounceTimer <= 0.f) {
+    float remainingBounceTimer = scoreManager->getScoreBounceTimer();
+    if (remainingBounceTimer > 0.f) {
+        float newTimer = remainingBounceTimer - effectiveDt;
+        scoreManager->setScoreBounceTimer(newTimer);
+        if (newTimer <= 0.f) {
             bird.setInvincible(false);
             slowMoFactor = 1.0f;
         }
@@ -234,19 +234,18 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
     shakeView.setCenter(originalView.getCenter() + sf::Vector2f(shakeOffset.x, shakeOffset.y));
     window.setView(shakeView);
 
-
     visualEffects->draw(window);
 
     for (int idx : activePipes) (*pipePool)[idx].draw(window);
     for (int idx : activePowerUps) (*powerUpPool)[idx].draw(window);
     bird.draw(window);
 
-    for (const auto& sf : scoreFloats) sf->draw(window);
+    for (const auto& sf : scoreManager->getScoreFloats()) sf->draw(window);
 
-    auto scoreText = makeText(font, "Score: " + std::to_string(score),
-                               30, Config::TEXT_COLOR,
-                               sf::Vector2f(10.f, 10.f));
-    scoreText.setScale({scoreScale, scoreScale});
+    auto scoreText = makeText(font, "Score: " + std::to_string(scoreManager->getScore()),
+                                30, Config::TEXT_COLOR,
+                                sf::Vector2f(10.f, 10.f));
+    scoreText.setScale({scoreManager->getScoreScale(), scoreManager->getScoreScale()});
     window.draw(scoreText);
 
     auto hsText = makeText(font, "High Score: " + std::to_string(highScore),
@@ -303,8 +302,8 @@ PlayStateSnapshot PlayState::takeSnapshot() const {
     bs.tiltAngle = 0.0f;
     bs.flapTimer = 0.0f;
     snap.birdState = bs;
-    snap.score = score;
-    snap.difficulty = difficulty;
+    snap.score = scoreManager->getScore();
+    snap.difficulty = scoreManager->getDifficulty();
 
     for (int idx : activePipes) {
         snap.pipes.push_back((*pipePool)[idx]);
@@ -312,6 +311,6 @@ PlayStateSnapshot PlayState::takeSnapshot() const {
     const auto& particles = visualEffects->getParticles();
     snap.particles.insert(snap.particles.end(), particles.begin(), particles.end());
 
-    snap.scoreFloats = scoreFloats;
+    snap.scoreFloats = scoreManager->getScoreFloats();
     return snap;
 }

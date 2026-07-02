@@ -14,6 +14,8 @@ set(SOURCES
     ParticleSystem.cpp
     CloudSystem.cpp
     EnvironmentRenderer.cpp
+    ScoreManager.cpp
+    SoundManager.cpp
 )
 
 add_library(FlappyBirdLib STATIC ${SOURCES})

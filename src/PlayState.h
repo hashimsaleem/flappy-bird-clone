@@ -14,6 +14,8 @@
 #include "BirdState.h"
 #include "ObjectPool.h"
 #include "VisualEffectManager.hpp"
+#include "SoundManager.hpp"
+#include "ScoreManager.hpp"
 
 struct PlayStateSnapshot {
     BirdState birdState;
@@ -31,11 +33,10 @@ struct PlayStateSnapshot {
 
 class PlayState : public GameState {
 public:
-    PlayState(sf::Sound* jumpSnd, sf::Sound* scoreSnd, sf::Sound* deathSnd,
-               sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-               const sf::Font& fontRef, const std::string& assetDir,
-               float posX = Config::BIRD_START_X, float posY = Config::BIRD_START_Y,
-               float vel = 0.0f, int difficulty = 1);
+     PlayState(sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
+                      const sf::Font& fontRef, const std::string& assetDir,
+                      float posX = Config::BIRD_START_X, float posY = Config::BIRD_START_Y,
+                      float vel = 0.0f, int difficulty = 1);
 
     void update(float dt) override;
     void draw(sf::RenderWindow& window, const sf::Font& font) override;
@@ -47,15 +48,13 @@ public:
         if (gameOverTriggered) return StateAction::GameOver;
         return StateAction::None;
     }
-    int selectedDifficulty() const override { return difficulty; }
+    int selectedDifficulty() const override { return scoreManager->getDifficulty(); }
     PlayStateSnapshot takeSnapshot() const;
 
 private:
     void triggerGameOver();
 
-    sf::Sound* jumpSound;
-    sf::Sound* scoreSound;
-    sf::Sound* deathSound;
+    std::unique_ptr<SoundManager> soundManager;
     sf::Music& bgmMusic;
     bool bgmLoaded;
     int& highScore;
@@ -64,7 +63,6 @@ private:
     Bird bird;
     std::vector<int> activePipes;
     std::vector<int> activePowerUps;
-    std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
     float slowMoFactor = 1.0f;
 
     std::unique_ptr<ObjectPool<Pipe>> pipePool;
@@ -77,10 +75,7 @@ private:
     std::uniform_int_distribution<int> typeDist;
 
     int difficulty = 1;
-    float scoreBounceTimer = 0.f;
-    float scoreScale = 1.f;
-
-    bool gameOverTriggered = false;
+    std::unique_ptr<ScoreManager> scoreManager;
     bool paused = false;
     int pauseSelected = 0;
     bool quitToMenu = false;
@@ -91,13 +86,13 @@ private:
     float restartPosY = Config::BIRD_START_Y;
     float restartVel = 0.0f;
 
-    float currentPipeSpeed;
-    float currentSpawnInterval;
     float shakeTimer = 0.f;
     float shakeIntensity = 0.f;
     float spawnTimer = 0.f;
     sf::Vector2f shakeOffset = {0.f, 0.f};
-    int score = 0;
+    float currentPipeSpeed;
+    float currentSpawnInterval;
+    bool gameOverTriggered = false;
 };
 
 #endif

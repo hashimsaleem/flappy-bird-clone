@@ -7,17 +7,19 @@
 #include <string>
 #include "GameState.h"
 #include "Config.hpp"
+#include "SoundManager.hpp"
+
 
 class MenuState : public GameState {
 public:
-    MenuState(sf::Sound* jumpSnd, sf::Sound* scoreSnd, sf::Sound* deathSnd,
-              sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-              const sf::Font& fontRef)
-        : jumpSound(jumpSnd), scoreSnd(scoreSnd), deathSound(deathSnd),
+    MenuState(sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
+               const sf::Font& fontRef)
+        : soundManager(std::make_unique<SoundManager>(bgmMusic, bgmLoaded)),
           bgmMusic(bgmMusic), bgmLoaded(bgmLoaded), highScore(highScoreRef),
           font(&fontRef) {
         volume = bgmMusic.getVolume();
     }
+
 
     void update(float dt) override {
         blinkTimer += dt;
@@ -103,19 +105,18 @@ public:
     int selectedDifficulty() const override { return difficulty; }
 
 private:
-    sf::Sound* jumpSound;
-    sf::Sound* scoreSnd;
-    sf::Sound* deathSound;
     sf::Music& bgmMusic;
     bool bgmLoaded;
     int& highScore;
     const sf::Font* font = nullptr;
-
+    
+    std::unique_ptr<SoundManager> soundManager;
     int selectedOption = -1;
     StateAction nextActionCode = StateAction::None;
     float blinkTimer = 0.f;
     float volume = 50.f;
     int difficulty = 1;
+
 };
 
 #endif

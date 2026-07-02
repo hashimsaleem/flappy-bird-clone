@@ -43,15 +43,9 @@ int main() {
     ResourceManager& resMgr = ResourceManager::getInstance();
     std::string fontPath = exeDir + Config::FONT_PATH;
     const sf::Font& font = resMgr.getFont(fontPath, 30);
-
-    sf::Sound& jumpSoundRef = resMgr.getSound(exeDir + Config::JUMP_SND);
-    sf::Sound& scoreSndRef = resMgr.getSound(exeDir + Config::SCORE_SND);
-    sf::Sound& deathSndRef = resMgr.getSound(exeDir + Config::DEATH_SND);
-    sf::Sound* jumpSound = &jumpSoundRef;
-    sf::Sound* scoreSnd = &scoreSndRef;
-    sf::Sound* deathSnd = &deathSndRef;
-
+    
     sf::Music bgmMusic;
+
     bool bgmLoaded = bgmMusic.openFromFile(exeDir + Config::BG_MUSIC);
     if (bgmLoaded) {
         bgmMusic.setLooping(true);
@@ -62,7 +56,7 @@ int main() {
     HighScore::setPath(exeDir + "highscore.dat");
     int highScore = HighScore::load();
 
-    std::unique_ptr<GameState> state = StateFactory::createMenuState(jumpSound, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScore, font);
+    std::unique_ptr<GameState> state = StateFactory::createMenuState(bgmMusic, bgmLoaded, highScore, font);
     state->onEnter();
 
     sf::Clock gameClock;
@@ -114,8 +108,9 @@ int main() {
             case StateAction::PlayGame: {
                 BirdState rs = state->getRestartBirdState();
                 int diff = state->selectedDifficulty();
-                next = StateFactory::createPlayState(jumpSound, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScore, font, exeDir,
-                                                       rs.posX, rs.posY, rs.velocityY, diff);
+                next = StateFactory::createPlayState(bgmMusic, bgmLoaded, highScore, font, exeDir,
+                                                        rs.posX, rs.posY, rs.velocityY, diff);
+
                 break;
             }
             case StateAction::ShowHighScore:
@@ -128,7 +123,7 @@ int main() {
                 break;
             }
             case StateAction::ReturnToMenu:
-                next = StateFactory::createMenuState(jumpSound, scoreSnd, deathSnd, bgmMusic, bgmLoaded, highScore, font);
+                next = StateFactory::createMenuState(bgmMusic, bgmLoaded, highScore, font);
                 break;
             case StateAction::Exit:
                 window.close();
