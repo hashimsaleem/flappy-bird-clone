@@ -10,6 +10,10 @@ set(SOURCES
     GameOverState.cpp
     StateFactory.cpp
     PowerUp.cpp
+    VisualEffectManager.cpp
+    ParticleSystem.cpp
+    CloudSystem.cpp
+    EnvironmentRenderer.cpp
 )
 
 add_library(FlappyBirdLib STATIC ${SOURCES})

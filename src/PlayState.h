@@ -21,15 +21,21 @@ struct PlayStateSnapshot {
     int difficulty;
     std::vector<Pipe> pipes;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
+    float currentPipeSpeed;
+    float currentSpawnInterval;
+    float shakeTimer;
+    float shakeIntensity;
+    float spawnTimer;
+    std::vector<Particle> particles;
 };
 
 class PlayState : public GameState {
 public:
     PlayState(sf::Sound* jumpSnd, sf::Sound* scoreSnd, sf::Sound* deathSnd,
-              sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-              const sf::Font& fontRef, const std::string& assetDir,
-              float posX = Config::BIRD_START_X, float posY = Config::BIRD_START_Y,
-              float vel = 0.0f, int difficulty = 1);
+               sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
+               const sf::Font& fontRef, const std::string& assetDir,
+               float posX = Config::BIRD_START_X, float posY = Config::BIRD_START_Y,
+               float vel = 0.0f, int difficulty = 1);
 
     void update(float dt) override;
     void draw(sf::RenderWindow& window, const sf::Font& font) override;
@@ -46,7 +52,6 @@ public:
 
 private:
     void triggerGameOver();
-
 
     sf::Sound* jumpSound;
     sf::Sound* scoreSound;
@@ -65,7 +70,6 @@ private:
     std::unique_ptr<ObjectPool<Pipe>> pipePool;
     std::unique_ptr<ObjectPool<PowerUp>> powerUpPool;
     std::unique_ptr<VisualEffectManager> visualEffects;
-
 
     std::default_random_engine rng;
     std::uniform_real_distribution<float> yDist;
@@ -86,6 +90,14 @@ private:
     float restartPosX = Config::BIRD_START_X;
     float restartPosY = Config::BIRD_START_Y;
     float restartVel = 0.0f;
+
+    float currentPipeSpeed;
+    float currentSpawnInterval;
+    float shakeTimer = 0.f;
+    float shakeIntensity = 0.f;
+    float spawnTimer = 0.f;
+    sf::Vector2f shakeOffset = {0.f, 0.f};
+    int score = 0;
 };
 
 #endif

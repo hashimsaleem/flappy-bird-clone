@@ -7,12 +7,13 @@
 class VisualEffectManager {
 public:
     VisualEffectManager();
-    void update(float dt);
+    void update(float dt, float currentPipeSpeed);
     void draw(sf::RenderWindow& window);
     void spawnParticles(sf::Vector2f pos, int count, sf::Vector2f velocity);
     void setGroundScrollOffset(float offset) { groundScrollOffset = offset; }
     void setCloudOffset(float offset) { cloudOffset = offset; }
     void setSkyTimer(float timer) { skyTimer = timer; }
+    const std::vector<Particle>& getParticles() const { return particles->getParticles(); }
 
 private:
     std::unique_ptr<CloudSystem> clouds;

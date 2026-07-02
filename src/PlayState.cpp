@@ -195,7 +195,7 @@ void PlayState::update(float dt) {
         spawnTimer = 0.f;
     }
 
-    visualEffects->update(effectiveDt);
+    visualEffects->update(effectiveDt, currentPipeSpeed);
 
     for (auto it = activePowerUps.begin(); it != activePowerUps.end(); ) {
         int idx = *it;
@@ -309,9 +309,8 @@ PlayStateSnapshot PlayState::takeSnapshot() const {
     for (int idx : activePipes) {
         snap.pipes.push_back((*pipePool)[idx]);
     }
-    for (int idx : activeParticles) {
-        snap.particles.push_back((*particlePool)[idx]);
-    }
+    const auto& particles = visualEffects->getParticles();
+    snap.particles.insert(snap.particles.end(), particles.begin(), particles.end());
 
     snap.scoreFloats = scoreFloats;
     return snap;

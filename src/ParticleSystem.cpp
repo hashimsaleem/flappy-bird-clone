@@ -43,3 +43,11 @@ void ParticleSystem::draw(sf::RenderWindow& window) {
         (*particlePool)[idx].draw(window);
     }
 }
+
+std::vector<Particle> ParticleSystem::getParticles() const {
+    std::vector<Particle> particles;
+    for (int idx : activeParticles) {
+        particles.push_back((*particlePool)[idx]);
+    }
+    return particles;
+}
