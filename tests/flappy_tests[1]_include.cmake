@@ -1,0 +1,5 @@
+if(EXISTS "/home/hashim/trading/tests/flappy_tests[1]_tests.cmake")
+  include("/home/hashim/trading/tests/flappy_tests[1]_tests.cmake")
+else()
+  add_test(flappy_tests_NOT_BUILT flappy_tests_NOT_BUILT)
+endif()

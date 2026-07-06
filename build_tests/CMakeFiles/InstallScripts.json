@@ -1,9 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/hashim/trading/build_tests/cmake_install.cmake",
-		"/home/hashim/trading/build_tests/src/cmake_install.cmake",
-		"/home/hashim/trading/build_tests/tests/cmake_install.cmake"
-	],
-	"Parallel" : false
-}

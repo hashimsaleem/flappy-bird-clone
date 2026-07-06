@@ -51,7 +51,7 @@ void EnvironmentRenderer::draw(sf::RenderWindow& window, float scrollOffset, flo
         sf::RectangleShape tile;
         tile.setSize(sf::Vector2f(static_cast<float>(Config::GROUND_TILE_W), 8.f));
         tile.setPosition(sf::Vector2f(x, groundY));
-        tile.setFillColor(Config::GROUND_TOP_COLORS[idx]);
+        tile.setFillColor(Config::GROUND_TOP);
         window.draw(tile);
     }
 

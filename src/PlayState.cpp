@@ -6,8 +6,8 @@
 #include <cstdlib>
 
 PlayState::PlayState(sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-                      const sf::Font& fontRef, const std::string& assetDir,
-                      float posX, float posY, float vel, int difficulty)
+                     const sf::Font& fontRef, const std::string& assetDir,
+                     float posX, float posY, float vel, int difficulty)
     : soundManager(std::make_unique<SoundManager>(bgmMusic, bgmLoaded)),
       bgmMusic(bgmMusic), bgmLoaded(bgmLoaded), highScore(highScoreRef),
       font(&fontRef), difficulty(difficulty),
@@ -125,7 +125,7 @@ void PlayState::update(float dt) {
         shakeOffset = {0.f, 0.f};
     }
 
-    for (auto& sf : scoreManager->getScoreFloats()) sf->update(dt);
+  for (auto& sf : scoreManager->getScoreFloats()) sf->update(dt);
     scoreManager->removeExpiredScoreFloats();
 
     visualEffects->update(effectiveDt, scoreManager->getCurrentPipeSpeed());
@@ -167,10 +167,7 @@ void PlayState::update(float dt) {
             scoreManager->pushScoreFloat(*font, sf::Vector2f(bird.getBoundingBox().position.x, bird.getBoundingBox().position.y - 20.f));
 
             if (scoreManager->getScore() % 5 == 0) {
-                float pipeSpeedMax = ConfigLoader::getFloat("pipe_speed_max", Config::PIPE_SPEED_MAX);
-                float spawnIntervalMin = ConfigLoader::getFloat("spawn_interval_min", Config::SPAWN_INTERVAL_MIN);
-                if (scoreManager->getCurrentPipeSpeed() > pipeSpeedMax) scoreManager->setCurrentPipeSpeed(pipeSpeedMax);
-                if (scoreManager->getCurrentSpawnInterval() < spawnIntervalMin) scoreManager->setCurrentSpawnInterval(spawnIntervalMin);
+                // This block is now handled by the hybrid scaling logic below
             }
         }
 
@@ -182,7 +179,31 @@ void PlayState::update(float dt) {
         }
     }
 
-    spawnTimer += effectiveDt;
+  spawnTimer += effectiveDt;
+    int currentScore = scoreManager->getScore();
+    float globalLerp = 0.0f;
+    const Config::DifficultyZone* activeZone = &Config::EASY_ZONE;
+
+    if (currentScore <= Config::EASY_ZONE.maxScore) {
+        activeZone = &Config::EASY_ZONE;
+        globalLerp = static_cast<float>(currentScore) / static_cast<float>(Config::INSANE_ZONE.maxScore);
+    } else if (currentScore <= Config::NORMAL_ZONE.maxScore) {
+        activeZone = &Config::NORMAL_ZONE;
+        globalLerp = static_cast<float>(currentScore) / static_cast<float>(Config::INSANE_ZONE.maxScore);
+    } else if (currentScore <= Config::HARD_ZONE.maxScore) {
+        activeZone = &Config::HARD_ZONE;
+        globalLerp = static_cast<float>(currentScore) / static_cast<float>(Config::INSANE_ZONE.maxScore);
+    } else {
+        activeZone = &Config::INSANE_ZONE;
+        globalLerp = static_cast<float>(currentScore) / static_cast<float>(Config::INSANE_ZONE.maxScore);
+    }
+    if (globalLerp > 1.0f) globalLerp = 1.0f;
+    float targetSpeed = Config::PIPE_SPEED + (Config::PIPE_SPEED_MAX - Config::PIPE_SPEED) * globalLerp;
+    float targetInterval = Config::PIPE_SPAWN_INTERVAL - (Config::PIPE_SPAWN_INTERVAL - Config::SPAWN_INTERVAL_MIN) * globalLerp;
+
+    scoreManager->setCurrentPipeSpeed(targetSpeed);
+    scoreManager->setCurrentSpawnInterval(targetInterval);
+
     if (spawnTimer > scoreManager->getCurrentSpawnInterval()) {
         float randomY = yDist(rng);
         float randomGap = gapDist(rng);
@@ -243,14 +264,14 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
     for (const auto& sf : scoreManager->getScoreFloats()) sf->draw(window);
 
     auto scoreText = makeText(font, "Score: " + std::to_string(scoreManager->getScore()),
-                                30, Config::TEXT_COLOR,
-                                sf::Vector2f(10.f, 10.f));
+                                 30, Config::TEXT_COLOR,
+                                 sf::Vector2f(10.f, 10.f));
     scoreText.setScale({scoreManager->getScoreScale(), scoreManager->getScoreScale()});
     window.draw(scoreText);
 
     auto hsText = makeText(font, "High Score: " + std::to_string(highScore),
-                            24, Config::TEXT_COLOR,
-                            sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH - 200.f), 10.f));
+                             24, Config::TEXT_COLOR,
+                             sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH - 200.f), 10.f));
     window.draw(hsText);
 
     if (!gameStarted) {
@@ -290,6 +311,37 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
     }
 
     window.setView(originalView);
+
+    // Debug Overlay
+    int currentScore = scoreManager->getScore();
+    float lerpFactor = 0.0f;
+    const Config::DifficultyZone* activeZone = &Config::INSANE_ZONE;
+
+    if (currentScore <= Config::EASY_ZONE.maxScore) {
+        activeZone = &Config::EASY_ZONE;
+        lerpFactor = std::min(1.0f, static_cast<float>(currentScore - Config::EASY_ZONE.minScore) / (Config::EASY_ZONE.maxScore - Config::EASY_ZONE.minScore));
+    } else if (currentScore <= Config::NORMAL_ZONE.maxScore) {
+        activeZone = &Config::NORMAL_ZONE;
+        lerpFactor = std::min(1.0f, static_cast<float>(currentScore - Config::NORMAL_ZONE.minScore) / (Config::NORMAL_ZONE.maxScore - Config::NORMAL_ZONE.minScore));
+    } else if (currentScore <= Config::HARD_ZONE.maxScore) {
+        activeZone = &Config::HARD_ZONE;
+        lerpFactor = std::min(1.0f, static_cast<float>(currentScore - Config::HARD_ZONE.minScore) / (Config::HARD_ZONE.maxScore - Config::HARD_ZONE.minScore));
+    } else {
+        activeZone = &Config::INSANE_ZONE;
+        lerpFactor = std::min(1.0f, static_cast<float>(currentScore - Config::INSANE_ZONE.minScore) / (Config::INSANE_ZONE.maxScore - Config::INSANE_ZONE.minScore));
+    }
+
+    std::string zoneName = "INSANE";
+    if (currentScore <= Config::EASY_ZONE.maxScore) zoneName = "EASY";
+    else if (currentScore <= Config::NORMAL_ZONE.maxScore) zoneName = "NORMAL";
+    else if (currentScore <= Config::HARD_ZONE.maxScore) zoneName = "HARD";
+
+    auto debugText = makeText(font, "Zone: " + zoneName + " | Lerp: " + std::to_string(lerpFactor).substr(0, 4),
+                             18, sf::Color::Yellow,
+                             sf::Vector2f(10.f, static_cast<float>(Config::SCREEN_HEIGHT) - 30.f));
+    window.draw(debugText);
+
+    return;
 }
 
 PlayStateSnapshot PlayState::takeSnapshot() const {

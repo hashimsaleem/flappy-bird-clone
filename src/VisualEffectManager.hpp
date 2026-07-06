@@ -13,7 +13,7 @@ public:
     void setGroundScrollOffset(float offset) { groundScrollOffset = offset; }
     void setCloudOffset(float offset) { cloudOffset = offset; }
     void setSkyTimer(float timer) { skyTimer = timer; }
-    const std::vector<Particle>& getParticles() const { return particles->getParticles(); }
+    std::vector<Particle> getParticles() const;
 
 private:
     std::unique_ptr<CloudSystem> clouds;

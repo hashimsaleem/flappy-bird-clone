@@ -93,6 +93,9 @@ private:
     float currentPipeSpeed;
     float currentSpawnInterval;
     bool gameOverTriggered = false;
+
+public:
+    std::unique_ptr<ScoreManager>& getScoreManager() { return scoreManager; }
 };
 
 #endif

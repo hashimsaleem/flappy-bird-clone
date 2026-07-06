@@ -22,6 +22,10 @@ void VisualEffectManager::draw(sf::RenderWindow& window) {
     environment->draw(window, groundScrollOffset, skyTimer);
 }
 
+std::vector<Particle> VisualEffectManager::getParticles() const {
+    return particles->getParticles();
+}
+
 void VisualEffectManager::spawnParticles(sf::Vector2f pos, int count, sf::Vector2f velocity) {
     particles->spawn(pos, count, velocity);
 }

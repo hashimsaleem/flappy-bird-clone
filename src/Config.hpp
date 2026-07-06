@@ -62,9 +62,18 @@ namespace Config {
     constexpr sf::Color TEXT_COLOR   = sf::Color(255, 255, 255);
     constexpr sf::Color GAME_OVER_COLOR = sf::Color(255, 0, 0);
 
-    // Screen shake
-    constexpr float SCREEN_SHAKE_INTENSITY = 8.0f;
-    constexpr float SCREEN_SHAKE_DURATION  = 0.35f;
+    // Difficulty Zones
+    struct DifficultyZone {
+        int minScore;
+        int maxScore;
+        float basePipeSpeed;
+        float baseSpawnInterval;
+    };
+
+    const DifficultyZone EASY_ZONE   = {0, 50, 180.0f, 2.0f};
+    const DifficultyZone NORMAL_ZONE = {51, 150, 220.0f, 1.6f};
+    const DifficultyZone HARD_ZONE   = {151, 300, 280.0f, 1.2f};
+    const DifficultyZone INSANE_ZONE  = {301, 9999, 350.0f, 0.9f};
 
     // TEST EDIT
     constexpr float SCORE_FLOAT_DURATION  = 0.8f;
@@ -92,12 +101,8 @@ namespace Config {
     constexpr int GROUND_TILE_W = 32;
     constexpr int GROUND_TILE_H = 16;
     constexpr int GROUND_TILE_COUNT = 4;
-    constexpr sf::Color GROUND_TOP_COLORS[GROUND_TILE_COUNT] = {
-        sf::Color(107, 87,  48),  // dark top
-        sf::Color(120, 98,  52),
-        sf::Color(95,  75,  42),
-        sf::Color(110, 90,  46)
-    };
+    constexpr float SCREEN_SHAKE_DURATION = 0.5f;
+    constexpr float SCREEN_SHAKE_INTENSITY = 10.0f;
 }
 
 #endif // CONFIG_HPP
