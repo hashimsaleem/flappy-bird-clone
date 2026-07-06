@@ -12,6 +12,7 @@ public:
     void draw(sf::RenderWindow& window);
     void spawn(sf::Vector2f pos, int count, sf::Vector2f velocity);
     std::vector<Particle> getParticles() const;
+    size_t getActiveCount() const { return activeParticles.size(); }
 private:
     std::unique_ptr<ObjectPool<Particle>> particlePool;
     std::vector<int> activeParticles;

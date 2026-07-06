@@ -23,12 +23,13 @@ TEST_F(PowerUpTest, HasCorrectType) {
     EXPECT_EQ(powerUp->getType(), PowerUpType::INVINCIBILITY);
 }
 
-// --- Update moves power-up (if it had velocity, but currently it's static in update) ---
+// --- Update moves power-up according to velocity ---
 TEST_F(PowerUpTest, UpdateDoesNotMoveStaticPowerUp) {
     float initialX = powerUp->getX();
     float initialY = powerUp->getY();
+    float expectedX = initialX + powerUp->getVelocityX() * 1.0f;
     powerUp->update(1.0f);
-    EXPECT_FLOAT_EQ(powerUp->getX(), initialX);
+    EXPECT_FLOAT_EQ(powerUp->getX(), expectedX);
     EXPECT_FLOAT_EQ(powerUp->getY(), initialY);
 }
 
@@ -47,8 +48,8 @@ TEST_F(PowerUpTest, IsOffScreenWorks) {
     float screenW = static_cast<float>(Config::SCREEN_WIDTH);
     float screenH = static_cast<float>(Config::SCREEN_HEIGHT);
 
-    // Position it off-screen to the left
-    powerUp->reset(-10.f, 0.f);
+    // Position it off-screen to the left (isOffScreen checks x < -50)
+    powerUp->reset(-60.f, 0.f);
     EXPECT_TRUE(powerUp->isOffScreen());
 
     // Position it on-screen

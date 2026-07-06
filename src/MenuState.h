@@ -103,6 +103,7 @@ public:
 
     StateAction nextAction() const override { return nextActionCode; }
     int selectedDifficulty() const override { return difficulty; }
+    float getVolume() const { return volume; }
 
 private:
     sf::Music& bgmMusic;

@@ -11,6 +11,7 @@ public:
     CloudSystem();
     void update(float dt);
     void draw(sf::RenderWindow& window);
+    size_t getCloudCount() const { return clouds.size(); }
 private:
     std::vector<Cloud> clouds;
     float cloudOffset = 0.f;

@@ -21,6 +21,7 @@ public:
     void handleKeyPress(sf::Keyboard::Key key) override;
     StateAction nextAction() const override { return nextActionCode; }
     BirdState getRestartBirdState() const override;
+    BirdState getBirdState() const { return birdState; }
     int selectedDifficulty() const override { return difficulty; }
 
 private:

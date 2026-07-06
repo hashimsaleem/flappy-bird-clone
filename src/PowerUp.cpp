@@ -17,6 +17,10 @@ void PowerUp::reset(float x, float y, PowerUpType type) {
     }
     sprite->setPosition({x, y});
 }
+
+void PowerUp::reset(float x, float y) {
+    sprite->setPosition({x, y});
+}
  
 void PowerUp::update(float dt) {
     if (sprite) {

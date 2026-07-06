@@ -11,8 +11,11 @@ public:
     void draw(sf::RenderWindow& window);
     void spawnParticles(sf::Vector2f pos, int count, sf::Vector2f velocity);
     void setGroundScrollOffset(float offset) { groundScrollOffset = offset; }
+    float getGroundScrollOffset() const { return groundScrollOffset; }
     void setCloudOffset(float offset) { cloudOffset = offset; }
+    float getCloudOffset() const { return cloudOffset; }
     void setSkyTimer(float timer) { skyTimer = timer; }
+    float getSkyTimer() const { return skyTimer; }
     std::vector<Particle> getParticles() const;
 
 private:

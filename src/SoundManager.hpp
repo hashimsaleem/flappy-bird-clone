@@ -19,6 +19,7 @@ public:
     void playJump();
     void playScore();
     void playDeath();
+    float getCurrentBGMVolume() const { return currentBGMVolume; }
 
 private:
     sf::Music& bgmMusic;

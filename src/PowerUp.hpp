@@ -17,8 +17,12 @@ public:
  
     bool checkCollision(sf::FloatRect birdBounds) const;
     
-    PowerUpType getType() const { return type; }
+     PowerUpType getType() const { return type; }
+    float getX() const { return sprite ? sprite->getPosition().x : 0.f; }
+    float getY() const { return sprite ? sprite->getPosition().y : 0.f; }
+    float getVelocityX() const { return velocityX; }
     bool isOffScreen() const;
+    void reset(float x, float y);
  
     void reset(float x, float y, PowerUpType type);
  

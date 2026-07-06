@@ -11,9 +11,19 @@ set(TEST_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/test_Integration.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_ObjectPool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_Pipe.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_PowerUp.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_ResourceManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_ScoreFloat.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_DifficultyScaling.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_StateFactory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_CloudSystem.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_ParticleSystem.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_SoundManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_VisualEffectManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_EnvironmentRenderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_MenuState.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_GameOverState.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_HighScoreScreenState.cpp
 )
 
 add_executable(flappy_tests ${TEST_SOURCES})
