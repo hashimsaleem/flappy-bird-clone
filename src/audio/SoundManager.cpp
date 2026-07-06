@@ -1,5 +1,5 @@
-#include "SoundManager.hpp"
-#include "ConfigLoader.hpp"
+#include "audio/SoundManager.hpp"
+#include "core/ConfigLoader.hpp"
 #include <algorithm>
 
 SoundManager::SoundManager(sf::Music& bgmMusic, bool bgmLoaded) 

@@ -1,5 +1,5 @@
 #include "VisualEffectManager.hpp"
-#include "Config.hpp"
+#include "core/Config.hpp"
 #include <cmath>
 
 VisualEffectManager::VisualEffectManager() {

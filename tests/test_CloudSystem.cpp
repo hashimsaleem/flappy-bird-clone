@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "CloudSystem.hpp"
-#include "Config.hpp"
+#include "visual/CloudSystem.hpp"
+#include "core/Config.hpp"
 
 // --- CloudSystem creates 6 clouds on construction ---
 

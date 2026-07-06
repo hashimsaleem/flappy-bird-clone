@@ -1,5 +1,5 @@
 #include "StateFactory.h"
-#include "Config.hpp"
+#include "core/Config.hpp"
 
 std::unique_ptr<GameState> StateFactory::createMenuState(sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
                                                                 const sf::Font& fontRef) {

@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "GameState.h"
-#include "HighScore.hpp"
+#include "core/HighScore.hpp"
 
 class HighScoreScreenState : public GameState {
 public:

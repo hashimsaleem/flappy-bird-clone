@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "ScoreFloat.h"
+#include "scoring/ScoreFloat.h"
 #include <SFML/Graphics.hpp>
 
 class ScoreFloatTest : public ::testing::Test {

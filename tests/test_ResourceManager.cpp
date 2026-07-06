@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "ResourceManager.hpp"
-#include "Config.hpp"
+#include "systems/ResourceManager.hpp"
+#include "core/Config.hpp"
 
 class ResourceManagerTest : public ::testing::Test {
 protected:

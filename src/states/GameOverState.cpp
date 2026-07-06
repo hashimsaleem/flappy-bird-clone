@@ -1,7 +1,7 @@
 #include "GameOverState.h"
-#include "Config.hpp"
-#include "ConfigLoader.hpp"
-#include "HighScore.hpp"
+#include "core/Config.hpp"
+#include "core/ConfigLoader.hpp"
+#include "core/HighScore.hpp"
 #include <algorithm>
 
 GameOverState::GameOverState(BirdState birdState, std::vector<Pipe> pipes,

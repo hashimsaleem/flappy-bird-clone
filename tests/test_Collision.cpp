@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "Pipe.hpp"
-#include "Config.hpp"
+#include "entities/Pipe.hpp"
+#include "core/Config.hpp"
 
 // Collision test fixtures.
 // Pipe at x=400, y=300, gapHeight=150, speed=200:

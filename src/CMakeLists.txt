@@ -1,21 +1,22 @@
 find_package(SFML REQUIRED COMPONENTS Graphics Window System)
 
 set(SOURCES
-    Bird.cpp
-    Pipe.cpp
-    ResourceManager.cpp
-    HighScore.cpp
-    ConfigLoader.cpp
-    PlayState.cpp
-    GameOverState.cpp
-    StateFactory.cpp
-    PowerUp.cpp
-    VisualEffectManager.cpp
-    ParticleSystem.cpp
-    CloudSystem.cpp
-    EnvironmentRenderer.cpp
-    ScoreManager.cpp
-    SoundManager.cpp
+    entities/Bird.cpp
+    entities/Pipe.cpp
+    entities/PowerUp.cpp
+    core/ConfigLoader.cpp
+    core/HighScore.cpp
+    states/PlayState.cpp
+    states/GameOverState.cpp
+    states/StateFactory.cpp
+    systems/ResourceManager.cpp
+    systems/VisualEffectManager.cpp
+    visual/ParticleSystem.cpp
+    visual/CloudSystem.cpp
+    visual/EnvironmentRenderer.cpp
+    scoring/ScoreManager.cpp
+    audio/SoundManager.cpp
+    main.cpp
 )
 
 add_library(FlappyBirdLib STATIC ${SOURCES})

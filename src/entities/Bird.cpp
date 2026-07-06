@@ -1,5 +1,5 @@
 #include "Bird.hpp"
-#include "ConfigLoader.hpp"
+#include "core/ConfigLoader.hpp"
 #include <iostream>
 
 Bird::Bird() : velocityY(0.0f), posX(Config::BIRD_START_X), posY(Config::BIRD_START_Y) {

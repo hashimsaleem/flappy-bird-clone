@@ -4,15 +4,15 @@
 #include <memory>
 #include <unistd.h>
 #include <filesystem>
-#include "Bird.hpp"
-#include "Pipe.hpp"
-#include "Config.hpp"
-#include "ConfigLoader.hpp"
-#include "ResourceManager.hpp"
-#include "HighScore.hpp"
-#include "GameState.h"
-#include "PlayState.h"
-#include "StateFactory.h"
+#include "entities/Bird.hpp"
+#include "entities/Pipe.hpp"
+#include "core/Config.hpp"
+#include "core/ConfigLoader.hpp"
+#include "systems/ResourceManager.hpp"
+#include "core/HighScore.hpp"
+#include "states/GameState.h"
+#include "states/PlayState.h"
+#include "states/StateFactory.h"
 
 static std::string getExeDir() {
     char buf[4096];

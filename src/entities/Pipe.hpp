@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include "Config.hpp"
+#include "core/Config.hpp"
 
 enum class PipeType { STATIC, MOVING };
 

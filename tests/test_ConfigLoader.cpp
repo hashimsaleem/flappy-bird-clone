@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <fstream>
 #include <cstdio>
-#include "ConfigLoader.hpp"
+#include "core/ConfigLoader.hpp"
 
 class ConfigLoaderTest : public ::testing::Test {
 protected:

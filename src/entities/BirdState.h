@@ -1,7 +1,7 @@
 #ifndef BIRDSTATE_H
 #define BIRDSTATE_H
 
-#include "Config.hpp"
+#include "core/Config.hpp"
 
 /// Lightweight snapshot of Bird state for pass-through between states.
 struct BirdState {

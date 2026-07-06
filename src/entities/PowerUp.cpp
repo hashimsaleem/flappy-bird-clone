@@ -1,5 +1,5 @@
 #include "PowerUp.hpp"
-#include "ResourceManager.hpp"
+#include "systems/ResourceManager.hpp"
  
 PowerUp::PowerUp(float x, float y, PowerUpType type) {
     reset(x, y, type);

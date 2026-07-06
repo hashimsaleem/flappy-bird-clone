@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#include "PlayState.h"
-#include "ScoreManager.hpp"
-#include "Config.hpp"
-#include "ConfigLoader.hpp"
+#include "states/PlayState.h"
+#include "scoring/ScoreManager.hpp"
+#include "core/Config.hpp"
+#include "core/ConfigLoader.hpp"
 #include <SFML/Graphics.hpp>
 #include <memory>
 

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "PowerUp.hpp"
-#include "Config.hpp"
+#include "entities/PowerUp.hpp"
+#include "core/Config.hpp"
 
 class PowerUpTest : public ::testing::Test {
 protected:

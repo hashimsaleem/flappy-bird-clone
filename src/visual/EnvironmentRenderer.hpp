@@ -2,8 +2,8 @@
 #define ENVIRONMENT_RENDERER_HPP
 
 #include <SFML/Graphics.hpp>
-#include "Config.hpp"
-#include "ConfigLoader.hpp"
+#include "core/Config.hpp"
+#include "core/ConfigLoader.hpp"
 
 class EnvironmentRenderer {
 public:

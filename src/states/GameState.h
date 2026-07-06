@@ -4,8 +4,8 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <memory>
-#include "Config.hpp"
-#include "BirdState.h"
+#include "core/Config.hpp"
+#include "entities/BirdState.h"
 
 enum class StateAction {
     None,

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "VisualEffectManager.hpp"
-#include "Config.hpp"
+#include "systems/VisualEffectManager.hpp"
+#include "core/Config.hpp"
 #include <SFML/Graphics.hpp>
 
 // --- VisualEffectManager constructs without crash ---

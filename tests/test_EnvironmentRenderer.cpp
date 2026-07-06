@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "EnvironmentRenderer.hpp"
-#include "Config.hpp"
+#include "visual/EnvironmentRenderer.hpp"
+#include "core/Config.hpp"
 #include <SFML/Graphics.hpp>
 
 // --- EnvironmentRenderer constructs without crash ---

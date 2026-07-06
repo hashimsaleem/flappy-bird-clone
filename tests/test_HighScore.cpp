@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <fstream>
 #include <cstdio>
-#include "HighScore.hpp"
+#include "core/HighScore.hpp"
 
 class HighScoreTest : public ::testing::Test {
 protected:

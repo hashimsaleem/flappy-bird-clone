@@ -1,6 +1,6 @@
 #include "ScoreManager.hpp"
-#include "Config.hpp"
-#include "ConfigLoader.hpp"
+#include "core/Config.hpp"
+#include "core/ConfigLoader.hpp"
 #include <algorithm>
 #include <cmath>
 

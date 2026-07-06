@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
-#include "CloudSystem.hpp"
-#include "ParticleSystem.hpp"
-#include "EnvironmentRenderer.hpp"
+#include "visual/CloudSystem.hpp"
+#include "visual/ParticleSystem.hpp"
+#include "visual/EnvironmentRenderer.hpp"
 
 class VisualEffectManager {
 public:

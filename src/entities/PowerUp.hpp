@@ -2,7 +2,7 @@
 #define POWERUP_HPP
  
 #include <SFML/Graphics.hpp>
-#include "Config.hpp"
+#include "core/Config.hpp"
 #include <memory>
  
 enum class PowerUpType { INVINCIBILITY, SLOW_MOTION };

@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <string>
-#include "StateFactory.h"
-#include "GameState.h"
-#include "PlayState.h"
+#include "states/StateFactory.h"
+#include "states/GameState.h"
+#include "states/PlayState.h"
 #include <SFML/Audio.hpp>
 
 class StateFactoryTest : public ::testing::Test {

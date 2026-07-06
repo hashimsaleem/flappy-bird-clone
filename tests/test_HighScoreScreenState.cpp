@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include "HighScoreScreenState.h"
-#include "GameState.h"
-#include "HighScore.hpp"
+#include "states/HighScoreScreenState.h"
+#include "states/GameState.h"
+#include "core/HighScore.hpp"
 #include <SFML/Graphics.hpp>
 
 // --- HighScoreScreenState constructs without crash ---

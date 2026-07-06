@@ -7,15 +7,15 @@
 #include <memory>
 #include <random>
 #include "GameState.h"
-#include "Bird.hpp"
-#include "Pipe.hpp"
-#include "PowerUp.hpp"
-#include "ScoreFloat.h"
-#include "BirdState.h"
-#include "ObjectPool.h"
-#include "VisualEffectManager.hpp"
-#include "SoundManager.hpp"
-#include "ScoreManager.hpp"
+#include "entities/Bird.hpp"
+#include "entities/Pipe.hpp"
+#include "entities/PowerUp.hpp"
+#include "scoring/ScoreFloat.h"
+#include "entities/BirdState.h"
+#include "core/ObjectPool.h"
+#include "systems/VisualEffectManager.hpp"
+#include "audio/SoundManager.hpp"
+#include "scoring/ScoreManager.hpp"
 
 struct PlayStateSnapshot {
     BirdState birdState;

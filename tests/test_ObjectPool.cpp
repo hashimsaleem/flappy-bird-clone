@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include "ObjectPool.h"
-#include "Pipe.hpp"
-#include "Particle.hpp"
+#include "core/ObjectPool.h"
+#include "entities/Pipe.hpp"
+#include "visual/Particle.hpp"
 
 // --- Object Pool Tests ---
 

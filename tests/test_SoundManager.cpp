@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "SoundManager.hpp"
+#include "audio/SoundManager.hpp"
 #include <SFML/Audio.hpp>
 
 // --- SoundManager starts with default volume ---

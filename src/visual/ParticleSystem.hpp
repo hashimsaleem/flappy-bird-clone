@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <memory>
-#include "ObjectPool.h"
+#include "core/ObjectPool.h"
 #include "Particle.hpp"
 
 class ParticleSystem {

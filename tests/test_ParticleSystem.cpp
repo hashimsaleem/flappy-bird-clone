@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "ParticleSystem.hpp"
-#include "Config.hpp"
+#include "visual/ParticleSystem.hpp"
+#include "core/Config.hpp"
 
 // --- ParticleSystem starts with no active particles ---
 

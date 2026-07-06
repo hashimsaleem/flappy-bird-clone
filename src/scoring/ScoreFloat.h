@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <cmath>
-#include "Config.hpp"
+#include "core/Config.hpp"
 
 struct ScoreFloat {
     sf::Text text;

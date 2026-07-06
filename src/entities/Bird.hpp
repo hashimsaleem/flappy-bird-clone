@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include <memory>
-#include "Config.hpp"
+#include "core/Config.hpp"
 
 class Bird {
 private:

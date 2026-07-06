@@ -4,10 +4,10 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include "GameState.h"
-#include "Pipe.hpp"
-#include "Particle.hpp"
-#include "ScoreFloat.h"
-#include "BirdState.h"
+#include "entities/Pipe.hpp"
+#include "visual/Particle.hpp"
+#include "scoring/ScoreFloat.h"
+#include "entities/BirdState.h"
 
 class GameOverState : public GameState {
 public:

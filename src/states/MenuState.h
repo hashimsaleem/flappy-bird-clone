@@ -6,8 +6,8 @@
 #include <vector>
 #include <string>
 #include "GameState.h"
-#include "Config.hpp"
-#include "SoundManager.hpp"
+#include "core/Config.hpp"
+#include "audio/SoundManager.hpp"
 
 
 class MenuState : public GameState {

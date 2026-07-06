@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
-#include "GameOverState.h"
-#include "BirdState.h"
-#include "Pipe.hpp"
-#include "ScoreFloat.h"
-#include "GameState.h"
-#include "PlayState.h"
+#include "states/GameOverState.h"
+#include "entities/BirdState.h"
+#include "entities/Pipe.hpp"
+#include "scoring/ScoreFloat.h"
+#include "states/GameState.h"
+#include "states/PlayState.h"
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <memory>

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "MenuState.h"
-#include "GameState.h"
+#include "states/MenuState.h"
+#include "states/GameState.h"
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 

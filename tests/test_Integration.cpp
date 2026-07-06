@@ -2,12 +2,12 @@
 #include <fstream>
 #include <cstdio>
 #include <sstream>
-#include "ConfigLoader.hpp"
-#include "HighScore.hpp"
-#include "Pipe.hpp"
-#include "Particle.hpp"
-#include "Bird.hpp"
-#include "Config.hpp"
+#include "core/ConfigLoader.hpp"
+#include "core/HighScore.hpp"
+#include "entities/Pipe.hpp"
+#include "visual/Particle.hpp"
+#include "entities/Bird.hpp"
+#include "core/Config.hpp"
 
 class IntegrationTest : public ::testing::Test {
 protected:
