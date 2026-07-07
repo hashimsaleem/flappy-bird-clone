@@ -91,6 +91,7 @@ void PlayState::triggerGameOver() {
     bird.setDying();
 
     visualEffects->spawnParticles(bird.getBoundingBox().position, 20, {0.f, 0.f});
+    visualEffects->spawnSparks(bird.getBoundingBox().position, 15);
 
     shakeTimer = Config::SCREEN_SHAKE_DURATION;
     shakeIntensity = Config::SCREEN_SHAKE_INTENSITY;
@@ -142,7 +143,19 @@ void PlayState::update(float dt) {
 
     bird.update(effectiveDt);
 
+    // Dust trail when bird is near ground
     float groundY = static_cast<float>(Config::SCREEN_HEIGHT - ConfigLoader::getFloat("ground_height", Config::GROUND_HEIGHT));
+    if (bird.getBoundingBox().position.y + bird.getBoundingBox().size.y > groundY - 20.f) {
+        dustSpawnTimer += dt;
+        if (dustSpawnTimer > 0.03f) {
+            dustSpawnTimer = 0.f;
+            visualEffects->spawnDust({bird.getBoundingBox().position.x, groundY - 5.f}, 1);
+        }
+    }
+    if (bird.getBoundingBox().position.y + bird.getBoundingBox().size.y <= groundY - 20.f) {
+        dustSpawnTimer = 0.f;
+    }
+
     if (bird.getBoundingBox().position.y < 0 || bird.getBoundingBox().position.y + bird.getBoundingBox().size.y > groundY) {
         triggerGameOver();
         return;
@@ -164,6 +177,7 @@ void PlayState::update(float dt) {
             scoreManager->addScore();
             scoreManager->setScoreBounceTimer(0.3f);
             soundManager->playScore();
+            visualEffects->spawnScoreSparkle({Config::SCREEN_WIDTH / 2.f, Config::BIRD_START_Y - 30.f}, 3);
             scoreManager->pushScoreFloat(*font, sf::Vector2f(bird.getBoundingBox().position.x, bird.getBoundingBox().position.y - 20.f));
 
             if (scoreManager->getScore() % 5 == 0) {

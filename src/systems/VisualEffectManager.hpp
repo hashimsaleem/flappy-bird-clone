@@ -10,6 +10,9 @@ public:
     void update(float dt, float currentPipeSpeed);
     void draw(sf::RenderWindow& window);
     void spawnParticles(sf::Vector2f pos, int count, sf::Vector2f velocity);
+    void spawnDust(sf::Vector2f pos, int count);
+    void spawnSparks(sf::Vector2f pos, int count);
+    void spawnScoreSparkle(sf::Vector2f pos, int count);
     void setGroundScrollOffset(float offset) { groundScrollOffset = offset; }
     float getGroundScrollOffset() const { return groundScrollOffset; }
     void setCloudOffset(float offset) { cloudOffset = offset; }
