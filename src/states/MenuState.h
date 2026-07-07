@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include <memory>
 #include "GameState.h"
 #include "core/Config.hpp"
 #include "audio/SoundManager.hpp"
@@ -24,6 +25,7 @@ public:
 
     void update(float dt) override {
         blinkTimer += dt;
+        if (blinkTimer > 0.5f) blinkTimer -= 0.5f;
         bobTimer += dt;
         birdBobTimer += dt;
         birdFlapTimer += dt;
@@ -43,13 +45,15 @@ public:
         bg.setFillColor(sf::Color(20, 20, 40));
         window.draw(bg);
 
-        birdSprite->setOrigin({20.f, 20.f});
-        float birdOffset = std::sin(birdBobTimer * 1.5f) * 3.0f;
-        birdSprite->setPosition({400.f, 250.f + birdOffset});
-        float flapScale = 2.2f + std::sin(birdFlapTimer * 8.0f) * 0.05f;
-        birdSprite->setScale({flapScale, flapScale});
-        birdSprite->setColor(sf::Color(255, 255, 255, 200));
-        window.draw(*birdSprite);
+        if (birdSprite) {
+            birdSprite->setOrigin({20.f, 20.f});
+            float birdOffset = std::sin(birdBobTimer * 1.5f) * 3.0f;
+            birdSprite->setPosition({400.f, 250.f + birdOffset});
+            float flapScale = 2.2f + std::sin(birdFlapTimer * 8.0f) * 0.05f;
+            birdSprite->setScale({flapScale, flapScale});
+            birdSprite->setColor(sf::Color(255, 255, 255, 200));
+            window.draw(*birdSprite);
+        }
 
         float titleBob = std::sin(bobTimer * 2.0f) * 5.0f;
         auto titleText = makeText(fontRef, "FLAPPY CLONE", 60, Config::TEXT_COLOR,
@@ -112,8 +116,7 @@ public:
     void onEnter() override {
         blinkTimer = 0.f;
         birdTexture.loadFromFile("assets/bird.png");
-        birdSprite = new sf::Sprite(birdTexture);
-        birdSprite->setTexture(birdTexture);
+        birdSprite = std::make_unique<sf::Sprite>(birdTexture);
         birdSprite->setPosition(sf::Vector2f(355.f, 250.f));
         birdSprite->setScale(sf::Vector2f(2.2f, 2.2f));
     }
@@ -140,7 +143,7 @@ private:
     float birdBobTimer = 0.f;
     float birdFlapTimer = 0.f;
     sf::Texture birdTexture;
-    sf::Sprite* birdSprite = nullptr;
+    std::unique_ptr<sf::Sprite> birdSprite;
 };
 
 #endif
