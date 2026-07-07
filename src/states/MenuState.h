@@ -118,6 +118,12 @@ private:
     float volume = 50.f;
     int difficulty = 1;
 
+    // Menu polish
+    float bobTimer = 0.f;
+    float birdBobTimer = 0.f;
+    float birdFlapTimer = 0.f;
+    sf::Texture birdTexture;
+    sf::Sprite* birdSprite = nullptr;
 };
 
 #endif
