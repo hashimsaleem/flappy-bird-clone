@@ -91,6 +91,7 @@ private:
     float spawnTimer = 0.f;
     sf::Vector2f shakeOffset = {0.f, 0.f};
     float currentPipeSpeed;
+    float dustSpawnTimer = 0.f;
     float currentSpawnInterval;
     bool gameOverTriggered = false;
 

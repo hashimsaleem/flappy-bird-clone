@@ -29,3 +29,15 @@ std::vector<Particle> VisualEffectManager::getParticles() const {
 void VisualEffectManager::spawnParticles(sf::Vector2f pos, int count, sf::Vector2f velocity) {
     particles->spawn(pos, count, velocity);
 }
+
+void VisualEffectManager::spawnDust(sf::Vector2f pos, int count) {
+    particles->spawnDust(pos, count);
+}
+
+void VisualEffectManager::spawnSparks(sf::Vector2f pos, int count) {
+    particles->spawnSparks(pos, count);
+}
+
+void VisualEffectManager::spawnScoreSparkle(sf::Vector2f pos, int count) {
+    particles->spawnScoreSparkle(pos, count);
+}
