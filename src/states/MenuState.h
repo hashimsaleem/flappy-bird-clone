@@ -99,6 +99,11 @@ public:
 
     void onEnter() override {
         blinkTimer = 0.f;
+        birdTexture.loadFromFile("assets/bird.png");
+        birdSprite = new sf::Sprite(birdTexture);
+        birdSprite->setTexture(birdTexture);
+        birdSprite->setPosition(sf::Vector2f(355.f, 250.f));
+        birdSprite->setScale(sf::Vector2f(2.2f, 2.2f));
     }
 
     StateAction nextAction() const override { return nextActionCode; }
