@@ -5,6 +5,7 @@
 #include <SFML/Audio.hpp>
 #include <vector>
 #include <string>
+#include <cmath>
 #include "GameState.h"
 #include "core/Config.hpp"
 #include "audio/SoundManager.hpp"
@@ -23,7 +24,9 @@ public:
 
     void update(float dt) override {
         blinkTimer += dt;
-        if (blinkTimer > 0.5f) blinkTimer -= 0.5f;
+        bobTimer += dt;
+        birdBobTimer += dt;
+        birdFlapTimer += dt;
         if (selectedOption >= 0) {
             if (selectedOption == 0) {
                 nextActionCode = StateAction::PlayGame;
@@ -40,8 +43,17 @@ public:
         bg.setFillColor(sf::Color(20, 20, 40));
         window.draw(bg);
 
+        birdSprite->setOrigin({20.f, 20.f});
+        float birdOffset = std::sin(birdBobTimer * 1.5f) * 3.0f;
+        birdSprite->setPosition({400.f, 250.f + birdOffset});
+        float flapScale = 2.2f + std::sin(birdFlapTimer * 8.0f) * 0.05f;
+        birdSprite->setScale({flapScale, flapScale});
+        birdSprite->setColor(sf::Color(255, 255, 255, 200));
+        window.draw(*birdSprite);
+
+        float titleBob = std::sin(bobTimer * 2.0f) * 5.0f;
         auto titleText = makeText(fontRef, "FLAPPY CLONE", 60, Config::TEXT_COLOR,
-            {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 100.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f - 120.f});
+            {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 100.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f - 120.f + titleBob});
         window.draw(titleText);
 
         auto option1 = makeText(fontRef, "1: Play Game", 30, Config::TEXT_COLOR,
