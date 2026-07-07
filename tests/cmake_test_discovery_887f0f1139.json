@@ -1,0 +1,541 @@
+{
+  "tests": 95,
+  "name": "AllTests",
+  "testsuites": [
+    {
+      "name": "BirdTest",
+      "tests": 12,
+      "testsuite": [
+        {
+          "name": "StartsAtConfiguredPosition",
+          "file": "\/home\/hashim\/trading\/tests\/test_Bird.cpp",
+          "line": 18
+        },
+        {
+          "name": "InitialVelocityIsZero",
+          "file": "\/home\/hashim\/trading\/tests\/test_Bird.cpp",
+          "line": 24
+        },
+        {
+          "name": "FlapSetsJumpVelocity",
+          "file": "\/home\/hashim\/trading\/tests\/test_Bird.cpp",
+          "line": 30
+        },
+        {
+          "name": "FlapResetsVelocity",
+          "file": "\/home\/hashim\/trading\/tests\/test_Bird.cpp",
+          "line": 37
+        },
+        {
+          "name": "GravityIncreasesVelocityDownward",
+          "file": "\/home\/hashim\/trading\/tests\/test_Bird.cpp",
+          "line": 48
+        },
+        {
+          "name": "GravityMovesBirdDownward",
+          "file": "\/home\/hashim\/trading\/tests\/test_Bird.cpp",
+          "line": 57
+        },
+        {
+          "name": "FlapMovesBirdUpward",
+          "file": "\/home\/hashim\/trading\/tests\/test_Bird.cpp",
+          "line": 70
+        },
+        {
+          "name": "BoundingBoxHasCorrectSize",
+          "file": "\/home\/hashim\/trading\/tests\/test_Bird.cpp",
+          "line": 82
+        },
+        {
+          "name": "BoundingBoxCenteredOnPosition",
+          "file": "\/home\/hashim\/trading\/tests\/test_Bird.cpp",
+          "line": 90
+        },
+        {
+          "name": "ResetRestoresInitialState",
+          "file": "\/home\/hashim\/trading\/tests\/test_Bird.cpp",
+          "line": 98
+        },
+        {
+          "name": "GetVelocityReflectsGravity",
+          "file": "\/home\/hashim\/trading\/tests\/test_Bird.cpp",
+          "line": 112
+        },
+        {
+          "name": "UpdateCompoundsGravity",
+          "file": "\/home\/hashim\/trading\/tests\/test_Bird.cpp",
+          "line": 121
+        }
+      ]
+    },
+    {
+      "name": "CollisionTest",
+      "tests": 17,
+      "testsuite": [
+        {
+          "name": "BirdInGapNoCollision",
+          "file": "\/home\/hashim\/trading\/tests\/test_Collision.cpp",
+          "line": 28
+        },
+        {
+          "name": "BirdHittingTopPipe",
+          "file": "\/home\/hashim\/trading\/tests\/test_Collision.cpp",
+          "line": 35
+        },
+        {
+          "name": "BirdHittingBottomPipe",
+          "file": "\/home\/hashim\/trading\/tests\/test_Collision.cpp",
+          "line": 42
+        },
+        {
+          "name": "BirdFarLeftNoCollision",
+          "file": "\/home\/hashim\/trading\/tests\/test_Collision.cpp",
+          "line": 49
+        },
+        {
+          "name": "BirdFarRightNoCollision",
+          "file": "\/home\/hashim\/trading\/tests\/test_Collision.cpp",
+          "line": 56
+        },
+        {
+          "name": "BirdAboveTopPipeNoCollision",
+          "file": "\/home\/hashim\/trading\/tests\/test_Collision.cpp",
+          "line": 63
+        },
+        {
+          "name": "BirdBelowBottomPipeNoCollision",
+          "file": "\/home\/hashim\/trading\/tests\/test_Collision.cpp",
+          "line": 70
+        },
+        {
+          "name": "BirdOverlappingTopPipeBottomEdge",
+          "file": "\/home\/hashim\/trading\/tests\/test_Collision.cpp",
+          "line": 77
+        },
+        {
+          "name": "BirdJustBelowTopPipeNoCollision",
+          "file": "\/home\/hashim\/trading\/tests\/test_Collision.cpp",
+          "line": 87
+        },
+        {
+          "name": "BirdOverlappingBottomPipeTopEdge",
+          "file": "\/home\/hashim\/trading\/tests\/test_Collision.cpp",
+          "line": 96
+        },
+        {
+          "name": "BirdJustAboveBottomPipeNoCollision",
+          "file": "\/home\/hashim\/trading\/tests\/test_Collision.cpp",
+          "line": 106
+        },
+        {
+          "name": "BirdOverlappingPipeLeftEdge",
+          "file": "\/home\/hashim\/trading\/tests\/test_Collision.cpp",
+          "line": 115
+        },
+        {
+          "name": "BirdJustLeftOfPipeNoCollision",
+          "file": "\/home\/hashim\/trading\/tests\/test_Collision.cpp",
+          "line": 125
+        },
+        {
+          "name": "BirdOverlappingPipeRightEdge",
+          "file": "\/home\/hashim\/trading\/tests\/test_Collision.cpp",
+          "line": 134
+        },
+        {
+          "name": "BirdJustRightOfPipeNoCollision",
+          "file": "\/home\/hashim\/trading\/tests\/test_Collision.cpp",
+          "line": 144
+        },
+        {
+          "name": "CollisionAfterPipeMoves",
+          "file": "\/home\/hashim\/trading\/tests\/test_Collision.cpp",
+          "line": 153
+        },
+        {
+          "name": "MovingPipeCollision",
+          "file": "\/home\/hashim\/trading\/tests\/test_Collision.cpp",
+          "line": 167
+        }
+      ]
+    },
+    {
+      "name": "ConfigLoaderTest",
+      "tests": 12,
+      "testsuite": [
+        {
+          "name": "MissingFileReturnsFalse",
+          "file": "\/home\/hashim\/trading\/tests\/test_ConfigLoader.cpp",
+          "line": 32
+        },
+        {
+          "name": "EmptyJsonReturnsEmpty",
+          "file": "\/home\/hashim\/trading\/tests\/test_ConfigLoader.cpp",
+          "line": 37
+        },
+        {
+          "name": "ParsesIntegers",
+          "file": "\/home\/hashim\/trading\/tests\/test_ConfigLoader.cpp",
+          "line": 45
+        },
+        {
+          "name": "ParsesFloats",
+          "file": "\/home\/hashim\/trading\/tests\/test_ConfigLoader.cpp",
+          "line": 57
+        },
+        {
+          "name": "FloatFallbackReturnsDefault",
+          "file": "\/home\/hashim\/trading\/tests\/test_ConfigLoader.cpp",
+          "line": 69
+        },
+        {
+          "name": "ParsesBools",
+          "file": "\/home\/hashim\/trading\/tests\/test_ConfigLoader.cpp",
+          "line": 76
+        },
+        {
+          "name": "ParsesStrings",
+          "file": "\/home\/hashim\/trading\/tests\/test_ConfigLoader.cpp",
+          "line": 92
+        },
+        {
+          "name": "NullIsNone",
+          "file": "\/home\/hashim\/trading\/tests\/test_ConfigLoader.cpp",
+          "line": 104
+        },
+        {
+          "name": "ParsesEscapedStrings",
+          "file": "\/home\/hashim\/trading\/tests\/test_ConfigLoader.cpp",
+          "line": 112
+        },
+        {
+          "name": "DotNotationAccessesNestedKeys",
+          "file": "\/home\/hashim\/trading\/tests\/test_ConfigLoader.cpp",
+          "line": 120
+        },
+        {
+          "name": "ClearResetsState",
+          "file": "\/home\/hashim\/trading\/tests\/test_ConfigLoader.cpp",
+          "line": 135
+        },
+        {
+          "name": "ReloadOverwritesValues",
+          "file": "\/home\/hashim\/trading\/tests\/test_ConfigLoader.cpp",
+          "line": 145
+        }
+      ]
+    },
+    {
+      "name": "HighScoreTest",
+      "tests": 11,
+      "testsuite": [
+        {
+          "name": "DefaultScoreIsZero",
+          "file": "\/home\/hashim\/trading\/tests\/test_HighScore.cpp",
+          "line": 36
+        },
+        {
+          "name": "SaveAndLoadRoundTrip",
+          "file": "\/home\/hashim\/trading\/tests\/test_HighScore.cpp",
+          "line": 43
+        },
+        {
+          "name": "OnlyHighestScoreIsKept",
+          "file": "\/home\/hashim\/trading\/tests\/test_HighScore.cpp",
+          "line": 51
+        },
+        {
+          "name": "IncreasingScoreUpdates",
+          "file": "\/home\/hashim\/trading\/tests\/test_HighScore.cpp",
+          "line": 60
+        },
+        {
+          "name": "SameScoreIsStable",
+          "file": "\/home\/hashim\/trading\/tests\/test_HighScore.cpp",
+          "line": 69
+        },
+        {
+          "name": "NegativeScoreRejected",
+          "file": "\/home\/hashim\/trading\/tests\/test_HighScore.cpp",
+          "line": 78
+        },
+        {
+          "name": "NegativeDoesNotOverwritePositive",
+          "file": "\/home\/hashim\/trading\/tests\/test_HighScore.cpp",
+          "line": 88
+        },
+        {
+          "name": "PersistsAcrossResets",
+          "file": "\/home\/hashim\/trading\/tests\/test_HighScore.cpp",
+          "line": 97
+        },
+        {
+          "name": "LargeScore",
+          "file": "\/home\/hashim\/trading\/tests\/test_HighScore.cpp",
+          "line": 108
+        },
+        {
+          "name": "GetReturnsCached",
+          "file": "\/home\/hashim\/trading\/tests\/test_HighScore.cpp",
+          "line": 117
+        },
+        {
+          "name": "LoadReReadsAfterReset",
+          "file": "\/home\/hashim\/trading\/tests\/test_HighScore.cpp",
+          "line": 131
+        }
+      ]
+    },
+    {
+      "name": "IntegrationTest",
+      "tests": 16,
+      "testsuite": [
+        {
+          "name": "ValidConfigPassesValidation",
+          "file": "\/home\/hashim\/trading\/tests\/test_Integration.cpp",
+          "line": 47
+        },
+        {
+          "name": "MissingRequiredKeyLogsWarning",
+          "file": "\/home\/hashim\/trading\/tests\/test_Integration.cpp",
+          "line": 66
+        },
+        {
+          "name": "HighScoreSaveLoadRoundTrip",
+          "file": "\/home\/hashim\/trading\/tests\/test_Integration.cpp",
+          "line": 85
+        },
+        {
+          "name": "HighScoreFileCreated",
+          "file": "\/home\/hashim\/trading\/tests\/test_Integration.cpp",
+          "line": 94
+        },
+        {
+          "name": "HighScoreLoadDefaultsWhenMissing",
+          "file": "\/home\/hashim\/trading\/tests\/test_Integration.cpp",
+          "line": 105
+        },
+        {
+          "name": "PipeCreationValidGap",
+          "file": "\/home\/hashim\/trading\/tests\/test_Integration.cpp",
+          "line": 113
+        },
+        {
+          "name": "PipeOffScreenDetection",
+          "file": "\/home\/hashim\/trading\/tests\/test_Integration.cpp",
+          "line": 126
+        },
+        {
+          "name": "ParticleLifecycle",
+          "file": "\/home\/hashim\/trading\/tests\/test_Integration.cpp",
+          "line": 136
+        },
+        {
+          "name": "BirdInitialState",
+          "file": "\/home\/hashim\/trading\/tests\/test_Integration.cpp",
+          "line": 146
+        },
+        {
+          "name": "BirdFlapUpdatesVelocity",
+          "file": "\/home\/hashim\/trading\/tests\/test_Integration.cpp",
+          "line": 160
+        },
+        {
+          "name": "ConfigHasAllRequiredKeys",
+          "file": "\/home\/hashim\/trading\/tests\/test_Integration.cpp",
+          "line": 174
+        },
+        {
+          "name": "ConfigHandlesLargeNumbers",
+          "file": "\/home\/hashim\/trading\/tests\/test_Integration.cpp",
+          "line": 188
+        },
+        {
+          "name": "MalformedJsonFallsBackToDefaults",
+          "file": "\/home\/hashim\/trading\/tests\/test_Integration.cpp",
+          "line": 215
+        },
+        {
+          "name": "PipeSpawningSequence",
+          "file": "\/home\/hashim\/trading\/tests\/test_Integration.cpp",
+          "line": 232
+        },
+        {
+          "name": "CollisionTriggersDeath",
+          "file": "\/home\/hashim\/trading\/tests\/test_Integration.cpp",
+          "line": 251
+        },
+        {
+          "name": "ParticleSpawningLogic",
+          "file": "\/home\/hashim\/trading\/tests\/test_Integration.cpp",
+          "line": 261
+        }
+      ]
+    },
+    {
+      "name": "ObjectPoolTest",
+      "tests": 3,
+      "testsuite": [
+        {
+          "name": "PoolAcquiresAndReleases",
+          "file": "\/home\/hashim\/trading\/tests\/test_ObjectPool.cpp",
+          "line": 8
+        },
+        {
+          "name": "PoolHandlesMultipleAcquisitions",
+          "file": "\/home\/hashim\/trading\/tests\/test_ObjectPool.cpp",
+          "line": 23
+        },
+        {
+          "name": "ParticlePoolWorks",
+          "file": "\/home\/hashim\/trading\/tests\/test_ObjectPool.cpp",
+          "line": 36
+        }
+      ]
+    },
+    {
+      "name": "PipeTest",
+      "tests": 12,
+      "testsuite": [
+        {
+          "name": "StartsAtGivenX",
+          "file": "\/home\/hashim\/trading\/tests\/test_Pipe.cpp",
+          "line": 13
+        },
+        {
+          "name": "UpdateMovesPipeLeft",
+          "file": "\/home\/hashim\/trading\/tests\/test_Pipe.cpp",
+          "line": 19
+        },
+        {
+          "name": "UpdateWithZeroDeltaDoesNotMove",
+          "file": "\/home\/hashim\/trading\/tests\/test_Pipe.cpp",
+          "line": 29
+        },
+        {
+          "name": "UpdateWithPartialDeltaMovesProportionally",
+          "file": "\/home\/hashim\/trading\/tests\/test_Pipe.cpp",
+          "line": 37
+        },
+        {
+          "name": "CustomSpeed",
+          "file": "\/home\/hashim\/trading\/tests\/test_Pipe.cpp",
+          "line": 46
+        },
+        {
+          "name": "ZeroSpeedPipeDoesNotMove",
+          "file": "\/home\/hashim\/trading\/tests\/test_Pipe.cpp",
+          "line": 55
+        },
+        {
+          "name": "IsNotOffScreenInitially",
+          "file": "\/home\/hashim\/trading\/tests\/test_Pipe.cpp",
+          "line": 63
+        },
+        {
+          "name": "IsOffScreenAfterMovingPastLeftEdge",
+          "file": "\/home\/hashim\/trading\/tests\/test_Pipe.cpp",
+          "line": 69
+        },
+        {
+          "name": "IsOffScreenBoundary",
+          "file": "\/home\/hashim\/trading\/tests\/test_Pipe.cpp",
+          "line": 79
+        },
+        {
+          "name": "PassedFlagStartsFalse",
+          "file": "\/home\/hashim\/trading\/tests\/test_Pipe.cpp",
+          "line": 90
+        },
+        {
+          "name": "MovingPipeStillMovesLeft",
+          "file": "\/home\/hashim\/trading\/tests\/test_Pipe.cpp",
+          "line": 96
+        },
+        {
+          "name": "LargeGapPipe",
+          "file": "\/home\/hashim\/trading\/tests\/test_Pipe.cpp",
+          "line": 107
+        }
+      ]
+    },
+    {
+      "name": "ResourceManagerTest",
+      "tests": 6,
+      "testsuite": [
+        {
+          "name": "GetFontReturnsNonNull",
+          "file": "\/home\/hashim\/trading\/tests\/test_ResourceManager.cpp",
+          "line": 10
+        },
+        {
+          "name": "GetSoundReturnsNonNull",
+          "file": "\/home\/hashim\/trading\/tests\/test_ResourceManager.cpp",
+          "line": 15
+        },
+        {
+          "name": "GetMusicReturnsNonNull",
+          "file": "\/home\/hashim\/trading\/tests\/test_ResourceManager.cpp",
+          "line": 21
+        },
+        {
+          "name": "GetFontReturnsCachedInstance",
+          "file": "\/home\/hashim\/trading\/tests\/test_ResourceManager.cpp",
+          "line": 26
+        },
+        {
+          "name": "GetSoundReturnsCachedInstance",
+          "file": "\/home\/hashim\/trading\/tests\/test_ResourceManager.cpp",
+          "line": 32
+        },
+        {
+          "name": "GetMusicReturnsCachedInstance",
+          "file": "\/home\/hashim\/trading\/tests\/test_ResourceManager.cpp",
+          "line": 38
+        }
+      ]
+    },
+    {
+      "name": "ScoreFloatTest",
+      "tests": 4,
+      "testsuite": [
+        {
+          "name": "InitialState",
+          "file": "\/home\/hashim\/trading\/tests\/test_ScoreFloat.cpp",
+          "line": 12
+        },
+        {
+          "name": "UpdateDecreasesLifetime",
+          "file": "\/home\/hashim\/trading\/tests\/test_ScoreFloat.cpp",
+          "line": 20
+        },
+        {
+          "name": "BecomesDeadAfterTimeout",
+          "file": "\/home\/hashim\/trading\/tests\/test_ScoreFloat.cpp",
+          "line": 29
+        },
+        {
+          "name": "CorrectValue",
+          "file": "\/home\/hashim\/trading\/tests\/test_ScoreFloat.cpp",
+          "line": 37
+        }
+      ]
+    },
+    {
+      "name": "DifficultyScalingTest",
+      "tests": 2,
+      "testsuite": [
+        {
+          "name": "ScalingLogicVerification",
+          "file": "\/home\/hashim\/trading\/tests\/test_DifficultyScaling.cpp",
+          "line": 36
+        },
+        {
+          "name": "ZoneTransitions",
+          "file": "\/home\/hashim\/trading\/tests\/test_DifficultyScaling.cpp",
+          "line": 61
+        }
+      ]
+    }
+  ]
+}

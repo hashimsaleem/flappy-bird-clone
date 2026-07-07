@@ -2,27 +2,33 @@
 #include <SFML/Audio.hpp>
 #include <iostream>
 #include <memory>
-#include "Bird.hpp"
-#include "Pipe.hpp"
-#include "Config.hpp"
-#include "ConfigLoader.hpp"
-#include "ResourceManager.hpp"
-#include "HighScore.hpp"
-#include "GameState.h"
-#include "MenuState.h"
-#include "PlayState.h"
-#include "GameOverState.h"
-#include "HighScoreScreenState.h"
+#include <unistd.h>
+#include <filesystem>
+#include "entities/Bird.hpp"
+#include "entities/Pipe.hpp"
+#include "core/Config.hpp"
+#include "core/ConfigLoader.hpp"
+#include "systems/ResourceManager.hpp"
+#include "core/HighScore.hpp"
+#include "states/GameState.h"
+#include "states/PlayState.h"
+#include "states/StateFactory.h"
 
-// Uncomment to enable debug console output
-// #define DEBUG
+static std::string getExeDir() {
+    char buf[4096];
+    ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+    if (len != -1) {
+        buf[len] = '\0';
+        return std::filesystem::path(buf).parent_path().string() + "/";
+    }
+    return "./";
+}
 
 int main() {
-    // Load config
-    std::string configPath = std::string(Config::ASSETS_DIR) + Config::CONFIG_PATH;
-    ConfigLoader::load(configPath);
+    std::string exeDir = getExeDir();
 
-    // Apply config overrides
+    ConfigLoader::load(exeDir + Config::ASSETS_DIR + Config::CONFIG_PATH);
+
     unsigned int screenW = Config::SCREEN_WIDTH;
     unsigned int screenH = Config::SCREEN_HEIGHT;
     {
@@ -34,112 +40,127 @@ int main() {
     sf::RenderWindow window(sf::VideoMode({screenW, screenH}), "Flappy Clone SFML");
     window.setFramerateLimit(Config::TARGET_FPS);
 
-    const sf::Font& font = ResourceManager::getFont(Config::FONT_PATH, 30);
-
-    // Sounds
-    sf::Sound jumpSound = ResourceManager::getSound(Config::JUMP_SND);
-    sf::Sound scoreSound = ResourceManager::getSound(Config::SCORE_SND);
-    sf::Sound deathSound = ResourceManager::getSound(Config::DEATH_SND);
-
-    // Background music
+    ResourceManager& resMgr = ResourceManager::getInstance();
+    std::string fontPath = exeDir + Config::FONT_PATH;
+    const sf::Font& font = resMgr.getFont(fontPath, 30);
+    
     sf::Music bgmMusic;
-    bool bgmLoaded = bgmMusic.openFromFile(Config::BG_MUSIC);
-    if (!bgmLoaded) {
-        bgmLoaded = bgmMusic.openFromFile("assets/bgm.ogg");
-    }
-#ifdef DEBUG
-    std::cerr << "[bgm] bgmLoaded=" << bgmLoaded << "\n";
-#endif
+
+    bool bgmLoaded = bgmMusic.openFromFile(exeDir + Config::BG_MUSIC);
     if (bgmLoaded) {
         bgmMusic.setLooping(true);
         bgmMusic.setVolume(40.f);
         bgmMusic.play();
     }
 
+    HighScore::setPath(exeDir + "highscore.dat");
     int highScore = HighScore::load();
 
-    // State machine
-    std::unique_ptr<GameState> state = nullptr;
-
-    auto createMenuState = [&]() {
-        state = std::make_unique<MenuState>();
-    };
-    auto createPlayState = [&]() {
-        state = std::make_unique<PlayState>(jumpSound, scoreSound, deathSound, bgmMusic, bgmLoaded, highScore, font);
-        static_cast<PlayState*>(state.get())->onEnter();
-    };
-    auto createGameOverState = [&](PlayStateSnapshot snap, int score) {
-        state = std::make_unique<GameOverState>(std::move(snap.birdState), std::move(snap.pipes),
-                                                 std::move(snap.particles),
-                                                 std::move(snap.scoreFloats), score, highScore);
-    };
-    auto createHighScoreScreen = [&]() {
-        state = std::make_unique<HighScoreScreenState>();
-    };
-
-    createMenuState();
+    std::unique_ptr<GameState> state = StateFactory::createMenuState(bgmMusic, bgmLoaded, highScore, font);
+    state->onEnter();
 
     sf::Clock gameClock;
+    sf::Clock fpsClock;
+    float accumulator = 0.f;
+    const float fixedDt = 1.f / static_cast<float>(Config::TARGET_FPS);
+
+    bool fullscreen = false;
+    bool showFps = false;
+    int fps = 0;
+    int frameCount = 0;
+    float fadeAlpha = 0.f;
 
     while (window.isOpen()) {
-        sf::Time elapsed = gameClock.restart();
-        float dt = elapsed.asSeconds();
+        float frameTime = gameClock.restart().asSeconds();
+        if (frameTime > 0.1f) frameTime = 0.1f;
+        accumulator += frameTime;
 
-        // Clamp dt to avoid physics explosions on tab loss
-        if (dt > 0.1f) dt = 0.1f;
-
-        // --- Input ---
         while (auto event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
                 window.close();
             }
             if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
-                if (auto* ms = dynamic_cast<MenuState*>(state.get())) {
-                    ms->handleKeyPress(keyPressed->code);
-                    if (ms->selectedOption >= 0) {
-                        if (ms->selectedOption == 0) { createPlayState(); }
-                        else if (ms->selectedOption == 1) { createHighScoreScreen(); }
-                        else { window.close(); }
-                        ms->selectedOption = -1;
-                    }
-                } else if (auto* hs = dynamic_cast<HighScoreScreenState*>(state.get())) {
-                    hs->handleKeyPress(keyPressed->code);
-                    if (hs->selectedOption >= 0) { createMenuState(); hs->selectedOption = -1; }
+                if (keyPressed->code == sf::Keyboard::Key::F1) {
+                    showFps = !showFps;
+                } else if (keyPressed->code == sf::Keyboard::Key::F11) {
+                    fullscreen = !fullscreen;
+                    window.create(
+                        fullscreen ? sf::VideoMode::getDesktopMode() : sf::VideoMode({screenW, screenH}),
+                        "Flappy Clone SFML",
+                        fullscreen ? sf::State::Fullscreen : sf::State::Windowed
+                    );
+                    window.setFramerateLimit(Config::TARGET_FPS);
                 } else {
                     state->handleKeyPress(keyPressed->code);
                 }
             }
         }
 
-        // --- Update ---
-        state->update(dt);
+        while (accumulator >= fixedDt) {
+            state->update(fixedDt);
+            accumulator -= fixedDt;
+        }
 
-        // Check for state transitions
-        if (auto* ps = dynamic_cast<PlayState*>(state.get())) {
-            int action = ps->nextAction();
-            if (action == 1) {
-                PlayStateSnapshot snap;
-                ps->getSnapshot(snap);
-                int currentScore = snap.score;
-                createGameOverState(std::move(snap), currentScore);
-            } else if (action == 3) {
+        auto action = state->nextAction();
+        if (action != StateAction::None) {
+            std::unique_ptr<GameState> next;
+            switch (action) {
+            case StateAction::PlayGame: {
+                BirdState rs = state->getRestartBirdState();
+                int diff = state->selectedDifficulty();
+                next = StateFactory::createPlayState(bgmMusic, bgmLoaded, highScore, font, exeDir,
+                                                        rs.posX, rs.posY, rs.velocityY, diff);
+
+                break;
+            }
+            case StateAction::ShowHighScore:
+                next = StateFactory::createHighScoreScreenState();
+                break;
+            case StateAction::GameOver: {
+                auto& ps = static_cast<PlayState&>(*state);
+                PlayStateSnapshot snap = ps.takeSnapshot();
+                next = StateFactory::createGameOverState(std::move(snap), snap.score, highScore);
+                break;
+            }
+            case StateAction::ReturnToMenu:
+                next = StateFactory::createMenuState(bgmMusic, bgmLoaded, highScore, font);
+                break;
+            case StateAction::Exit:
                 window.close();
+                break;
+            default:
+                break;
             }
-        }
-        if (auto* gs = dynamic_cast<GameOverState*>(state.get())) {
-            if (gs->nextAction() == 1) {
-                BirdState rs = gs->getRestartState();
-                state = std::make_unique<PlayState>(jumpSound, scoreSound, deathSound, bgmMusic, bgmLoaded, highScore, font,
-                                                      rs.posX, rs.posY, rs.velocityY);
-                static_cast<PlayState*>(state.get())->onEnter();
-            } else if (gs->nextAction() == 2) {
-                createMenuState();
+            if (next) {
+                next->onEnter();
+                state = std::move(next);
+                fadeAlpha = 255.f;
             }
         }
 
-        // --- Draw ---
         window.clear(Config::SKY_COLOR);
         state->draw(window, font);
+
+        if (showFps) {
+            auto fpsText = GameState::makeText(font, "FPS: " + std::to_string(fps), 18,
+                sf::Color(200, 200, 200),
+                sf::Vector2f(static_cast<float>(screenW) - 90.f, 5.f));
+            window.draw(fpsText);
+        }
+        frameCount++;
+        if (fpsClock.getElapsedTime().asSeconds() >= 1.0f) {
+            fps = frameCount;
+            frameCount = 0;
+            fpsClock.restart();
+        }
+
+        if (fadeAlpha > 0.f) {
+            fadeAlpha = std::max(0.f, fadeAlpha - 600.f * fixedDt);
+            sf::RectangleShape fadeRect(sf::Vector2f(static_cast<float>(screenW), static_cast<float>(screenH)));
+            fadeRect.setFillColor(sf::Color(0, 0, 0, static_cast<unsigned char>(fadeAlpha)));
+            window.draw(fadeRect);
+        }
+
         window.display();
     }
 

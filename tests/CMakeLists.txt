@@ -1,44 +1,38 @@
-# Build tests for Flappy Bird Clone
 find_package(GTest REQUIRED)
 
-# Include the source directory for access to headers
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
-# Test source files (including project .cpp files for linking)
 set(TEST_SOURCES
-    ${CMAKE_SOURCE_DIR}/src/ConfigLoader.cpp
-    ${CMAKE_SOURCE_DIR}/src/HighScore.cpp
-    ${CMAKE_SOURCE_DIR}/src/Bird.cpp
-    ${CMAKE_SOURCE_DIR}/src/Pipe.cpp
-    test_ConfigLoader.cpp
-    test_HighScore.cpp
-    test_Bird.cpp
-    test_Pipe.cpp
-    test_Collision.cpp
-    test_Integration.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_Bird.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_Collision.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_ConfigLoader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_HighScore.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_ConfigEdgeCases.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_Integration.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_ObjectPool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_Pipe.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_PowerUp.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_ResourceManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_ScoreFloat.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_DifficultyScaling.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_StateFactory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_CloudSystem.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_ParticleSystem.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_SoundManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_VisualEffectManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_EnvironmentRenderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_MenuState.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_GameOverState.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_HighScoreScreenState.cpp
 )
 
-# Executable
 add_executable(flappy_tests ${TEST_SOURCES})
+target_link_libraries(flappy_tests PRIVATE FlappyBirdLib GTest::gtest GTest::gtest_main)
 
-# Link GTest and project libraries
-target_link_libraries(flappy_tests
-    GTest::gtest
-    GTest::gtest_main
-    sfml-graphics
-    sfml-window
-    sfml-system
-    sfml-audio
-)
-
-# Copy assets to build directory (same as the main game target)
 add_custom_command(TARGET flappy_tests POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/assets
-        ${CMAKE_SOURCE_DIR}/build/assets
-    COMMENT "Copying assets to build directory for tests"
-)
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets" "$<TARGET_FILE_DIR:flappy_tests>/assets"
+    COMMENT "Copying assets to test directory")
 
-# Discover tests automatically (CTest support)
-include(GoogleTest)
+include(CTest)
 gtest_discover_tests(flappy_tests)

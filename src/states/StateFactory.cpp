@@ -1,0 +1,24 @@
+#include "StateFactory.h"
+#include "core/Config.hpp"
+
+std::unique_ptr<GameState> StateFactory::createMenuState(sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
+                                                                const sf::Font& fontRef) {
+    return std::make_unique<MenuState>(bgmMusic, bgmLoaded, highScoreRef, fontRef);
+}
+
+std::unique_ptr<GameState> StateFactory::createPlayState(sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
+                                                            const sf::Font& fontRef, const std::string& assetDir,
+                                                            float posX, float posY, float vel, int difficulty) {
+    return std::make_unique<PlayState>(bgmMusic, bgmLoaded, highScoreRef, fontRef, assetDir, posX, posY, vel, difficulty);
+}
+
+
+std::unique_ptr<GameState> StateFactory::createGameOverState(PlayStateSnapshot snap, int score, int& highScoreRef) {
+    return std::make_unique<GameOverState>(std::move(snap.birdState), std::move(snap.pipes),
+                                           std::move(snap.particles),
+                                           std::move(snap.scoreFloats), score, highScoreRef, snap.difficulty);
+}
+
+std::unique_ptr<GameState> StateFactory::createHighScoreScreenState() {
+    return std::make_unique<HighScoreScreenState>();
+}

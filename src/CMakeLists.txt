@@ -1,38 +1,38 @@
-cmake_minimum_required(VERSION 3.10)
-
-# Find SFML
 find_package(SFML REQUIRED COMPONENTS Graphics Window System)
 
-# Include directories (all source files are in this directory)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
-# Source files
 set(SOURCES
+    entities/Bird.cpp
+    entities/Pipe.cpp
+    entities/PowerUp.cpp
+    core/ConfigLoader.cpp
+    core/HighScore.cpp
+    states/PlayState.cpp
+    states/GameOverState.cpp
+    states/StateFactory.cpp
+    systems/ResourceManager.cpp
+    systems/VisualEffectManager.cpp
+    visual/ParticleSystem.cpp
+    visual/CloudSystem.cpp
+    visual/EnvironmentRenderer.cpp
+    scoring/ScoreManager.cpp
+    audio/SoundManager.cpp
     main.cpp
-    Bird.cpp
-    Pipe.cpp
-    ResourceManager.cpp
-    HighScore.cpp
-    ConfigLoader.cpp
-    PlayState.cpp
-    GameOverState.cpp
 )
 
-# Executable
-add_executable(FlappyBirdClone ${SOURCES})
+add_library(FlappyBirdLib STATIC ${SOURCES})
+target_link_libraries(FlappyBirdLib PUBLIC sfml-graphics sfml-window sfml-system sfml-audio)
+target_include_directories(FlappyBirdLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-# Link libraries
-target_link_libraries(FlappyBirdClone sfml-graphics sfml-window sfml-system sfml-audio)
+add_executable(FlappyBirdClone main.cpp)
+target_link_libraries(FlappyBirdClone PRIVATE FlappyBirdLib)
 
-# Set executable output to project root build directory
 set_target_properties(FlappyBirdClone PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build
 )
 
-# Copy assets to build directory after build
 add_custom_command(TARGET FlappyBirdClone POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/assets
-        ${CMAKE_SOURCE_DIR}/build/assets
+        $<TARGET_FILE_DIR:FlappyBirdClone>/assets
     COMMENT "Copying assets to build directory"
 )

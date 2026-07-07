@@ -17,8 +17,8 @@ trading/
 │   └── font.ttf          # Font file
 ├── docs/                 # Documentation
 │   ├── README.md         # This file
+│   ├── DEVELOPMENT_ROADMAP.md  # Consolidated roadmap & review findings
 │   ├── FIX_PLAN.md       # Fix plan
-│   ├── IMPROVEMENTS.md   # Code review & roadmap
 │   └── REVIEW_FINDINGS.md # Review findings
 ├── CMakeLists.txt        # Top-level build config
 ├── build/                # Build output (gitignored)
@@ -38,25 +38,30 @@ The goal is to create a game where a bird must navigate through gaps in moving p
 - **`src/Config.hpp`**: Centralized game constants (screen dimensions, physics, colors, paths).
 
 ## Current Development State
-The project is in its early stages and serves as a skeletal foundation:
+The project is in an advanced state of development with most core mechanics and visual polish implemented.
 
 ### Completed Features:
-- **Basic Game Loop**: Window setup and 60 FPS framerate limit.
-- **Bird Physics**: Gravity and jump mechanics are implemented.
-- **Input Handling**: Basic detection of the Space key.
-- **Pipe Mechanics**: Randomized spawning of pipes with varying heights and gap widths.
-- **Collision Detection**: Detection of collisions between the bird and the pipes.
-- **Scoring System**: Automatic score tracking as the bird passes pipes.
-- **Object Management**: Automated cleanup of off-screen obstacles.
-- **Rendering**: Drawing calls for the bird and pipes are implemented in both PLAYING and GAME_OVER states.
-- **Game State Management**: START, PLAYING, and GAME_OVER states are implemented with full state transitions and restart mechanic.
-- **SFML 3.0 Compatibility**: Full migration from SFML 2 to SFML 3.0 API.
+- **Core Game Loop & Physics**: Window setup, 60 FPS framerate limit, gravity, and jump mechanics.
+- **Pipe Mechanics**: Randomized spawning, varying heights/gaps, and movement logic.
+- **Collision Detection**: Precise detection between the bird and pipes, including ground collision.
+- **Scoring System**: Automatic score tracking with visual feedback (+1 floating text).
+- **Game State Management**: Full transitions between START, PLAYING, and GAME_OVER states.
+- **Audio System**: Sound effects for jumping, scoring, and death; background music with looping and volume control.
+- **High Score Persistence**: File-based high score system (`highscore.dat`).
+- **Visual Polish & \"Juice\"**: 
+    - Bird wing flap animations and spinning death fall.
+    - Screen shake on collision/death.
+    - Parallax scrolling background (hills).
+    - Time-of-day sky color cycling.
+    - Dynamic difficulty scaling (speed/spawn rate increases with score).
+- **SFML 3.0 Compatibility**: Full migration to the latest SFML API.
 
 ### Pending Tasks:
-- **Audio**: Adding sound effects for jumping, hitting pipes, and scoring.
-- **High Score**: Implementing a file-based high score system.
-- **Physics Tuning**: Fine-tuning gravity and jump strength constants.
-- **Visual Polish**: Adding bird sprite animation and ground collision.
+- **Architecture Refactoring**: Extracting game states into a proper State Pattern (classes for `Menu`, `Play`, `GameOver`).
+- **Performance Optimization**: Implementing Object Pooling for pipes and particles.
+-   **Content Expansion**: Adding power-ups (e.g., shields, slow-motion) and unique level zones.
+-   **Advanced Config**: Schema validation for `gameconfig.json` and multiple config profiles.
+-   **Testing**: Expanding to include integration-level tests for complex scenarios.
 
 ## Building
 

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "Bird.hpp"
-#include "Config.hpp"
+#include "entities/Bird.hpp"
+#include "core/Config.hpp"
 
 // Bird creates an sf::Sprite using a placeholder texture — this works without a window.
 

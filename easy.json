@@ -1,0 +1,26 @@
+{
+    "screen": {
+        "width": 800,
+        "height": 600
+    },
+    "bird": {
+        "gravity": 700.0,
+        "jump_strength": -500.0,
+        "start_x": 50.0,
+        "start_y": 300.0,
+        "width": 40.0,
+        "height": 40.0
+    },
+    "pipe": {
+        "width": 60.0,
+        "height": 400.0,
+        "speed": 150.0,
+        "gap_height": 200.0,
+        "spawn_interval": 2.0,
+        "min_y": 150.0,
+        "max_y": 450.0
+    },
+    "ground": {
+        "height": 50.0
+    }
+}
