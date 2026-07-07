@@ -101,3 +101,58 @@ TEST(ParticleSystemTest, LargeUpdateRemovesAllParticles) {
     system.update(2.0f);
     EXPECT_EQ(system.getActiveCount(), 0u);
 }
+
+// --- spawnDust creates dust particles ---
+
+TEST(ParticleSystemTest, SpawnDustCreatesParticles) {
+    ParticleSystem system;
+    system.spawnDust(sf::Vector2f(100.f, 500.f), 4);
+    EXPECT_EQ(system.getActiveCount(), 4u);
+}
+
+// --- Dust particles float downward ---
+
+TEST(ParticleSystemTest, DustFloatsDownward) {
+    ParticleSystem system;
+    system.spawnDust(sf::Vector2f(100.f, 100.f), 1);
+    auto particles = system.getParticles();
+    EXPECT_GT(particles[0].velocity.y, 0.f);
+}
+
+// --- spawnSparks creates spark particles ---
+
+TEST(ParticleSystemTest, SpawnSparksCreatesParticles) {
+    ParticleSystem system;
+    system.spawnSparks(sf::Vector2f(200.f, 200.f), 6);
+    EXPECT_EQ(system.getActiveCount(), 6u);
+}
+
+// --- Sparks have explosive burst velocities ---
+
+TEST(ParticleSystemTest, SparksExplosiveBurst) {
+    ParticleSystem system;
+    system.spawnSparks(sf::Vector2f(300.f, 300.f), 10);
+    auto particles = system.getParticles();
+    for (const auto& p : particles) {
+        float speed = std::sqrt(p.velocity.x * p.velocity.x + p.velocity.y * p.velocity.y);
+        EXPECT_GE(speed, 200.f);
+        EXPECT_LE(speed, 600.f);
+    }
+}
+
+// --- spawnScoreSparkle creates bubble particles ---
+
+TEST(ParticleSystemTest, SpawnScoreSparkleCreatesParticles) {
+    ParticleSystem system;
+    system.spawnScoreSparkle(sf::Vector2f(400.f, 100.f), 3);
+    EXPECT_EQ(system.getActiveCount(), 3u);
+}
+
+// --- Score bubbles rise upward ---
+
+TEST(ParticleSystemTest, ScoreBubbleRisesUpward) {
+    ParticleSystem system;
+    system.spawnScoreSparkle(sf::Vector2f(500.f, 300.f), 1);
+    auto particles = system.getParticles();
+    EXPECT_LT(particles[0].velocity.y, 0.f);
+}
