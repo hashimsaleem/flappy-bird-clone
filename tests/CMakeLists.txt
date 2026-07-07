@@ -8,6 +8,7 @@ set(TEST_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/test_Collision.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_ConfigLoader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_HighScore.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_ConfigEdgeCases.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_Integration.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_ObjectPool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_Pipe.cpp
