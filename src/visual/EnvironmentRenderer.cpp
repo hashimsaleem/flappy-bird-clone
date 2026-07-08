@@ -1,9 +1,11 @@
 #include "EnvironmentRenderer.hpp"
 #include <cmath>
 
+EnvironmentRenderer::EnvironmentRenderer(const ConfigValues& cfg) : bgOffset(0.f), cfg(cfg) {}
+
 void EnvironmentRenderer::draw(sf::RenderWindow& window, float scrollOffset, float skyTimer) {
-    float totalW = static_cast<float>(Config::SCREEN_WIDTH);
-    float groundY = static_cast<float>(Config::SCREEN_HEIGHT - ConfigLoader::getFloat("ground_height", Config::GROUND_HEIGHT));
+    float totalW = static_cast<float>(cfg.screenWidth);
+    float groundY = static_cast<float>(cfg.screenHeight - cfg.groundHeight);
 
     // Sky rendering logic (from PlayState.cpp 103-136)
     float cyclePos = std::fmod(skyTimer, Config::SKY_CYCLE_INTERVAL) / Config::SKY_CYCLE_INTERVAL;
@@ -26,21 +28,21 @@ void EnvironmentRenderer::draw(sf::RenderWindow& window, float scrollOffset, flo
         lerp(Config::SKY_BOT[idx1].b, Config::SKY_BOT[idx2].b, t)
     );
 
-    float halfH = static_cast<float>(Config::SCREEN_HEIGHT) / 2.f;
+    float halfH = static_cast<float>(cfg.screenHeight) / 2.f;
     sf::RectangleShape topRect;
-    topRect.setSize(sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH), halfH));
+    topRect.setSize(sf::Vector2f(static_cast<float>(cfg.screenWidth), halfH));
     topRect.setFillColor(top);
     window.draw(topRect);
 
     sf::RectangleShape botRect;
-    botRect.setSize(sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH), halfH));
+    botRect.setSize(sf::Vector2f(static_cast<float>(cfg.screenWidth), halfH));
     botRect.setPosition(sf::Vector2f(0.f, halfH));
     botRect.setFillColor(bot);
     window.draw(botRect);
 
     // Ground tiles logic (from PlayState.cpp 160-189)
     sf::RectangleShape base;
-    base.setSize(sf::Vector2f(totalW, static_cast<float>(Config::GROUND_HEIGHT)));
+    base.setSize(sf::Vector2f(totalW, static_cast<float>(cfg.groundHeight)));
     base.setPosition(sf::Vector2f(0.f, groundY));
     base.setFillColor(Config::GROUND_COLOR);
     window.draw(base);
@@ -67,11 +69,11 @@ void EnvironmentRenderer::draw(sf::RenderWindow& window, float scrollOffset, flo
 
     // Background layers logic (from PlayState.cpp 351-360)
     sf::RectangleShape bgLayer;
-    bgLayer.setSize(sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH), 150.f));
+    bgLayer.setSize(sf::Vector2f(static_cast<float>(cfg.screenWidth), 150.f));
     bgLayer.setPosition(sf::Vector2f(bgOffset, groundY - 150.f));
     bgLayer.setFillColor(sf::Color(100, 150, 100));
     window.draw(bgLayer);
 
-    bgLayer.setPosition(sf::Vector2f(bgOffset + static_cast<float>(Config::SCREEN_WIDTH), groundY - 150.f));
+    bgLayer.setPosition(sf::Vector2f(bgOffset + static_cast<float>(cfg.screenWidth), groundY - 150.f));
     window.draw(bgLayer);
 }

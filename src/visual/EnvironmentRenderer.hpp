@@ -2,16 +2,16 @@
 #define ENVIRONMENT_RENDERER_HPP
 
 #include <SFML/Graphics.hpp>
-#include "core/Config.hpp"
-#include "core/ConfigLoader.hpp"
+#include "core/ConfigValues.hpp"
 
 class EnvironmentRenderer {
 public:
-    EnvironmentRenderer() : bgOffset(0.f) {}
+    explicit EnvironmentRenderer(const ConfigValues& cfg);
     void draw(sf::RenderWindow& window, float scrollOffset, float skyTimer);
 
 private:
     float bgOffset;
+    ConfigValues cfg;
 };
 
 #endif // ENVIRONMENT_RENDERER_HPP
