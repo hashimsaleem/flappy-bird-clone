@@ -101,9 +101,11 @@ private:
 
     float powerUpSpawnTimer = 0.f;
     int lastPowerUpScore = 0;
+    int currentTheme = Config::THEME_SKY;
 
 public:
     std::unique_ptr<ScoreManager>& getScoreManager() { return scoreManager; }
+    void updateTheme();
 };
 
 #endif

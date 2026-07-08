@@ -96,6 +96,14 @@ void PlayState::handleKeyPress(sf::Keyboard::Key key) {
     }
 }
 
+void PlayState::updateTheme() {
+    int s = scoreManager->getScore();
+    if (s < 50) currentTheme = Config::THEME_SKY;
+    else if (s < 150) currentTheme = Config::THEME_CAVE;
+    else if (s < 300) currentTheme = Config::THEME_LAVA;
+    else currentTheme = Config::THEME_SPACE;
+}
+
 void PlayState::triggerGameOver() {
     if (gameOverTriggered) return;
     gameOverTriggered = true;
@@ -117,6 +125,7 @@ void PlayState::triggerGameOver() {
 
 void PlayState::update(float dt) {
     soundManager->update(dt);
+    updateTheme();
     float effectiveDt = dt * slowMoFactor;
 
     if (gameOverTriggered) {
