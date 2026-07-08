@@ -14,7 +14,7 @@
 class StateFactory {
 public:
     static std::unique_ptr<GameState> createMenuState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-                                                        const sf::Font& fontRef);
+                                                        const sf::Font& fontRef, const std::string& assetsBase);
     static std::unique_ptr<GameState> createPlayState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
                                                         const sf::Font& fontRef,
                                                         float posX = 50.0f, float posY = 300.0f,

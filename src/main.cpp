@@ -51,7 +51,7 @@ int main() {
     HighScore::setPath(exeDir + "highscore.dat");
     int highScore = HighScore::load();
 
-    std::unique_ptr<GameState> state = StateFactory::createMenuState(cfg, bgmMusic, bgmLoaded, highScore, font);
+    std::unique_ptr<GameState> state = StateFactory::createMenuState(cfg, bgmMusic, bgmLoaded, highScore, font, exeDir);
     state->onEnter();
 
     sf::Clock gameClock;
@@ -118,7 +118,7 @@ int main() {
                 break;
             }
             case StateAction::ReturnToMenu:
-                next = StateFactory::createMenuState(cfg, bgmMusic, bgmLoaded, highScore, font);
+                next = StateFactory::createMenuState(cfg, bgmMusic, bgmLoaded, highScore, font, exeDir);
                 break;
             case StateAction::Exit:
                 window.close();

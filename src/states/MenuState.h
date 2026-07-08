@@ -19,13 +19,14 @@
 class MenuState : public GameState {
 public:
     MenuState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-               const sf::Font& fontRef)
+               const sf::Font& fontRef, const std::string& assetsBase)
         : cfg(cfg),
           soundManager(std::make_unique<SoundManager>(bgmMusic, bgmLoaded)),
           bgmMusic(bgmMusic), bgmLoaded(bgmLoaded), highScore(highScoreRef),
           font(&fontRef),
           cloudSystem(std::make_unique<CloudSystem>(cfg)),
-          environment(std::make_unique<EnvironmentRenderer>(cfg)) {
+          environment(std::make_unique<EnvironmentRenderer>(cfg)),
+          assetsBase(assetsBase) {
         volume = bgmMusic.getVolume();
     }
 
@@ -129,7 +130,8 @@ public:
     }
 
     void onEnter() override {
-        birdTexture.loadFromFile(cfg.birdPath);
+        std::string fullPath = assetsBase + cfg.birdPath;
+        birdTexture.loadFromFile(fullPath);
         if (birdSprite) {
             birdSprite->setTexture(birdTexture);
         }
@@ -167,6 +169,7 @@ private:
     // Bird sprite
     sf::Texture birdTexture;
     std::unique_ptr<sf::Sprite> birdSprite = nullptr;
+    std::string assetsBase;
 
     // Color lerp helper
     static sf::Color lerpColor(sf::Color a, sf::Color b, float t) {

@@ -2,8 +2,8 @@
 #include "core/ConfigValues.hpp"
 
 std::unique_ptr<GameState> StateFactory::createMenuState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-                                                             const sf::Font& fontRef) {
-    return std::make_unique<MenuState>(cfg, bgmMusic, bgmLoaded, highScoreRef, fontRef);
+                                                              const sf::Font& fontRef, const std::string& assetsBase) {
+    return std::make_unique<MenuState>(cfg, bgmMusic, bgmLoaded, highScoreRef, fontRef, assetsBase);
 }
 
 std::unique_ptr<GameState> StateFactory::createPlayState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
