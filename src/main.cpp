@@ -7,6 +7,7 @@
 #include "entities/Bird.hpp"
 #include "entities/Pipe.hpp"
 #include "core/ConfigValues.hpp"
+#include "core/ConfigLoader.hpp"
 #include "systems/ResourceManager.hpp"
 #include "core/HighScore.hpp"
 #include "states/GameState.h"

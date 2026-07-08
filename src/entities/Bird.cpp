@@ -1,4 +1,5 @@
 #include "Bird.hpp"
+#include "core/ConfigLoader.hpp"
 #include <iostream>
 
 Bird::Bird(const ConfigValues& cfg)

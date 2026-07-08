@@ -17,7 +17,10 @@ test_config_*.json
 tests/cmake_test_discovery_*.json
 
 # Misc artifacts
+104963587
+build_log
 src/grep
+src/build.log
 
 # IDE
 .vscode/
