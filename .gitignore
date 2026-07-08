@@ -1,6 +1,8 @@
 # Build artifacts
 build/
 build_tests/
+Testing/
+tests/Testing/
 *.o
 *.a
 *.so
@@ -12,13 +14,10 @@ highscore.dat
 # Test temp files
 test_*.json
 test_config_*.json
+tests/cmake_test_discovery_*.json
 
 # Misc artifacts
-104963587
-build_log
 src/grep
-src/build.log
-=8
 
 # IDE
 .vscode/
