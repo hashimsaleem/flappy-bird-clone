@@ -16,6 +16,7 @@
 #include "systems/VisualEffectManager.hpp"
 #include "audio/SoundManager.hpp"
 #include "scoring/ScoreManager.hpp"
+#include "core/ConfigValues.hpp"
 
 struct PlayStateSnapshot {
     BirdState birdState;
@@ -33,10 +34,10 @@ struct PlayStateSnapshot {
 
 class PlayState : public GameState {
 public:
-     PlayState(sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-                      const sf::Font& fontRef, const std::string& assetDir,
-                      float posX = Config::BIRD_START_X, float posY = Config::BIRD_START_Y,
-                      float vel = 0.0f, int difficulty = 1);
+    PlayState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
+                       const sf::Font& fontRef,
+                       float posX = 50.0f, float posY = 300.0f,
+                       float vel = 0.0f, int difficulty = 1);
 
     void update(float dt) override;
     void draw(sf::RenderWindow& window, const sf::Font& font) override;
@@ -60,6 +61,7 @@ private:
     int& highScore;
     const sf::Font* font = nullptr;
 
+    ConfigValues cfg;
     Bird bird;
     std::vector<int> activePipes;
     std::vector<int> activePowerUps;
@@ -82,8 +84,8 @@ private:
     bool gameStarted = false;
     float countdownTimer = 3.0f;
     PlayStateSnapshot gameOverSnapshot;
-    float restartPosX = Config::BIRD_START_X;
-    float restartPosY = Config::BIRD_START_Y;
+    float restartPosX;
+    float restartPosY;
     float restartVel = 0.0f;
 
     float shakeTimer = 0.f;

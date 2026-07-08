@@ -16,7 +16,7 @@ public:
     static std::unique_ptr<GameState> createMenuState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
                                                         const sf::Font& fontRef);
     static std::unique_ptr<GameState> createPlayState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-                                                        const sf::Font& fontRef, const std::string& assetDir,
+                                                        const sf::Font& fontRef,
                                                         float posX = 50.0f, float posY = 300.0f,
                                                         float vel = 0.0f, int difficulty = 1);
 

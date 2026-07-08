@@ -1,20 +1,21 @@
 #include "PlayState.h"
-#include "core/Config.hpp"
-#include "core/ConfigLoader.hpp"
+#include "core/ConfigValues.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
 
-PlayState::PlayState(sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-                     const sf::Font& fontRef, const std::string& assetDir,
+PlayState::PlayState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
+                     const sf::Font& fontRef,
                      float posX, float posY, float vel, int difficulty)
-    : soundManager(std::make_unique<SoundManager>(bgmMusic, bgmLoaded)),
+    : cfg(cfg),
+      soundManager(std::make_unique<SoundManager>(bgmMusic, bgmLoaded)),
       bgmMusic(bgmMusic), bgmLoaded(bgmLoaded), highScore(highScoreRef),
       font(&fontRef), difficulty(difficulty),
-      scoreManager(std::make_unique<ScoreManager>(fontRef, difficulty)) {
+      scoreManager(std::make_unique<ScoreManager>(cfg, fontRef, difficulty)),
+      bird(cfg) {
 
-    currentPipeSpeed = ConfigLoader::getFloat("pipe_speed", Config::PIPE_SPEED);
-    currentSpawnInterval = ConfigLoader::getFloat("pipe_spawn_interval", Config::PIPE_SPAWN_INTERVAL);
+    currentPipeSpeed = cfg.pipeSpeed;
+    currentSpawnInterval = cfg.pipeSpawnInterval;
 
     if (difficulty == 0) {
         currentPipeSpeed *= 0.7f;
@@ -24,26 +25,26 @@ PlayState::PlayState(sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
         currentSpawnInterval *= 0.7f;
     }
 
-    yDist = std::uniform_real_distribution<float>(Config::PIPE_MIN_Y, Config::PIPE_MAX_Y);
-    gapDist = std::uniform_real_distribution<float>(Config::PIPE_GAP_RANGE * 0.6f, Config::PIPE_GAP_RANGE);
+    yDist = std::uniform_real_distribution<float>(cfg.pipeMinY, cfg.pipeMaxY);
+    gapDist = std::uniform_real_distribution<float>(cfg.pipeGapRange * 0.6f, cfg.pipeGapRange);
     typeDist = std::uniform_int_distribution<int>(0, 4);
 
-    bird.load(assetDir + Config::BIRD_PATH);
+    bird.load(cfg.assetsDir + cfg.birdPath);
     restartPosX = posX;
     restartPosY = posY;
     restartVel = vel;
 
     pipePool = std::make_unique<ObjectPool<Pipe>>([&]() {
-        return Pipe(0, 0, Config::GAP_HEIGHT, Config::PIPE_SPEED);
+        return Pipe(0, 0, cfg.gapHeight, cfg.pipeSpeed);
     });
     powerUpPool = std::make_unique<ObjectPool<PowerUp>>([]() {
         return PowerUp(0, 0, PowerUpType::INVINCIBILITY);
     });
-    visualEffects = std::make_unique<VisualEffectManager>();
+    visualEffects = std::make_unique<VisualEffectManager>(cfg);
 }
 
 void PlayState::onEnter() {
-    bird.reset();
+    bird.reset(cfg);
     bird.setRestartPos(restartPosX, restartPosY);
     bird.setRestartVel(restartVel);
     countdownTimer = 3.0f;
@@ -93,8 +94,8 @@ void PlayState::triggerGameOver() {
     visualEffects->spawnParticles(bird.getBoundingBox().position, 20, {0.f, 0.f});
     visualEffects->spawnSparks(bird.getBoundingBox().position, 15);
 
-    shakeTimer = Config::SCREEN_SHAKE_DURATION;
-    shakeIntensity = Config::SCREEN_SHAKE_INTENSITY;
+    shakeTimer = cfg.screenShakeDuration;
+    shakeIntensity = cfg.screenShakeIntensity;
 
     if (bgmLoaded && bgmMusic.getStatus() == sf::SoundSource::Status::Playing)
         bgmMusic.stop();
@@ -119,7 +120,7 @@ void PlayState::update(float dt) {
 
     if (shakeTimer > 0.f) {
         shakeTimer -= dt;
-        float decay = shakeTimer / Config::SCREEN_SHAKE_DURATION;
+        float decay = shakeTimer / cfg.screenShakeDuration;
         shakeOffset.x = std::sin(shakeTimer * 30.f) * shakeIntensity * decay;
         shakeOffset.y = std::cos(shakeTimer * 27.f) * shakeIntensity * decay;
     } else {
@@ -144,7 +145,7 @@ void PlayState::update(float dt) {
     bird.update(effectiveDt);
 
     // Dust trail when bird is near ground
-    float groundY = static_cast<float>(Config::SCREEN_HEIGHT - ConfigLoader::getFloat("ground_height", Config::GROUND_HEIGHT));
+    float groundY = static_cast<float>(cfg.screenHeight - cfg.groundHeight);
     if (bird.getBoundingBox().position.y + bird.getBoundingBox().size.y > groundY - 20.f) {
         dustSpawnTimer += dt;
         if (dustSpawnTimer > 0.03f) {
@@ -165,7 +166,7 @@ void PlayState::update(float dt) {
         int idx = *it;
         Pipe& pipe = (*pipePool)[idx];
         pipe.update(effectiveDt);
-        float currentGap = ConfigLoader::getFloat("gap_height", Config::GAP_HEIGHT);
+        float currentGap = cfg.gapHeight;
         if (pipe.checkCollision(bird.getBoundingBox())) {
             triggerGameOver();
             return;
@@ -177,7 +178,7 @@ void PlayState::update(float dt) {
             scoreManager->addScore();
             scoreManager->setScoreBounceTimer(0.3f);
             soundManager->playScore();
-            visualEffects->spawnScoreSparkle({Config::SCREEN_WIDTH / 2.f, Config::BIRD_START_Y - 30.f}, 3);
+            visualEffects->spawnScoreSparkle({cfg.birdStartX - 30.f, cfg.birdStartY - 30.f}, 3);
             scoreManager->pushScoreFloat(*font, sf::Vector2f(bird.getBoundingBox().position.x, bird.getBoundingBox().position.y - 20.f));
 
             if (scoreManager->getScore() % 5 == 0) {
@@ -212,8 +213,8 @@ void PlayState::update(float dt) {
         globalLerp = static_cast<float>(currentScore) / static_cast<float>(Config::INSANE_ZONE.maxScore);
     }
     if (globalLerp > 1.0f) globalLerp = 1.0f;
-    float targetSpeed = Config::PIPE_SPEED + (Config::PIPE_SPEED_MAX - Config::PIPE_SPEED) * globalLerp;
-    float targetInterval = Config::PIPE_SPAWN_INTERVAL - (Config::PIPE_SPAWN_INTERVAL - Config::SPAWN_INTERVAL_MIN) * globalLerp;
+     float targetSpeed = cfg.pipeSpeed + (cfg.pipeSpeedMax - cfg.pipeSpeed) * globalLerp;
+    float targetInterval = cfg.pipeSpawnInterval - (cfg.pipeSpawnInterval - cfg.spawnIntervalMin) * globalLerp;
 
     scoreManager->setCurrentPipeSpeed(targetSpeed);
     scoreManager->setCurrentSpawnInterval(targetInterval);
@@ -223,7 +224,7 @@ void PlayState::update(float dt) {
         float randomGap = gapDist(rng);
         PipeType type = (typeDist(rng) == 0) ? PipeType::MOVING : PipeType::STATIC;
         int idx = pipePool->acquire();
-        (*pipePool)[idx].reset(static_cast<float>(Config::SCREEN_WIDTH), randomY, randomGap, scoreManager->getCurrentPipeSpeed(), type);
+        (*pipePool)[idx].reset(static_cast<float>(cfg.screenWidth), randomY, randomGap, scoreManager->getCurrentPipeSpeed(), type);
         activePipes.push_back(idx);
         spawnTimer = 0.f;
     }
@@ -285,7 +286,7 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
 
     auto hsText = makeText(font, "High Score: " + std::to_string(highScore),
                              24, Config::TEXT_COLOR,
-                             sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH - 200.f), 10.f));
+                             sf::Vector2f(static_cast<float>(cfg.screenWidth - 200.f), 10.f));
     window.draw(hsText);
 
     if (!gameStarted) {
@@ -294,32 +295,32 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
         countStr = (n >= 1) ? std::to_string(n) : "GO!";
         auto countText = makeText(font, countStr, 80,
             (n >= 1) ? sf::Color::White : sf::Color::Yellow,
-            sf::Vector2f(0.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f - 100.f));
+            sf::Vector2f(0.f, static_cast<float>(cfg.screenHeight) / 2.f - 100.f));
         centerText(window, countText);
         window.draw(countText);
     }
 
     if (paused) {
-        sf::RectangleShape overlay(sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH), static_cast<float>(Config::SCREEN_HEIGHT)));
+        sf::RectangleShape overlay(sf::Vector2f(static_cast<float>(cfg.screenWidth), static_cast<float>(cfg.screenHeight)));
         overlay.setFillColor(sf::Color(0, 0, 0, 150));
         window.draw(overlay);
 
         auto pauseTitle = makeText(font, "PAUSED", 60, sf::Color::White,
-            sf::Vector2f(0.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f - 100.f));
+            sf::Vector2f(0.f, static_cast<float>(cfg.screenHeight) / 2.f - 100.f));
         centerText(window, pauseTitle);
         window.draw(pauseTitle);
 
         auto resumeText = makeText(font,
             (pauseSelected == 0 ? "> Resume" : "  Resume"), 30,
             (pauseSelected == 0 ? sf::Color::Yellow : sf::Color::White),
-            sf::Vector2f(0.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f));
+            sf::Vector2f(0.f, static_cast<float>(cfg.screenHeight) / 2.f));
         centerText(window, resumeText);
         window.draw(resumeText);
 
         auto quitText = makeText(font,
             (pauseSelected == 1 ? "> Quit" : "  Quit"), 30,
             (pauseSelected == 1 ? sf::Color::Yellow : sf::Color::White),
-            sf::Vector2f(0.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f + 50.f));
+            sf::Vector2f(0.f, static_cast<float>(cfg.screenHeight) / 2.f + 50.f));
         centerText(window, quitText);
         window.draw(quitText);
     }
@@ -352,7 +353,7 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
 
     auto debugText = makeText(font, "Zone: " + zoneName + " | Lerp: " + std::to_string(lerpFactor).substr(0, 4),
                              18, sf::Color::Yellow,
-                             sf::Vector2f(10.f, static_cast<float>(Config::SCREEN_HEIGHT) - 30.f));
+                             sf::Vector2f(10.f, static_cast<float>(cfg.screenHeight) - 30.f));
     window.draw(debugText);
 
     return;
