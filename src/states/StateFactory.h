@@ -4,6 +4,7 @@
 #include <memory>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include "core/ConfigValues.hpp"
 #include "GameState.h"
 #include "MenuState.h"
 #include "PlayState.h"
@@ -12,11 +13,11 @@
 
 class StateFactory {
 public:
-    static std::unique_ptr<GameState> createMenuState(sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
+    static std::unique_ptr<GameState> createMenuState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
                                                         const sf::Font& fontRef);
-    static std::unique_ptr<GameState> createPlayState(sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
+    static std::unique_ptr<GameState> createPlayState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
                                                         const sf::Font& fontRef, const std::string& assetDir,
-                                                        float posX = Config::BIRD_START_X, float posY = Config::BIRD_START_Y,
+                                                        float posX = 50.0f, float posY = 300.0f,
                                                         float vel = 0.0f, int difficulty = 1);
 
     static std::unique_ptr<GameState> createGameOverState(PlayStateSnapshot snap, int score, int& highScoreRef);

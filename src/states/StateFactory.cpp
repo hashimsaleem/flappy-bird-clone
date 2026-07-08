@@ -1,15 +1,15 @@
 #include "StateFactory.h"
-#include "core/Config.hpp"
+#include "core/ConfigValues.hpp"
 
-std::unique_ptr<GameState> StateFactory::createMenuState(sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-                                                                const sf::Font& fontRef) {
-    return std::make_unique<MenuState>(bgmMusic, bgmLoaded, highScoreRef, fontRef);
+std::unique_ptr<GameState> StateFactory::createMenuState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
+                                                             const sf::Font& fontRef) {
+    return std::make_unique<MenuState>(cfg, bgmMusic, bgmLoaded, highScoreRef, fontRef);
 }
 
-std::unique_ptr<GameState> StateFactory::createPlayState(sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-                                                            const sf::Font& fontRef, const std::string& assetDir,
-                                                            float posX, float posY, float vel, int difficulty) {
-    return std::make_unique<PlayState>(bgmMusic, bgmLoaded, highScoreRef, fontRef, assetDir, posX, posY, vel, difficulty);
+std::unique_ptr<GameState> StateFactory::createPlayState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
+                                                             const sf::Font& fontRef, const std::string& assetDir,
+                                                             float posX, float posY, float vel, int difficulty) {
+    return std::make_unique<PlayState>(cfg, bgmMusic, bgmLoaded, highScoreRef, fontRef, assetDir, posX, posY, vel, difficulty);
 }
 
 
