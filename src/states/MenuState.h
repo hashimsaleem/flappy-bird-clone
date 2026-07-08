@@ -31,6 +31,7 @@ public:
     }
 
     void update(float dt) override {
+        soundManager->update(dt);
         skyTimer += dt;
         bobTimer += dt;
         birdBobTimer += dt;
