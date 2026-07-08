@@ -35,6 +35,8 @@ PlayState::PlayState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoade
     restartPosX = posX;
     restartPosY = posY;
     restartVel = vel;
+    powerUpSpawnTimer = 0.f;
+    lastPowerUpScore = 0;
 
     pipePool = std::make_unique<ObjectPool<Pipe>>([&]() {
         return Pipe(0, 0, cfg.gapHeight, cfg.pipeSpeed);
@@ -238,6 +240,18 @@ void PlayState::update(float dt) {
         (*pipePool)[idx].reset(static_cast<float>(cfg.screenWidth), randomY, randomGap, scoreManager->getCurrentPipeSpeed(), type);
         activePipes.push_back(idx);
         spawnTimer = 0.f;
+    }
+
+    // Power-up spawning: spawn a power-up every 8-12 seconds
+    powerUpSpawnTimer += effectiveDt;
+    if (powerUpSpawnTimer >= 8.0f + std::fmod(static_cast<float>(scoreManager->getScore()), 4.0f)) {
+        int pidx = powerUpPool->acquire();
+        float puType = typeDist(rng);
+        PowerUpType puTypeVal = (puType < 2.5f) ? PowerUpType::INVINCIBILITY : PowerUpType::SLOW_MOTION;
+        float randomY = yDist(rng);
+        (*powerUpPool)[pidx].reset(static_cast<float>(cfg.screenWidth) + 30.f, randomY, puTypeVal);
+        activePowerUps.push_back(pidx);
+        powerUpSpawnTimer = 0.f;
     }
 
     visualEffects->update(effectiveDt, scoreManager->getCurrentPipeSpeed());

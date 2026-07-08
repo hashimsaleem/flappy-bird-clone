@@ -11,6 +11,8 @@ class PowerUp {
 public:
     PowerUp(float x, float y, PowerUpType type);
     ~PowerUp() = default;
+    PowerUp(PowerUp&&) = default;
+    PowerUp& operator=(PowerUp&&) = default;
  
     void update(float dt);
     void draw(sf::RenderWindow& window) const;

@@ -99,6 +99,9 @@ private:
     bool gameOverTriggered = false;
     std::string assetsBase;
 
+    float powerUpSpawnTimer = 0.f;
+    int lastPowerUpScore = 0;
+
 public:
     std::unique_ptr<ScoreManager>& getScoreManager() { return scoreManager; }
 };

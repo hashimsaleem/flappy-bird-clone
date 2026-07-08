@@ -22,7 +22,7 @@ public:
             }
         }
         valid.push_back(true);
-        items.push_back(factory());
+        items.push_back(std::move(factory()));
         return items.size() - 1;
     }
 
