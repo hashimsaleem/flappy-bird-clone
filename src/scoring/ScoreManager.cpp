@@ -1,12 +1,11 @@
 #include "ScoreManager.hpp"
-#include "core/Config.hpp"
-#include "core/ConfigLoader.hpp"
 #include <algorithm>
 #include <cmath>
 
-ScoreManager::ScoreManager(const sf::Font& font, int initialDifficulty) : font(&font), difficulty(initialDifficulty) {
-    currentPipeSpeed = ConfigLoader::getFloat("pipe_speed", Config::PIPE_SPEED);
-    currentSpawnInterval = ConfigLoader::getFloat("pipe_spawn_interval", Config::PIPE_SPAWN_INTERVAL);
+ScoreManager::ScoreManager(const ConfigValues& cfg, const sf::Font& font, int initialDifficulty)
+    : font(&font), difficulty(initialDifficulty) {
+    currentPipeSpeed = cfg.pipeSpeed;
+    currentSpawnInterval = cfg.pipeSpawnInterval;
 
     if (difficulty == 0) {
         currentPipeSpeed *= 0.7f;

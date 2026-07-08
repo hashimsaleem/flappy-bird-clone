@@ -5,10 +5,11 @@
 #include <vector>
 #include <memory>
 #include "ScoreFloat.h"
+#include "core/ConfigValues.hpp"
 
 class ScoreManager {
 public:
-    ScoreManager(const sf::Font& font, int initialDifficulty);
+    ScoreManager(const ConfigValues& cfg, const sf::Font& font, int initialDifficulty);
 
     void update(float dt);
     void addScore();
