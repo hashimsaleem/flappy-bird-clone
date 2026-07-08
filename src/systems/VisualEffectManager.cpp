@@ -1,11 +1,11 @@
 #include "VisualEffectManager.hpp"
-#include "core/Config.hpp"
+#include "core/ConfigValues.hpp"
 #include <cmath>
 
-VisualEffectManager::VisualEffectManager() {
-    clouds = std::make_unique<CloudSystem>();
+VisualEffectManager::VisualEffectManager(const ConfigValues& cfg) : cfg(cfg) {
+    clouds = std::make_unique<CloudSystem>(cfg);
     particles = std::make_unique<ParticleSystem>();
-    environment = std::make_unique<EnvironmentRenderer>();
+    environment = std::make_unique<EnvironmentRenderer>(cfg);
 }
 
 void VisualEffectManager::update(float dt, float pipeSpeed) {
@@ -13,7 +13,7 @@ void VisualEffectManager::update(float dt, float pipeSpeed) {
     particles->update(dt);
     groundScrollOffset += pipeSpeed * dt;
     skyTimer += dt;
-    cloudOffset += Config::BACKGROUND_SPEED * dt;
+    cloudOffset += cfg.backgroundSpeed * dt;
 }
 
 void VisualEffectManager::draw(sf::RenderWindow& window) {
