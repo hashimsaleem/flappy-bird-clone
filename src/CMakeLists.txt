@@ -5,6 +5,7 @@ set(SOURCES
     entities/Pipe.cpp
     entities/PowerUp.cpp
     core/ConfigLoader.cpp
+    core/ConfigValues.cpp
     core/HighScore.cpp
     states/PlayState.cpp
     states/GameOverState.cpp
