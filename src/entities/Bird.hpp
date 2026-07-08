@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include <memory>
-#include "core/Config.hpp"
+#include "core/ConfigValues.hpp"
 
 class Bird {
 private:
@@ -22,7 +22,7 @@ private:
     float birdFlapDepth;
 
 public:
-    Bird();
+    explicit Bird(const ConfigValues& cfg);
     ~Bird() = default; // unique_ptr handles deletion
 
     // Prevent copying — unique_ptr is non-copyable by default
@@ -70,10 +70,10 @@ public:
     /**
      * @brief Resets the bird to its initial state (called on game restart).
      */
-    void reset() {
+    void reset(const ConfigValues& cfg) {
         velocityY = 0.0f;
-        posX = Config::BIRD_START_X;
-        posY = Config::BIRD_START_Y;
+        posX = cfg.birdStartX;
+        posY = cfg.birdStartY;
         tiltAngle = 0.0f;
         flapTimer = 0.0f;
         isDying = false;

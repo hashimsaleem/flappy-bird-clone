@@ -1,23 +1,22 @@
 #include "Bird.hpp"
-#include "core/ConfigLoader.hpp"
 #include <iostream>
 
-Bird::Bird() : velocityY(0.0f), posX(Config::BIRD_START_X), posY(Config::BIRD_START_Y) {
-    // Create a white placeholder texture (lifetime tied to this Bird instance)
-    sf::Image placeholderImg({static_cast<unsigned int>(Config::BIRD_WIDTH), static_cast<unsigned int>(Config::BIRD_HEIGHT)}, sf::Color::White);
+Bird::Bird(const ConfigValues& cfg)
+    : velocityY(0.0f),
+      posX(cfg.birdStartX),
+      posY(cfg.birdStartY),
+      gravity(cfg.gravity),
+      jumpStrength(cfg.jumpStrength),
+      birdMinTilt(cfg.birdMinTilt),
+      birdMaxTilt(cfg.birdMaxTilt),
+      birdFlapRate(cfg.birdFlapRate),
+      birdFlapDepth(cfg.birdFlapDepth) {
+    sf::Image placeholderImg({static_cast<unsigned int>(cfg.birdWidth), static_cast<unsigned int>(cfg.birdHeight)}, sf::Color::White);
     if (!placeholderTexture.loadFromImage(placeholderImg)) {
         std::cerr << "Error: Failed to create placeholder texture." << std::endl;
     }
     sprite = std::make_unique<sf::Sprite>(placeholderTexture);
     sprite->setPosition({posX, posY});
-
-    // Initialize from config
-    gravity = ConfigLoader::getFloat("gravity", Config::GRAVITY);
-    jumpStrength = ConfigLoader::getFloat("jump_strength", Config::JUMP_STRENGTH);
-    birdMinTilt = ConfigLoader::getFloat("bird_min_tilt", Config::BIRD_MIN_TILT);
-    birdMaxTilt = ConfigLoader::getFloat("bird_max_tilt", Config::BIRD_MAX_TILT);
-    birdFlapRate = ConfigLoader::getFloat("bird_flap_rate", Config::BIRD_FLAP_RATE);
-    birdFlapDepth = ConfigLoader::getFloat("bird_flap_depth", Config::BIRD_FLAP_DEPTH);
 }
 
 void Bird::load(const std::string& texturePath) {
