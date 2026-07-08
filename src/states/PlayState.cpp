@@ -5,14 +5,16 @@
 #include <cstdlib>
 
 PlayState::PlayState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-                     const sf::Font& fontRef,
-                     float posX, float posY, float vel, int difficulty)
+                      const sf::Font& fontRef,
+                      float posX, float posY, float vel, int difficulty,
+                      const std::string& assetsBase)
     : cfg(cfg),
       soundManager(std::make_unique<SoundManager>(bgmMusic, bgmLoaded)),
       bgmMusic(bgmMusic), bgmLoaded(bgmLoaded), highScore(highScoreRef),
       font(&fontRef), difficulty(difficulty),
       scoreManager(std::make_unique<ScoreManager>(cfg, fontRef, difficulty)),
-      bird(cfg) {
+      bird(cfg),
+      assetsBase(assetsBase) {
 
     currentPipeSpeed = cfg.pipeSpeed;
     currentSpawnInterval = cfg.pipeSpawnInterval;
@@ -29,7 +31,7 @@ PlayState::PlayState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoade
     gapDist = std::uniform_real_distribution<float>(cfg.pipeGapRange * 0.6f, cfg.pipeGapRange);
     typeDist = std::uniform_int_distribution<int>(0, 4);
 
-    bird.load(cfg.assetsDir + cfg.birdPath);
+    bird.load(assetsBase + cfg.birdPath);
     restartPosX = posX;
     restartPosY = posY;
     restartVel = vel;

@@ -35,9 +35,10 @@ struct PlayStateSnapshot {
 class PlayState : public GameState {
 public:
     PlayState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-                       const sf::Font& fontRef,
-                       float posX = 50.0f, float posY = 300.0f,
-                       float vel = 0.0f, int difficulty = 1);
+                        const sf::Font& fontRef,
+                        float posX = 50.0f, float posY = 300.0f,
+                        float vel = 0.0f, int difficulty = 1,
+                        const std::string& assetsBase = "");
 
     void update(float dt) override;
     void draw(sf::RenderWindow& window, const sf::Font& font) override;
@@ -96,6 +97,7 @@ private:
     float dustSpawnTimer = 0.f;
     float currentSpawnInterval;
     bool gameOverTriggered = false;
+    std::string assetsBase;
 
 public:
     std::unique_ptr<ScoreManager>& getScoreManager() { return scoreManager; }

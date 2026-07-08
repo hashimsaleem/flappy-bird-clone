@@ -7,9 +7,10 @@ std::unique_ptr<GameState> StateFactory::createMenuState(const ConfigValues& cfg
 }
 
 std::unique_ptr<GameState> StateFactory::createPlayState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
-                                                             const sf::Font& fontRef,
-                                                             float posX, float posY, float vel, int difficulty) {
-    return std::make_unique<PlayState>(cfg, bgmMusic, bgmLoaded, highScoreRef, fontRef, posX, posY, vel, difficulty);
+                                                              const sf::Font& fontRef,
+                                                              float posX, float posY, float vel, int difficulty,
+                                                              const std::string& assetsBase) {
+    return std::make_unique<PlayState>(cfg, bgmMusic, bgmLoaded, highScoreRef, fontRef, posX, posY, vel, difficulty, assetsBase);
 }
 
 

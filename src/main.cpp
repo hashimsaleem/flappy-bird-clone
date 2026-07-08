@@ -106,8 +106,8 @@ int main() {
             case StateAction::PlayGame: {
                 BirdState rs = state->getRestartBirdState();
                 int diff = state->selectedDifficulty();
-                next = StateFactory::createPlayState(cfg, bgmMusic, bgmLoaded, highScore, font,
-                                                         rs.posX, rs.posY, rs.velocityY, diff);
+               next = StateFactory::createPlayState(cfg, bgmMusic, bgmLoaded, highScore, font,
+                                                          rs.posX, rs.posY, rs.velocityY, diff, exeDir);
 
                 break;
             }
