@@ -51,11 +51,18 @@ void PlayState::onEnter() {
     bird.reset(cfg);
     bird.setRestartPos(restartPosX, restartPosY);
     bird.setRestartVel(restartVel);
-    countdownTimer = 3.0f;
+   countdownTimer = 3.0f;
     gameStarted = false;
     paused = false;
     quitToMenu = false;
     soundManager->fadeBGM(40.f, 0.5f);
+    powerUpSpawnTimer = 0.f;
+    lastPowerUpScore = 0;
+    for (int idx : activePowerUps) {
+        powerUpPool->release(idx);
+    }
+    activePowerUps.clear();
+    slowMoFactor = 1.0f;
 }
 
 void PlayState::handleKeyPress(sf::Keyboard::Key key) {
