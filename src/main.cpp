@@ -6,8 +6,7 @@
 #include <filesystem>
 #include "entities/Bird.hpp"
 #include "entities/Pipe.hpp"
-#include "core/Config.hpp"
-#include "core/ConfigLoader.hpp"
+#include "core/ConfigValues.hpp"
 #include "systems/ResourceManager.hpp"
 #include "core/HighScore.hpp"
 #include "states/GameState.h"
@@ -27,26 +26,21 @@ static std::string getExeDir() {
 int main() {
     std::string exeDir = getExeDir();
 
-    ConfigLoader::load(exeDir + Config::ASSETS_DIR + Config::CONFIG_PATH);
+    auto cfg = loadConfig(exeDir + "assets/" + "gameconfig.json");
 
-    unsigned int screenW = Config::SCREEN_WIDTH;
-    unsigned int screenH = Config::SCREEN_HEIGHT;
-    {
-        int cw = ConfigLoader::getInt("screen_width", 0);
-        int ch = ConfigLoader::getInt("screen_height", 0);
-        if (cw > 0 && ch > 0) { screenW = static_cast<unsigned int>(cw); screenH = static_cast<unsigned int>(ch); }
-    }
+    unsigned int screenW = static_cast<unsigned int>(cfg.screenWidth);
+    unsigned int screenH = static_cast<unsigned int>(cfg.screenHeight);
 
     sf::RenderWindow window(sf::VideoMode({screenW, screenH}), "Flappy Clone SFML");
-    window.setFramerateLimit(Config::TARGET_FPS);
+    window.setFramerateLimit(static_cast<unsigned int>(cfg.targetFPS));
 
     ResourceManager& resMgr = ResourceManager::getInstance();
-    std::string fontPath = exeDir + Config::FONT_PATH;
+    std::string fontPath = exeDir + cfg.fontPath;
     const sf::Font& font = resMgr.getFont(fontPath, 30);
     
     sf::Music bgmMusic;
 
-    bool bgmLoaded = bgmMusic.openFromFile(exeDir + Config::BG_MUSIC);
+    bool bgmLoaded = bgmMusic.openFromFile(exeDir + cfg.bgMusic);
     if (bgmLoaded) {
         bgmMusic.setLooping(true);
         bgmMusic.setVolume(40.f);
@@ -56,13 +50,13 @@ int main() {
     HighScore::setPath(exeDir + "highscore.dat");
     int highScore = HighScore::load();
 
-    std::unique_ptr<GameState> state = StateFactory::createMenuState(bgmMusic, bgmLoaded, highScore, font);
+    std::unique_ptr<GameState> state = StateFactory::createMenuState(cfg, bgmMusic, bgmLoaded, highScore, font);
     state->onEnter();
 
     sf::Clock gameClock;
     sf::Clock fpsClock;
     float accumulator = 0.f;
-    const float fixedDt = 1.f / static_cast<float>(Config::TARGET_FPS);
+    const float fixedDt = 1.f / static_cast<float>(cfg.targetFPS);
 
     bool fullscreen = false;
     bool showFps = false;
@@ -89,7 +83,7 @@ int main() {
                         "Flappy Clone SFML",
                         fullscreen ? sf::State::Fullscreen : sf::State::Windowed
                     );
-                    window.setFramerateLimit(Config::TARGET_FPS);
+                    window.setFramerateLimit(static_cast<unsigned int>(cfg.targetFPS));
                 } else {
                     state->handleKeyPress(keyPressed->code);
                 }
@@ -108,8 +102,8 @@ int main() {
             case StateAction::PlayGame: {
                 BirdState rs = state->getRestartBirdState();
                 int diff = state->selectedDifficulty();
-                next = StateFactory::createPlayState(bgmMusic, bgmLoaded, highScore, font, exeDir,
-                                                        rs.posX, rs.posY, rs.velocityY, diff);
+                next = StateFactory::createPlayState(cfg, bgmMusic, bgmLoaded, highScore, font,
+                                                         rs.posX, rs.posY, rs.velocityY, diff);
 
                 break;
             }
@@ -119,11 +113,11 @@ int main() {
             case StateAction::GameOver: {
                 auto& ps = static_cast<PlayState&>(*state);
                 PlayStateSnapshot snap = ps.takeSnapshot();
-                next = StateFactory::createGameOverState(std::move(snap), snap.score, highScore);
+                next = StateFactory::createGameOverState(cfg, std::move(snap), snap.score, highScore);
                 break;
             }
             case StateAction::ReturnToMenu:
-                next = StateFactory::createMenuState(bgmMusic, bgmLoaded, highScore, font);
+                next = StateFactory::createMenuState(cfg, bgmMusic, bgmLoaded, highScore, font);
                 break;
             case StateAction::Exit:
                 window.close();
@@ -156,7 +150,7 @@ int main() {
 
         if (fadeAlpha > 0.f) {
             fadeAlpha = std::max(0.f, fadeAlpha - 600.f * fixedDt);
-            sf::RectangleShape fadeRect(sf::Vector2f(static_cast<float>(screenW), static_cast<float>(screenH)));
+            sf::RectangleShape fadeRect(sf::Vector2f(static_cast<float>(cfg.screenWidth), static_cast<float>(cfg.screenHeight)));
             fadeRect.setFillColor(sf::Color(0, 0, 0, static_cast<unsigned char>(fadeAlpha)));
             window.draw(fadeRect);
         }
