@@ -89,6 +89,9 @@ int main() {
                     state->handleKeyPress(keyPressed->code);
                 }
             }
+            if (const auto* mouseButton = event->getIf<sf::Event::MouseButtonPressed>()) {
+                state->handleMouseClick({static_cast<float>(mouseButton->position.x), static_cast<float>(mouseButton->position.y)});
+            }
         }
 
         while (accumulator >= fixedDt) {
