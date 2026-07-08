@@ -97,6 +97,59 @@ namespace Config {
     };
     constexpr float SKY_CYCLE_INTERVAL = 60.0f;  // seconds for full cycle
 
+    // Themes
+    enum Theme : int {
+        THEME_SKY = 0,
+        THEME_CAVE = 1,
+        THEME_LAVA = 2,
+        THEME_SPACE = 3
+    };
+
+    struct ThemeColors {
+        sf::Color skyTop;
+        sf::Color skyBot;
+        sf::Color ground;
+        sf::Color groundTop;
+        sf::Color pipe;
+        sf::Color bgLayer;
+        sf::Color grass;
+    };
+
+    const ThemeColors THEME_COLORS[4] = {
+        // Sky
+        {
+            sf::Color(135, 206, 235), sf::Color(180, 220, 240),
+            sf::Color(139, 119, 70), sf::Color(107, 87, 48),
+            sf::Color(34, 139, 34), sf::Color(80, 130, 80),
+            sf::Color(80, 140, 60)
+        },
+        // Cave
+        {
+            sf::Color(40, 35, 30), sf::Color(25, 20, 18),
+            sf::Color(80, 70, 60), sf::Color(60, 50, 40),
+            sf::Color(60, 70, 60), sf::Color(50, 45, 40),
+            sf::Color(40, 60, 30)
+        },
+        // Lava
+        {
+            sf::Color(180, 40, 10), sf::Color(60, 10, 10),
+            sf::Color(40, 20, 10), sf::Color(120, 30, 10),
+            sf::Color(30, 15, 10), sf::Color(80, 20, 10),
+            sf::Color(60, 20, 5)
+        },
+        // Space
+        {
+            sf::Color(5, 5, 20), sf::Color(2, 2, 10),
+            sf::Color(40, 40, 50), sf::Color(60, 60, 80),
+            sf::Color(50, 55, 70), sf::Color(20, 20, 30),
+            sf::Color(30, 30, 40)
+        }
+    };
+
+    constexpr const char* THEME_NAMES[4] = {
+        "SKY", "CAVE", "LAVA", "SPACE"
+    };
+
     // Ground
     constexpr int GROUND_TILE_W = 32;
     constexpr int GROUND_TILE_H = 16;
