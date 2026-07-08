@@ -111,9 +111,12 @@ int main() {
 
                 break;
             }
-            case StateAction::ShowHighScore:
-                next = StateFactory::createHighScoreScreenState();
-                break;
+case StateAction::ShowHighScore:
+                 next = StateFactory::createHighScoreScreenState();
+                 break;
+             case StateAction::ShowSettings:
+                 next = StateFactory::createSettingsState(cfg, bgmMusic, bgmLoaded, highScore, font, exeDir);
+                 break;
             case StateAction::GameOver: {
                 auto& ps = static_cast<PlayState&>(*state);
                 PlayStateSnapshot snap = ps.takeSnapshot();

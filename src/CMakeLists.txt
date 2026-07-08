@@ -10,6 +10,7 @@ set(SOURCES
     states/PlayState.cpp
     states/GameOverState.cpp
     states/StateFactory.cpp
+    states/SettingsState.cpp
     systems/ResourceManager.cpp
     systems/VisualEffectManager.cpp
     visual/ParticleSystem.cpp

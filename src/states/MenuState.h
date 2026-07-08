@@ -39,7 +39,7 @@ public:
         buttonPulseTimer += dt;
         birdArcTimer += dt;
         cloudSystem->update(dt);
-        if (selectedOption >= 0) {
+        if (selectedOption >= 0 && nextActionCode == StateAction::None) {
             nextActionCode = StateAction::PlayGame;
         }
     }
@@ -90,6 +90,10 @@ public:
         // 11. Volume bar
         float volY = H * 0.85f;
         drawVolumeBar(window, W, volY);
+
+        // 12. Settings button
+        float settingsY = H * 0.92f;
+        drawSettingsButton(window, W, settingsY);
     }
 
     void handleKeyPress(sf::Keyboard::Key key) override {
@@ -113,6 +117,8 @@ public:
             bgmMusic.setVolume(static_cast<float>(volume));
         } else if (key == sf::Keyboard::Key::Escape) {
             nextActionCode = StateAction::Exit;
+        } else if (key == sf::Keyboard::Key::S) {
+            nextActionCode = StateAction::ShowSettings;
         }
     }
 
@@ -127,6 +133,15 @@ public:
         if (pos.x >= btnX && pos.x <= btnX + btnW &&
             pos.y >= btnY - btnH / 2.f && pos.y <= btnY + btnH / 2.f) {
             selectedOption = 0;
+        }
+
+        float settingsY = H * 0.92f;
+        float settingsBtnW = 120.f;
+        float settingsBtnH = 35.f;
+        float settingsBtnX = W / 2.f - settingsBtnW / 2.f;
+        if (pos.x >= settingsBtnX && pos.x <= settingsBtnX + settingsBtnW &&
+            pos.y >= settingsY - settingsBtnH / 2.f && pos.y <= settingsY + settingsBtnH / 2.f) {
+            nextActionCode = StateAction::ShowSettings;
         }
     }
 
@@ -392,6 +407,20 @@ private:
         auto volPct = makeText(*font, std::to_string(static_cast<int>(volume)) + "%", 14,
             sf::Color(180, 180, 180), {barX + barW + 10.f, volY - 7.f});
         window.draw(volPct);
+    }
+
+    void drawSettingsButton(sf::RenderWindow& window, float W, float settingsY) {
+        float settingsBtnW = 120.f;
+        float settingsBtnH = 35.f;
+        sf::RectangleShape settingsBtn({settingsBtnW, settingsBtnH});
+        settingsBtn.setPosition({W / 2.f - settingsBtnW / 2.f, settingsY - settingsBtnH / 2.f});
+        settingsBtn.setFillColor(sf::Color(150, 150, 150));
+        settingsBtn.setOutlineColor(sf::Color(255, 255, 255, 80));
+        settingsBtn.setOutlineThickness(1.f);
+        window.draw(settingsBtn);
+        auto settingsText = makeText(*font, "SETTINGS", 14, sf::Color::White,
+            {W / 2.f - 30.f, settingsY - 7.f});
+        window.draw(settingsText);
     }
 };
 

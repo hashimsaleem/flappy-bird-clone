@@ -20,7 +20,7 @@ TEST_F(StateFactoryTest, CreateMenuStateReturnsNonNull) {
     int highScore = 0;
     sf::Font font;
 
-    auto state = StateFactory::createMenuState(cfg, bgmMusic, bgmLoaded, highScore, font);
+    auto state = StateFactory::createMenuState(cfg, bgmMusic, bgmLoaded, highScore, font, "");
     EXPECT_NE(state, nullptr);
 }
 
@@ -31,7 +31,7 @@ TEST_F(StateFactoryTest, CreatePlayStateReturnsNonNull) {
     int highScore = 0;
     sf::Font font;
 
-    auto state = StateFactory::createPlayState(cfg, bgmMusic, bgmLoaded, highScore, font);
+    auto state = StateFactory::createPlayState(cfg, bgmMusic, bgmLoaded, highScore, font, 50.0f, 300.0f, 0.0f, 1, "");
     EXPECT_NE(state, nullptr);
 }
 

@@ -23,3 +23,8 @@ std::unique_ptr<GameState> StateFactory::createGameOverState(const ConfigValues&
 std::unique_ptr<GameState> StateFactory::createHighScoreScreenState() {
     return std::make_unique<HighScoreScreenState>();
 }
+
+std::unique_ptr<GameState> StateFactory::createSettingsState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
+                                                               const sf::Font& fontRef, const std::string& assetsBase) {
+    return std::make_unique<SettingsState>(cfg, bgmMusic, bgmLoaded, highScoreRef, fontRef, assetsBase);
+}

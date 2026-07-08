@@ -7,7 +7,7 @@
 
 TEST(ParticleSystemTest, StartsEmpty) {
     ConfigValues cfg;
-    ParticleSystem system(cfg);
+    ParticleSystem system;
     EXPECT_EQ(system.getActiveCount(), 0u);
 }
 
@@ -15,7 +15,7 @@ TEST(ParticleSystemTest, StartsEmpty) {
 
 TEST(ParticleSystemTest, SpawnCreatesParticles) {
     ConfigValues cfg;
-    ParticleSystem system(cfg);
+    ParticleSystem system;
     system.spawn(sf::Vector2f(100.f, 100.f), 5, sf::Vector2f(0.f, 0.f));
     EXPECT_EQ(system.getActiveCount(), 5u);
 }
@@ -24,12 +24,12 @@ TEST(ParticleSystemTest, SpawnCreatesParticles) {
 
 TEST(ParticleSystemTest, SpawnDifferentCounts) {
     ConfigValues cfg;
-    ParticleSystem system(cfg);
+    ParticleSystem system;
     system.spawn(sf::Vector2f(0.f, 0.f), 1, sf::Vector2f(0.f, 0.f));
     EXPECT_EQ(system.getActiveCount(), 1u);
 
     ConfigValues cfg2;
-    ParticleSystem system2(cfg2);
+    ParticleSystem system2;
     system2.spawn(sf::Vector2f(0.f, 0.f), 20, sf::Vector2f(0.f, 0.f));
     EXPECT_EQ(system2.getActiveCount(), 20u);
 }
@@ -38,7 +38,7 @@ TEST(ParticleSystemTest, SpawnDifferentCounts) {
 
 TEST(ParticleSystemTest, UpdateParticles) {
     ConfigValues cfg;
-    ParticleSystem system(cfg);
+    ParticleSystem system;
     system.spawn(sf::Vector2f(100.f, 100.f), 3, sf::Vector2f(50.f, 50.f));
     EXPECT_EQ(system.getActiveCount(), 3u);
     system.update(0.01f);
@@ -49,7 +49,7 @@ TEST(ParticleSystemTest, UpdateParticles) {
 
 TEST(ParticleSystemTest, ParticlesExpireAfterLifetime) {
     ConfigValues cfg;
-    ParticleSystem system(cfg);
+    ParticleSystem system;
     system.spawn(sf::Vector2f(100.f, 100.f), 5, sf::Vector2f(0.f, 0.f));
     EXPECT_EQ(system.getActiveCount(), 5u);
     // Lifetime is 1.0f per particle
@@ -62,7 +62,7 @@ TEST(ParticleSystemTest, ParticlesExpireAfterLifetime) {
 
 TEST(ParticleSystemTest, GetParticlesReturnsCorrectCount) {
     ConfigValues cfg;
-    ParticleSystem system(cfg);
+    ParticleSystem system;
     EXPECT_TRUE(system.getParticles().empty());
 
     system.spawn(sf::Vector2f(50.f, 50.f), 4, sf::Vector2f(10.f, 10.f));
@@ -74,7 +74,7 @@ TEST(ParticleSystemTest, GetParticlesReturnsCorrectCount) {
 
 TEST(ParticleSystemTest, GetParticlesHasCorrectPositions) {
     ConfigValues cfg;
-    ParticleSystem system(cfg);
+    ParticleSystem system;
     sf::Vector2f spawnPos(200.f, 300.f);
     system.spawn(spawnPos, 2, sf::Vector2f(0.f, 0.f));
     auto particles = system.getParticles();
@@ -88,7 +88,7 @@ TEST(ParticleSystemTest, GetParticlesHasCorrectPositions) {
 
 TEST(ParticleSystemTest, MultipleSpawnsAccumulate) {
     ConfigValues cfg;
-    ParticleSystem system(cfg);
+    ParticleSystem system;
     system.spawn(sf::Vector2f(0.f, 0.f), 3, sf::Vector2f(10.f, 10.f));
     system.spawn(sf::Vector2f(50.f, 50.f), 2, sf::Vector2f(-10.f, -10.f));
     EXPECT_EQ(system.getActiveCount(), 5u);
@@ -98,7 +98,7 @@ TEST(ParticleSystemTest, MultipleSpawnsAccumulate) {
 
 TEST(ParticleSystemTest, UpdateZeroDtKeepsParticles) {
     ConfigValues cfg;
-    ParticleSystem system(cfg);
+    ParticleSystem system;
     system.spawn(sf::Vector2f(0.f, 0.f), 5, sf::Vector2f(0.f, 0.f));
     system.update(0.0f);
     EXPECT_EQ(system.getActiveCount(), 5u);
@@ -108,7 +108,7 @@ TEST(ParticleSystemTest, UpdateZeroDtKeepsParticles) {
 
 TEST(ParticleSystemTest, LargeUpdateRemovesAllParticles) {
     ConfigValues cfg;
-    ParticleSystem system(cfg);
+    ParticleSystem system;
     system.spawn(sf::Vector2f(0.f, 0.f), 10, sf::Vector2f(0.f, 0.f));
     system.update(2.0f);
     EXPECT_EQ(system.getActiveCount(), 0u);
@@ -118,7 +118,7 @@ TEST(ParticleSystemTest, LargeUpdateRemovesAllParticles) {
 
 TEST(ParticleSystemTest, SpawnDustCreatesParticles) {
     ConfigValues cfg;
-    ParticleSystem system(cfg);
+    ParticleSystem system;
     system.spawnDust(sf::Vector2f(100.f, 500.f), 4);
     EXPECT_EQ(system.getActiveCount(), 4u);
 }
@@ -127,7 +127,7 @@ TEST(ParticleSystemTest, SpawnDustCreatesParticles) {
 
 TEST(ParticleSystemTest, DustFloatsDownward) {
     ConfigValues cfg;
-    ParticleSystem system(cfg);
+    ParticleSystem system;
     system.spawnDust(sf::Vector2f(100.f, 100.f), 1);
     auto particles = system.getParticles();
     EXPECT_GT(particles[0].velocity.y, 0.f);
@@ -137,7 +137,7 @@ TEST(ParticleSystemTest, DustFloatsDownward) {
 
 TEST(ParticleSystemTest, SpawnSparksCreatesParticles) {
     ConfigValues cfg;
-    ParticleSystem system(cfg);
+    ParticleSystem system;
     system.spawnSparks(sf::Vector2f(200.f, 200.f), 6);
     EXPECT_EQ(system.getActiveCount(), 6u);
 }
@@ -146,7 +146,7 @@ TEST(ParticleSystemTest, SpawnSparksCreatesParticles) {
 
 TEST(ParticleSystemTest, SparksExplosiveBurst) {
     ConfigValues cfg;
-    ParticleSystem system(cfg);
+    ParticleSystem system;
     system.spawnSparks(sf::Vector2f(300.f, 300.f), 10);
     auto particles = system.getParticles();
     for (const auto& p : particles) {
@@ -160,7 +160,7 @@ TEST(ParticleSystemTest, SparksExplosiveBurst) {
 
 TEST(ParticleSystemTest, SpawnScoreSparkleCreatesParticles) {
     ConfigValues cfg;
-    ParticleSystem system(cfg);
+    ParticleSystem system;
     system.spawnScoreSparkle(sf::Vector2f(400.f, 100.f), 3);
     EXPECT_EQ(system.getActiveCount(), 3u);
 }
@@ -169,7 +169,7 @@ TEST(ParticleSystemTest, SpawnScoreSparkleCreatesParticles) {
 
 TEST(ParticleSystemTest, ScoreBubbleRisesUpward) {
     ConfigValues cfg;
-    ParticleSystem system(cfg);
+    ParticleSystem system;
     system.spawnScoreSparkle(sf::Vector2f(500.f, 300.f), 1);
     auto particles = system.getParticles();
     EXPECT_LT(particles[0].velocity.y, 0.f);
