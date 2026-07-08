@@ -13,8 +13,8 @@ std::unique_ptr<GameState> StateFactory::createPlayState(const ConfigValues& cfg
 }
 
 
-std::unique_ptr<GameState> StateFactory::createGameOverState(PlayStateSnapshot snap, int score, int& highScoreRef) {
-    return std::make_unique<GameOverState>(std::move(snap.birdState), std::move(snap.pipes),
+std::unique_ptr<GameState> StateFactory::createGameOverState(const ConfigValues& cfg, PlayStateSnapshot snap, int score, int& highScoreRef) {
+    return std::make_unique<GameOverState>(cfg, std::move(snap.birdState), std::move(snap.pipes),
                                            std::move(snap.particles),
                                            std::move(snap.scoreFloats), score, highScoreRef, snap.difficulty);
 }

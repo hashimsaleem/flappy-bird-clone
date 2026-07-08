@@ -8,10 +8,11 @@
 #include "visual/Particle.hpp"
 #include "scoring/ScoreFloat.h"
 #include "entities/BirdState.h"
+#include "core/ConfigValues.hpp"
 
 class GameOverState : public GameState {
 public:
-    GameOverState(BirdState birdState, std::vector<Pipe> pipes,
+    GameOverState(const ConfigValues& cfg, BirdState birdState, std::vector<Pipe> pipes,
                   std::vector<Particle> particles,
                   std::vector<std::shared_ptr<ScoreFloat>> scoreFloats,
                   int score, int& highScoreRef, int difficulty = 1);
@@ -33,6 +34,7 @@ private:
     int score;
     int& highScore;
     int difficulty;
+    ConfigValues cfg;
     float overlayAlpha = 0.f;
     StateAction nextActionCode = StateAction::None;
     bool highScoreSaved = false;

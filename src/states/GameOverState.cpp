@@ -1,14 +1,14 @@
 #include "GameOverState.h"
 #include "core/Config.hpp"
-#include "core/ConfigLoader.hpp"
+#include "core/ConfigValues.hpp"
 #include "core/HighScore.hpp"
 #include <algorithm>
 
-GameOverState::GameOverState(BirdState birdState, std::vector<Pipe> pipes,
+GameOverState::GameOverState(const ConfigValues& cfg, BirdState birdState, std::vector<Pipe> pipes,
                              std::vector<Particle> particles,
                              std::vector<std::shared_ptr<ScoreFloat>> scoreFloats,
                              int score, int& highScoreRef, int difficulty)
-    : birdState(birdState), pipes(std::move(pipes)), particles(std::move(particles)),
+    : cfg(cfg), birdState(birdState), pipes(std::move(pipes)), particles(std::move(particles)),
       scoreFloats(std::move(scoreFloats)), score(score), highScore(highScoreRef), difficulty(difficulty) {
     restartBirdState = birdState;
     restartBirdState.difficulty = difficulty;
@@ -34,7 +34,7 @@ void GameOverState::update(float dt) {
         birdState.posY += birdState.velocityY * dt;
         birdState.tiltAngle += 360.0f * dt;
 
-        float groundY = static_cast<float>(Config::SCREEN_HEIGHT - ConfigLoader::getFloat("ground_height", Config::GROUND_HEIGHT));
+        float groundY = static_cast<float>(cfg.screenHeight - cfg.groundHeight);
         if (birdState.posY + Config::BIRD_HEIGHT > groundY) {
             birdState.posY = groundY - Config::BIRD_HEIGHT;
             birdState.velocityY = 0.f;
@@ -45,7 +45,7 @@ void GameOverState::update(float dt) {
 void GameOverState::draw(sf::RenderWindow& window, const sf::Font& font) {
     float a = static_cast<unsigned char>(overlayAlpha * 128);
     sf::RectangleShape overlay;
-    overlay.setSize(sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH), static_cast<float>(Config::SCREEN_HEIGHT)));
+    overlay.setSize(sf::Vector2f(static_cast<float>(cfg.screenWidth), static_cast<float>(cfg.screenHeight)));
     overlay.setFillColor(sf::Color(0, 0, 0, a));
     window.draw(overlay);
 
@@ -65,25 +65,25 @@ void GameOverState::draw(sf::RenderWindow& window, const sf::Font& font) {
 
     auto scoreText = makeText(font, "Score: " + std::to_string(score),
                               30, Config::TEXT_COLOR,
-                              sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH / 2 - 60),
-                                           static_cast<float>(Config::SCREEN_HEIGHT / 2 - 80)));
+                              sf::Vector2f(static_cast<float>(cfg.screenWidth / 2 - 60),
+                                           static_cast<float>(cfg.screenHeight / 2 - 80)));
     window.draw(scoreText);
 
     auto gameOverText = makeText(font, "GAME OVER", 50, Config::GAME_OVER_COLOR,
-        sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH / 2 - 150),
-                     static_cast<float>(Config::SCREEN_HEIGHT / 2 - 25)));
+        sf::Vector2f(static_cast<float>(cfg.screenWidth / 2 - 150),
+                     static_cast<float>(cfg.screenHeight / 2 - 25)));
     window.draw(gameOverText);
 
     auto restartText = makeText(font, "Press SPACE to Restart", 28,
         Config::TEXT_COLOR,
-        sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH / 2 - 130),
-                     static_cast<float>(Config::SCREEN_HEIGHT / 2 + 50)));
+        sf::Vector2f(static_cast<float>(cfg.screenWidth / 2 - 130),
+                     static_cast<float>(cfg.screenHeight / 2 + 50)));
     window.draw(restartText);
 
     auto hsText = makeText(font, "High Score: " + std::to_string(highScore),
                             24, Config::TEXT_COLOR,
-                            sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH / 2 - 80),
-                                         static_cast<float>(Config::SCREEN_HEIGHT / 2 + 80)));
+                            sf::Vector2f(static_cast<float>(cfg.screenWidth / 2 - 80),
+                                         static_cast<float>(cfg.screenHeight / 2 + 80)));
     window.draw(hsText);
 
     if (score >= 10) {
@@ -102,8 +102,8 @@ void GameOverState::draw(sf::RenderWindow& window, const sf::Font& font) {
             medalColor = sf::Color(205, 127, 50);
             medalLabel = "BRONZE";
         }
-        float cx = static_cast<float>(Config::SCREEN_WIDTH) / 2.f;
-        float cy = static_cast<float>(Config::SCREEN_HEIGHT) / 2.f - 130.f;
+        float cx = static_cast<float>(cfg.screenWidth) / 2.f;
+        float cy = static_cast<float>(cfg.screenHeight) / 2.f - 130.f;
         sf::CircleShape medal(20.f, 6);
         medal.setFillColor(medalColor);
         medal.setOutlineColor(sf::Color::White);

@@ -20,7 +20,7 @@ public:
                                                         float posX = 50.0f, float posY = 300.0f,
                                                         float vel = 0.0f, int difficulty = 1);
 
-    static std::unique_ptr<GameState> createGameOverState(PlayStateSnapshot snap, int score, int& highScoreRef);
+    static std::unique_ptr<GameState> createGameOverState(const ConfigValues& cfg, PlayStateSnapshot snap, int score, int& highScoreRef);
     static std::unique_ptr<GameState> createHighScoreScreenState();
 };
 
