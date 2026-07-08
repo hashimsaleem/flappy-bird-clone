@@ -8,15 +8,16 @@
 #include <cmath>
 #include <memory>
 #include "GameState.h"
-#include "core/Config.hpp"
+#include "core/ConfigValues.hpp"
 #include "audio/SoundManager.hpp"
 
 
 class MenuState : public GameState {
 public:
-    MenuState(sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
+    MenuState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,
                const sf::Font& fontRef)
-        : soundManager(std::make_unique<SoundManager>(bgmMusic, bgmLoaded)),
+        : cfg(cfg),
+          soundManager(std::make_unique<SoundManager>(bgmMusic, bgmLoaded)),
           bgmMusic(bgmMusic), bgmLoaded(bgmLoaded), highScore(highScoreRef),
           font(&fontRef) {
         volume = bgmMusic.getVolume();
@@ -41,7 +42,7 @@ public:
     void draw(sf::RenderWindow& window, const sf::Font& fontRef) override {
         (void)fontRef;
         sf::RectangleShape bg;
-        bg.setSize({static_cast<float>(Config::SCREEN_WIDTH), static_cast<float>(Config::SCREEN_HEIGHT)});
+        bg.setSize({static_cast<float>(cfg.screenWidth), static_cast<float>(cfg.screenHeight)});
         bg.setFillColor(sf::Color(20, 20, 40));
         window.draw(bg);
 
@@ -57,22 +58,22 @@ public:
 
         float titleBob = std::sin(bobTimer * 2.0f) * 5.0f;
         auto titleText = makeText(fontRef, "FLAPPY CLONE", 60, Config::TEXT_COLOR,
-            {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 100.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f - 120.f + titleBob});
+            {static_cast<float>(cfg.screenWidth) / 2.f - 100.f, static_cast<float>(cfg.screenHeight) / 2.f - 120.f + titleBob});
         window.draw(titleText);
 
         auto option1 = makeText(fontRef, "1: Play Game", 30, Config::TEXT_COLOR,
-            {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 80.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f});
+            {static_cast<float>(cfg.screenWidth) / 2.f - 80.f, static_cast<float>(cfg.screenHeight) / 2.f});
         centerText(window, option1);
         window.draw(option1);
 
         auto option2 = makeText(fontRef, "2: High Score", 30, Config::TEXT_COLOR,
-            {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 80.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f + 45.f});
+            {static_cast<float>(cfg.screenWidth) / 2.f - 80.f, static_cast<float>(cfg.screenHeight) / 2.f + 45.f});
         centerText(window, option2);
         window.draw(option2);
 
         auto volText = makeText(fontRef, "Volume: " + std::to_string(static_cast<int>(volume)) + "%  (+/-)",
             22, sf::Color(180, 180, 180),
-            {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 80.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f + 100.f});
+            {static_cast<float>(cfg.screenWidth) / 2.f - 80.f, static_cast<float>(cfg.screenHeight) / 2.f + 100.f});
         centerText(window, volText);
         window.draw(volText);
 
@@ -80,14 +81,14 @@ public:
         auto diffText = makeText(fontRef,
             std::string("Difficulty: ") + diffNames[difficulty] + "  (3/4/5)",
             22, sf::Color(180, 180, 180),
-            {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 80.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f + 130.f});
+            {static_cast<float>(cfg.screenWidth) / 2.f - 80.f, static_cast<float>(cfg.screenHeight) / 2.f + 130.f});
         centerText(window, diffText);
         window.draw(diffText);
 
         if (blinkTimer < 0.3f) {
             auto hintText = makeText(fontRef, "Press 1 to Play", 22,
                 sf::Color(200, 200, 255, 180),
-                {static_cast<float>(Config::SCREEN_WIDTH) / 2.f - 80.f, static_cast<float>(Config::SCREEN_HEIGHT) / 2.f - 50.f});
+                {static_cast<float>(cfg.screenWidth) / 2.f - 80.f, static_cast<float>(cfg.screenHeight) / 2.f - 50.f});
             centerText(window, hintText);
             window.draw(hintText);
         }
@@ -115,7 +116,7 @@ public:
 
     void onEnter() override {
         blinkTimer = 0.f;
-        birdTexture.loadFromFile("assets/bird.png");
+        birdTexture.loadFromFile(cfg.birdPath);
         birdSprite = std::make_unique<sf::Sprite>(birdTexture);
         birdSprite->setPosition(sf::Vector2f(355.f, 250.f));
         birdSprite->setScale(sf::Vector2f(2.2f, 2.2f));
@@ -135,6 +136,7 @@ private:
     int selectedOption = -1;
     StateAction nextActionCode = StateAction::None;
     float blinkTimer = 0.f;
+    ConfigValues cfg;
     float volume = 50.f;
     int difficulty = 1;
 
