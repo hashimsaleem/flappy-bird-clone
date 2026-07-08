@@ -1,9 +1,25 @@
 #include "audio/SoundManager.hpp"
 #include "core/ConfigLoader.hpp"
+#include "systems/ResourceManager.hpp"
 #include <algorithm>
 
-SoundManager::SoundManager(sf::Music& bgmMusic, bool bgmLoaded) 
+SoundManager::SoundManager(sf::Music& bgmMusic, bool bgmLoaded)
     : bgmMusic(bgmMusic), bgmLoaded(bgmLoaded) {
+    sf::SoundBuffer dummy;
+    for (int i = 0; i < MAX_SFX_COUNT; i++) {
+        sfxPool[i] = std::make_unique<sf::Sound>(dummy);
+    }
+}
+
+void SoundManager::playSfx(const std::string& assetPath) {
+    for (int i = 0; i < MAX_SFX_COUNT; i++) {
+        if (sfxPool[i]->getStatus() != sf::Sound::Status::Playing) {
+            sf::Sound& ref = ResourceManager::getInstance().getSound(assetPath);
+            sfxPool[i]->setBuffer(ref.getBuffer());
+            sfxPool[i]->play();
+            return;
+        }
+    }
 }
 
 void SoundManager::update(float dt) {
@@ -30,11 +46,8 @@ void SoundManager::fadeBGM(float targetVolume, float duration) {
     fadeDuration = duration;
 }
 
-void SoundManager::playJump() {
-}
+void SoundManager::playJump() { playSfx("assets/jump.ogg"); }
 
-void SoundManager::playScore() {
-}
+void SoundManager::playScore() { playSfx("assets/score.ogg"); }
 
-void SoundManager::playDeath() {
-}
+void SoundManager::playDeath() { playSfx("assets/death.ogg"); }
