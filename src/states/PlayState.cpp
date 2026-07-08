@@ -311,6 +311,87 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
     shakeView.setCenter(originalView.getCenter() + sf::Vector2f(shakeOffset.x, shakeOffset.y));
     window.setView(shakeView);
 
+    // Theme-aware background rendering
+    const auto& tc = Config::THEME_COLORS[currentTheme];
+    float halfH = static_cast<float>(cfg.screenHeight) / 2.f;
+    float groundY = static_cast<float>(cfg.screenHeight - cfg.groundHeight);
+
+    sf::RectangleShape skyTopRect;
+    skyTopRect.setSize({static_cast<float>(cfg.screenWidth), halfH});
+    skyTopRect.setFillColor(tc.skyTop);
+    window.draw(skyTopRect);
+
+    sf::RectangleShape skyBotRect;
+    skyBotRect.setSize({static_cast<float>(cfg.screenWidth), halfH});
+    skyBotRect.setPosition({0.f, halfH});
+    skyBotRect.setFillColor(tc.skyBot);
+    window.draw(skyBotRect);
+
+    sf::RectangleShape hills1;
+    hills1.setSize({static_cast<float>(cfg.screenWidth) * 2.f, 120.f});
+    hills1.setPosition({-std::fmod(shakeOffset.x * 0.1f, static_cast<float>(cfg.screenWidth)), groundY - 120.f});
+    hills1.setFillColor(tc.bgLayer);
+    window.draw(hills1);
+
+    sf::RectangleShape hills2;
+    hills2.setSize({static_cast<float>(cfg.screenWidth) * 2.f, 60.f});
+    hills2.setPosition({-std::fmod(shakeOffset.x * 0.15f, static_cast<float>(cfg.screenWidth)), groundY - 60.f});
+    sf::Color hills2Color(tc.bgLayer.r + 20, tc.bgLayer.g + 20, tc.bgLayer.b + 10);
+    hills2.setFillColor(hills2Color);
+    window.draw(hills2);
+
+    sf::RectangleShape groundRect;
+    groundRect.setSize({static_cast<float>(cfg.screenWidth), static_cast<float>(cfg.groundHeight)});
+    groundRect.setPosition({0.f, groundY});
+    groundRect.setFillColor(tc.ground);
+    window.draw(groundRect);
+
+    sf::RectangleShape groundTop;
+    groundTop.setSize({static_cast<float>(cfg.screenWidth), 8.f});
+    groundTop.setPosition({0.f, groundY});
+    groundTop.setFillColor(tc.groundTop);
+    window.draw(groundTop);
+
+    for (float gx = 0.f; gx < static_cast<float>(cfg.screenWidth); gx += 12.f) {
+        float gh = std::sin(gx * 0.5f) * 2.f + 3.f;
+        sf::RectangleShape grass;
+        grass.setSize({2.f, gh});
+        grass.setPosition({gx, groundY - gh});
+        grass.setFillColor(tc.grass);
+        window.draw(grass);
+    }
+
+    if (currentTheme == Config::THEME_SPACE) {
+        for (int i = 0; i < 30; i++) {
+            float starX = static_cast<float>((i * 137) % cfg.screenWidth);
+            float starY = static_cast<float>((i * 97) % (cfg.screenHeight - static_cast<int>(cfg.groundHeight)));
+            sf::RectangleShape star;
+            star.setSize({2.f, 2.f});
+            star.setPosition({starX, starY});
+            star.setFillColor(sf::Color(255, 255, 255, 200));
+            window.draw(star);
+        }
+    }
+
+    if (currentTheme == Config::THEME_LAVA) {
+        sf::RectangleShape lavaGlow;
+        lavaGlow.setSize({static_cast<float>(cfg.screenWidth), 20.f});
+        lavaGlow.setPosition({0.f, groundY - 20.f});
+        lavaGlow.setFillColor(sf::Color(255, 80, 10, 60));
+        window.draw(lavaGlow);
+    }
+
+    if (currentTheme == Config::THEME_CAVE) {
+        for (float cx = 0.f; cx < static_cast<float>(cfg.screenWidth); cx += 80.f) {
+            float stalactiteH = 30.f + std::sin(cx * 0.1f) * 20.f;
+            sf::RectangleShape stalactite;
+            stalactite.setSize({15.f, stalactiteH});
+            stalactite.setPosition({cx, 0.f});
+            stalactite.setFillColor(sf::Color(55, 50, 45));
+            window.draw(stalactite);
+        }
+    }
+
     visualEffects->draw(window);
 
     for (int idx : activePipes) (*pipePool)[idx].draw(window);
