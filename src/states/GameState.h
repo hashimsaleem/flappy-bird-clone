@@ -13,6 +13,7 @@ enum class StateAction {
     ShowHighScore,
     GameOver,
     ReturnToMenu,
+    ShowSettings,
     Exit
 };
 
