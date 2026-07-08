@@ -5,10 +5,13 @@
 #include "scoring/ScoreFloat.h"
 #include "states/GameState.h"
 #include "states/PlayState.h"
+#include "core/ConfigValues.hpp"
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <vector>
+
+static ConfigValues g_cfg;
 
 // --- GameOverState constructs without crash ---
 
@@ -19,7 +22,7 @@ TEST(GameOverStateTest, Constructs) {
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
     int highScore = 0;
     EXPECT_NO_THROW({
-        GameOverState state(birdState, std::move(pipes), std::move(particles),
+        GameOverState state(g_cfg, birdState, std::move(pipes), std::move(particles),
                            std::move(scoreFloats), 10, highScore, 1);
     });
 }
@@ -32,7 +35,7 @@ TEST(GameOverStateTest, SavesHighScore) {
     std::vector<Particle> particles;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
     int highScore = 5;
-    GameOverState state(birdState, std::move(pipes), std::move(particles),
+    GameOverState state(g_cfg, birdState, std::move(pipes), std::move(particles),
                        std::move(scoreFloats), 10, highScore, 1);
     EXPECT_EQ(highScore, 10); // Should be updated
 }
@@ -45,7 +48,7 @@ TEST(GameOverStateTest, DoesNotUpdateHighScoreIfLower) {
     std::vector<Particle> particles;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
     int highScore = 20;
-    GameOverState state(birdState, std::move(pipes), std::move(particles),
+    GameOverState state(g_cfg, birdState, std::move(pipes), std::move(particles),
                        std::move(scoreFloats), 10, highScore, 1);
     EXPECT_EQ(highScore, 20); // Should stay the same
 }
@@ -58,7 +61,7 @@ TEST(GameOverStateTest, UpdateOverlayFade) {
     std::vector<Particle> particles;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
     int highScore = 0;
-    GameOverState state(birdState, std::move(pipes), std::move(particles),
+    GameOverState state(g_cfg, birdState, std::move(pipes), std::move(particles),
                        std::move(scoreFloats), 10, highScore, 1);
     state.update(0.5f);
     state.update(0.5f);
@@ -73,7 +76,7 @@ TEST(GameOverStateTest, HandleSpaceSetsPlayGame) {
     std::vector<Particle> particles;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
     int highScore = 0;
-    GameOverState state(birdState, std::move(pipes), std::move(particles),
+    GameOverState state(g_cfg, birdState, std::move(pipes), std::move(particles),
                        std::move(scoreFloats), 10, highScore, 1);
     state.handleKeyPress(sf::Keyboard::Key::Space);
     EXPECT_EQ(state.nextAction(), StateAction::PlayGame);
@@ -87,7 +90,7 @@ TEST(GameOverStateTest, HandleEscapeSetsReturnToMenu) {
     std::vector<Particle> particles;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
     int highScore = 0;
-    GameOverState state(birdState, std::move(pipes), std::move(particles),
+    GameOverState state(g_cfg, birdState, std::move(pipes), std::move(particles),
                        std::move(scoreFloats), 10, highScore, 1);
     state.handleKeyPress(sf::Keyboard::Key::Escape);
     EXPECT_EQ(state.nextAction(), StateAction::ReturnToMenu);
@@ -103,7 +106,7 @@ TEST(GameOverStateTest, GetRestartBirdState) {
     std::vector<Particle> particles;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
     int highScore = 0;
-    GameOverState state(birdState, std::move(pipes), std::move(particles),
+    GameOverState state(g_cfg, birdState, std::move(pipes), std::move(particles),
                        std::move(scoreFloats), 10, highScore, 1);
     auto restartState = state.getRestartBirdState();
     EXPECT_FLOAT_EQ(restartState.posX, 100.f);
@@ -121,7 +124,7 @@ TEST(GameOverStateTest, DyingBirdFalls) {
     std::vector<Particle> particles;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
     int highScore = 0;
-    GameOverState state(birdState, std::move(pipes), std::move(particles),
+    GameOverState state(g_cfg, birdState, std::move(pipes), std::move(particles),
                         std::move(scoreFloats), 10, highScore, 1);
     state.update(0.1f);
     EXPECT_GT(state.getBirdState().posY, 100.f);
@@ -138,7 +141,7 @@ TEST(GameOverStateTest, DyingBirdStopsAtGround) {
     std::vector<Particle> particles;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
     int highScore = 0;
-    GameOverState state(birdState, std::move(pipes), std::move(particles),
+    GameOverState state(g_cfg, birdState, std::move(pipes), std::move(particles),
                        std::move(scoreFloats), 10, highScore, 1);
     // Let it fall to ground
     for (int i = 0; i < 100; i++) {
@@ -156,7 +159,7 @@ TEST(GameOverStateTest, HandleUnknownKey) {
     std::vector<Particle> particles;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
     int highScore = 0;
-    GameOverState state(birdState, std::move(pipes), std::move(particles),
+    GameOverState state(g_cfg, birdState, std::move(pipes), std::move(particles),
                        std::move(scoreFloats), 10, highScore, 1);
     state.handleKeyPress(sf::Keyboard::Key::A);
     EXPECT_EQ(state.nextAction(), StateAction::None);
@@ -172,7 +175,7 @@ TEST(GameOverStateTest, ParticlesUpdate) {
     particles.push_back(std::move(p));
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
     int highScore = 0;
-    GameOverState state(birdState, std::move(pipes), std::move(particles),
+    GameOverState state(g_cfg, birdState, std::move(pipes), std::move(particles),
                        std::move(scoreFloats), 10, highScore, 1);
     state.update(1.0f);
     // Particles should be expired
@@ -188,7 +191,7 @@ TEST(GameOverStateTest, ScoreZero) {
     std::vector<Particle> particles;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
     int highScore = 0;
-    GameOverState state(birdState, std::move(pipes), std::move(particles),
+    GameOverState state(g_cfg, birdState, std::move(pipes), std::move(particles),
                        std::move(scoreFloats), 0, highScore, 1);
     EXPECT_EQ(highScore, 0);
 }
@@ -201,7 +204,7 @@ TEST(GameOverStateTest, DrawDoesNotCrash) {
     std::vector<Particle> particles;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
     int highScore = 0;
-    GameOverState state(birdState, std::move(pipes), std::move(particles),
+    GameOverState state(g_cfg, birdState, std::move(pipes), std::move(particles),
                        std::move(scoreFloats), 10, highScore, 1);
     sf::RenderWindow window(sf::VideoMode({static_cast<unsigned>(Config::SCREEN_WIDTH), static_cast<unsigned>(Config::SCREEN_HEIGHT)}), "Test");
     window.clear();
@@ -217,7 +220,7 @@ TEST(GameOverStateTest, PreservesDifficulty) {
     std::vector<Particle> particles;
     std::vector<std::shared_ptr<ScoreFloat>> scoreFloats;
     int highScore = 0;
-    GameOverState state(birdState, std::move(pipes), std::move(particles),
+    GameOverState state(g_cfg, birdState, std::move(pipes), std::move(particles),
                        std::move(scoreFloats), 10, highScore, 2);
     auto restartState = state.getRestartBirdState();
     EXPECT_EQ(restartState.difficulty, 2);

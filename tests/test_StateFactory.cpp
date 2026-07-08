@@ -3,6 +3,7 @@
 #include "states/StateFactory.h"
 #include "states/GameState.h"
 #include "states/PlayState.h"
+#include "core/ConfigValues.hpp"
 #include <SFML/Audio.hpp>
 
 class StateFactoryTest : public ::testing::Test {
@@ -13,30 +14,32 @@ protected:
 };
 
 TEST_F(StateFactoryTest, CreateMenuStateReturnsNonNull) {
+    ConfigValues cfg;
     sf::Music bgmMusic;
     bool bgmLoaded = false;
     int highScore = 0;
     sf::Font font;
 
-    auto state = StateFactory::createMenuState(bgmMusic, bgmLoaded, highScore, font);
+    auto state = StateFactory::createMenuState(cfg, bgmMusic, bgmLoaded, highScore, font);
     EXPECT_NE(state, nullptr);
 }
 
 TEST_F(StateFactoryTest, CreatePlayStateReturnsNonNull) {
+    ConfigValues cfg;
     sf::Music bgmMusic;
     bool bgmLoaded = false;
     int highScore = 0;
     sf::Font font;
 
-    std::string assetDir = "./";
-    auto state = StateFactory::createPlayState(bgmMusic, bgmLoaded, highScore, font, assetDir);
+    auto state = StateFactory::createPlayState(cfg, bgmMusic, bgmLoaded, highScore, font);
     EXPECT_NE(state, nullptr);
 }
 
 TEST_F(StateFactoryTest, CreateGameOverStateReturnsNonNull) {
+    ConfigValues cfg;
     PlayStateSnapshot snap;
     int highScore = 0;
-    auto state = StateFactory::createGameOverState(snap, 100, highScore);
+    auto state = StateFactory::createGameOverState(cfg, snap, 100, highScore);
     EXPECT_NE(state, nullptr);
 }
 

@@ -8,6 +8,7 @@
 #include "visual/Particle.hpp"
 #include "entities/Bird.hpp"
 #include "core/Config.hpp"
+#include "core/ConfigValues.hpp"
 
 class IntegrationTest : public ::testing::Test {
 protected:
@@ -144,9 +145,10 @@ TEST_F(IntegrationTest, ParticleLifecycle) {
 // --- Bird State ---
 
 TEST_F(IntegrationTest, BirdInitialState) {
-    Bird bird;
+    ConfigValues cfg;
+    Bird bird(cfg);
     bird.load(Config::BIRD_PATH);
-    bird.reset();
+    bird.reset(cfg);
     
     float x = bird.getX();
     float y = bird.getBoundingBox().position.y;
@@ -158,9 +160,10 @@ TEST_F(IntegrationTest, BirdInitialState) {
 }
 
 TEST_F(IntegrationTest, BirdFlapUpdatesVelocity) {
-    Bird bird;
+    ConfigValues cfg;
+    Bird bird(cfg);
     bird.load(Config::BIRD_PATH);
-    bird.reset();
+    bird.reset(cfg);
     
     float initialVel = bird.getVelocity();
     bird.flap();

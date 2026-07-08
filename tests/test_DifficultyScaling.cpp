@@ -3,16 +3,17 @@
 #include "scoring/ScoreManager.hpp"
 #include "core/Config.hpp"
 #include "core/ConfigLoader.hpp"
+#include "core/ConfigValues.hpp"
 #include <SFML/Graphics.hpp>
 #include <memory>
 
 // Mocking or providing dummy dependencies for PlayState
 class DifficultyScalingTest : public ::testing::Test {
 protected:
+    ConfigValues cfg;
     sf::Font font;
     int highScore = 0;
     bool bgmLoaded = false;
-    std::string assetDir = "assets/";
 
     std::unique_ptr<PlayState> createPlayState() {
         // We need a dummy music object. Since we can't easily mock sf::Music, 
@@ -20,7 +21,7 @@ protected:
         // doesn't have access to assets. However, PlayState constructor 
         // only uses bgmLoaded flag for some logic.
         sf::Music dummyMusic;
-        return std::make_unique<PlayState>(dummyMusic, bgmLoaded, highScore, font, assetDir, 0, 0, 0, 0);
+        return std::make_unique<PlayState>(cfg, dummyMusic, bgmLoaded, highScore, font);
     }
 
     // PlayState::update() early-returns until the 3-second countdown elapses.
