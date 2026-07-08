@@ -53,6 +53,7 @@ void PlayState::onEnter() {
     gameStarted = false;
     paused = false;
     quitToMenu = false;
+    soundManager->fadeBGM(40.f, 0.5f);
 }
 
 void PlayState::handleKeyPress(sf::Keyboard::Key key) {
@@ -74,6 +75,7 @@ void PlayState::handleKeyPress(sf::Keyboard::Key key) {
                 paused = false;
             } else {
                 quitToMenu = true;
+                soundManager->stopBGM();
             }
         }
         return;
@@ -91,6 +93,7 @@ void PlayState::triggerGameOver() {
     gameOverSnapshot = takeSnapshot();
 
     soundManager->playDeath();
+    soundManager->fadeBGM(20.f, 1.0f);
     bird.setDying();
 
     visualEffects->spawnParticles(bird.getBoundingBox().position, 20, {0.f, 0.f});
@@ -104,6 +107,7 @@ void PlayState::triggerGameOver() {
 }
 
 void PlayState::update(float dt) {
+    soundManager->update(dt);
     float effectiveDt = dt * slowMoFactor;
 
     if (gameOverTriggered) {
