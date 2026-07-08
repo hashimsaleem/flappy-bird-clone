@@ -150,6 +150,11 @@ void PlayState::update(float dt) {
 
     bird.update(effectiveDt);
 
+    // Shield particles when invincible
+    if (bird.isInvincibleFlag()) {
+        visualEffects->spawnSparks(bird.getBoundingBox().position, 2);
+    }
+
     // Dust trail when bird is near ground
     float groundY = static_cast<float>(cfg.screenHeight - cfg.groundHeight);
     if (bird.getBoundingBox().position.y + bird.getBoundingBox().size.y > groundY - 20.f) {
@@ -173,7 +178,7 @@ void PlayState::update(float dt) {
         Pipe& pipe = (*pipePool)[idx];
         pipe.update(effectiveDt);
         float currentGap = cfg.gapHeight;
-        if (pipe.checkCollision(bird.getBoundingBox())) {
+        if (!bird.isInvincibleFlag() && pipe.checkCollision(bird.getBoundingBox())) {
             triggerGameOver();
             return;
         }
