@@ -473,10 +473,15 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
     else if (currentScore <= Config::NORMAL_ZONE.maxScore) zoneName = "NORMAL";
     else if (currentScore <= Config::HARD_ZONE.maxScore) zoneName = "HARD";
 
-    auto debugText = makeText(font, "Zone: " + zoneName + " | Lerp: " + std::to_string(lerpFactor).substr(0, 4),
-                             18, sf::Color::Yellow,
-                             sf::Vector2f(10.f, static_cast<float>(cfg.screenHeight) - 30.f));
+  auto debugText = makeText(font, "Zone: " + zoneName + " | Lerp: " + std::to_string(lerpFactor).substr(0, 4),
+                              18, sf::Color::Yellow,
+                              sf::Vector2f(10.f, static_cast<float>(cfg.screenHeight) - 30.f));
     window.draw(debugText);
+
+    auto themeText = makeText(font, Config::THEME_NAMES[currentTheme],
+                              16, sf::Color(255, 255, 255, 150),
+                              sf::Vector2f(static_cast<float>(cfg.screenWidth) - 80.f, 40.f));
+    window.draw(themeText);
 
     return;
 }
