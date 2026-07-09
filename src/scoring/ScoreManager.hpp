@@ -11,7 +11,6 @@ class ScoreManager {
 public:
     ScoreManager(const ConfigValues& cfg, const sf::Font& font, int initialDifficulty);
 
-    void update(float dt);
     void addScore();
     
     int getScore() const;
@@ -20,7 +19,7 @@ public:
     float getCurrentSpawnInterval() const;
 
     // Helpers for PlayState
-    std::vector<std::shared_ptr<ScoreFloat>> getScoreFloats() const;
+    const std::vector<std::shared_ptr<ScoreFloat>>& getScoreFloats() const;
     void removeExpiredScoreFloats();
     void pushScoreFloat(const sf::Font& font, sf::Vector2f position);
     void setCurrentPipeSpeed(float speed);

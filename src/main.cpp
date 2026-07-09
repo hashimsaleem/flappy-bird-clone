@@ -79,12 +79,19 @@ int main() {
                     showFps = !showFps;
                 } else if (keyPressed->code == sf::Keyboard::Key::F11) {
                     fullscreen = !fullscreen;
+                    fadeAlpha = 255.f;
                     window.create(
                         fullscreen ? sf::VideoMode::getDesktopMode() : sf::VideoMode({screenW, screenH}),
                         "Flappy Clone SFML",
                         fullscreen ? sf::State::Fullscreen : sf::State::Windowed
                     );
                     window.setFramerateLimit(static_cast<unsigned int>(cfg.targetFPS));
+                    screenW = static_cast<unsigned int>(cfg.screenWidth);
+                    screenH = static_cast<unsigned int>(cfg.screenHeight);
+                    if (fullscreen) {
+                        screenW = static_cast<unsigned int>(sf::VideoMode::getDesktopMode().size.x);
+                        screenH = static_cast<unsigned int>(sf::VideoMode::getDesktopMode().size.y);
+                    }
                 } else {
                     state->handleKeyPress(keyPressed->code);
                 }
@@ -112,7 +119,7 @@ int main() {
                 break;
             }
 case StateAction::ShowHighScore:
-                 next = StateFactory::createHighScoreScreenState();
+                 next = StateFactory::createHighScoreScreenState(highScore);
                  break;
              case StateAction::ShowSettings:
                  next = StateFactory::createSettingsState(cfg, bgmMusic, bgmLoaded, highScore, font, exeDir);

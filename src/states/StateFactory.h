@@ -25,7 +25,7 @@ public:
                                                             const sf::Font& fontRef, const std::string& assetsBase);
 
     static std::unique_ptr<GameState> createGameOverState(const ConfigValues& cfg, PlayStateSnapshot snap, int score, int& highScoreRef);
-    static std::unique_ptr<GameState> createHighScoreScreenState();
+    static std::unique_ptr<GameState> createHighScoreScreenState(int& highScoreRef);
 };
 
 #endif

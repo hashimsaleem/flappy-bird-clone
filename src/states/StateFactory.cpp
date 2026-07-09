@@ -20,8 +20,10 @@ std::unique_ptr<GameState> StateFactory::createGameOverState(const ConfigValues&
                                            std::move(snap.scoreFloats), score, highScoreRef, snap.difficulty);
 }
 
-std::unique_ptr<GameState> StateFactory::createHighScoreScreenState() {
-    return std::make_unique<HighScoreScreenState>();
+std::unique_ptr<GameState> StateFactory::createHighScoreScreenState(int& highScoreRef) {
+    auto state = std::make_unique<HighScoreScreenState>();
+    state->setHighScore(highScoreRef);
+    return state;
 }
 
 std::unique_ptr<GameState> StateFactory::createSettingsState(const ConfigValues& cfg, sf::Music& bgmMusic, bool bgmLoaded, int& highScoreRef,

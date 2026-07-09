@@ -1,4 +1,5 @@
 #include "Pipe.hpp"
+#include "core/MathUtils.hpp"
 #include <cmath>
 #include <algorithm>
 
@@ -37,13 +38,6 @@ void Pipe::update(float dt) {
 void Pipe::draw(sf::RenderWindow& window) const {
     window.draw(topPipe);
     window.draw(bottomPipe);
-}
-
-static bool aabbOverlap(const sf::FloatRect& a, const sf::FloatRect& b) {
-    return a.position.x < b.position.x + b.size.x &&
-           a.position.x + a.size.x > b.position.x &&
-           a.position.y < b.position.y + b.size.y &&
-           a.position.y + a.size.y > b.position.y;
 }
 
 bool Pipe::checkCollision(sf::FloatRect birdBounds) const {

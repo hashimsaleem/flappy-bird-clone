@@ -147,7 +147,7 @@ public:
 
     void onEnter() override {
         std::string fullPath = assetsBase + cfg.birdPath;
-        birdTexture.loadFromFile(fullPath);
+        (void)birdTexture.loadFromFile(fullPath);
         if (birdSprite) {
             birdSprite->setTexture(birdTexture);
         }

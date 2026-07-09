@@ -58,6 +58,8 @@ void PlayState::onEnter() {
     soundManager->fadeBGM(40.f, 0.5f);
     powerUpSpawnTimer = 0.f;
     lastPowerUpScore = 0;
+    cachedFmod4 = 0.f;
+    cachedFmod4Score = -1;
     for (int idx : activePowerUps) {
         powerUpPool->release(idx);
     }
@@ -210,10 +212,7 @@ void PlayState::update(float dt) {
             visualEffects->spawnScoreSparkle({cfg.birdStartX - 30.f, cfg.birdStartY - 30.f}, 3);
             scoreManager->pushScoreFloat(*font, sf::Vector2f(bird.getBoundingBox().position.x, bird.getBoundingBox().position.y - 20.f));
 
-            if (scoreManager->getScore() % 5 == 0) {
-                // This block is now handled by the hybrid scaling logic below
             }
-        }
 
         if (pipe.isOffScreen()) {
             pipePool->release(idx);
@@ -225,6 +224,11 @@ void PlayState::update(float dt) {
 
   spawnTimer += effectiveDt;
     int currentScore = scoreManager->getScore();
+    if (currentScore != cachedFmod4Score) {
+        cachedFmod4Score = currentScore;
+        cachedFmod4 = std::fmod(static_cast<float>(currentScore), 4.0f);
+    }
+    float fmodScore = cachedFmod4;
     float globalLerp = 0.0f;
     const Config::DifficultyZone* activeZone = &Config::EASY_ZONE;
 
@@ -260,7 +264,7 @@ void PlayState::update(float dt) {
 
     // Power-up spawning: spawn a power-up every 8-12 seconds
     powerUpSpawnTimer += effectiveDt;
-    if (powerUpSpawnTimer >= 8.0f + std::fmod(static_cast<float>(scoreManager->getScore()), 4.0f)) {
+    if (powerUpSpawnTimer >= 8.0f + fmodScore) {
         int pidx = powerUpPool->acquire();
         float puType = typeDist(rng);
         PowerUpType puTypeVal = (puType < 2.5f) ? PowerUpType::INVINCIBILITY : PowerUpType::SLOW_MOTION;
@@ -449,33 +453,16 @@ void PlayState::draw(sf::RenderWindow& window, const sf::Font& font) {
 
     window.setView(originalView);
 
-    // Debug Overlay
+  // Debug Overlay
     int currentScore = scoreManager->getScore();
-    float lerpFactor = 0.0f;
-    const Config::DifficultyZone* activeZone = &Config::INSANE_ZONE;
-
-    if (currentScore <= Config::EASY_ZONE.maxScore) {
-        activeZone = &Config::EASY_ZONE;
-        lerpFactor = std::min(1.0f, static_cast<float>(currentScore - Config::EASY_ZONE.minScore) / (Config::EASY_ZONE.maxScore - Config::EASY_ZONE.minScore));
-    } else if (currentScore <= Config::NORMAL_ZONE.maxScore) {
-        activeZone = &Config::NORMAL_ZONE;
-        lerpFactor = std::min(1.0f, static_cast<float>(currentScore - Config::NORMAL_ZONE.minScore) / (Config::NORMAL_ZONE.maxScore - Config::NORMAL_ZONE.minScore));
-    } else if (currentScore <= Config::HARD_ZONE.maxScore) {
-        activeZone = &Config::HARD_ZONE;
-        lerpFactor = std::min(1.0f, static_cast<float>(currentScore - Config::HARD_ZONE.minScore) / (Config::HARD_ZONE.maxScore - Config::HARD_ZONE.minScore));
-    } else {
-        activeZone = &Config::INSANE_ZONE;
-        lerpFactor = std::min(1.0f, static_cast<float>(currentScore - Config::INSANE_ZONE.minScore) / (Config::INSANE_ZONE.maxScore - Config::INSANE_ZONE.minScore));
-    }
-
     std::string zoneName = "INSANE";
     if (currentScore <= Config::EASY_ZONE.maxScore) zoneName = "EASY";
     else if (currentScore <= Config::NORMAL_ZONE.maxScore) zoneName = "NORMAL";
     else if (currentScore <= Config::HARD_ZONE.maxScore) zoneName = "HARD";
 
-  auto debugText = makeText(font, "Zone: " + zoneName + " | Lerp: " + std::to_string(lerpFactor).substr(0, 4),
-                              18, sf::Color::Yellow,
-                              sf::Vector2f(10.f, static_cast<float>(cfg.screenHeight) - 30.f));
+  auto debugText = makeText(font, "Zone: " + zoneName,
+                               18, sf::Color::Yellow,
+                               sf::Vector2f(10.f, static_cast<float>(cfg.screenHeight) - 30.f));
     window.draw(debugText);
 
     auto themeText = makeText(font, Config::THEME_NAMES[currentTheme],

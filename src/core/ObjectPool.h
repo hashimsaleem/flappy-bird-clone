@@ -15,11 +15,11 @@ public:
         : factory(std::move(factory)), cleanup(std::move(cleanup)) {}
 
     Index acquire() {
-        for (size_t i = 0; i < valid.size(); ++i) {
-            if (!valid[i]) {
-                valid[i] = true;
-                return i;
-            }
+        if (!freeList.empty()) {
+            Index idx = freeList.back();
+            freeList.pop_back();
+            valid[idx] = true;
+            return idx;
         }
         valid.push_back(true);
         items.push_back(std::move(factory()));
@@ -30,6 +30,7 @@ public:
         if (idx < valid.size() && valid[idx]) {
             if (cleanup) cleanup(items[idx]);
             valid[idx] = false;
+            freeList.push_back(idx);
         }
     }
 
@@ -51,6 +52,7 @@ private:
     std::function<void(T&)> cleanup;
     std::vector<T> items;
     std::vector<bool> valid;
+    std::vector<Index> freeList;
 };
 
 #endif // OBJECTPOOL_H

@@ -1,5 +1,6 @@
 #include "PowerUp.hpp"
 #include "systems/ResourceManager.hpp"
+#include "core/MathUtils.hpp"
  
 PowerUp::PowerUp(float x, float y, PowerUpType type) {
     reset(x, y, type);
@@ -38,10 +39,7 @@ void PowerUp::draw(sf::RenderWindow& window) const {
 bool PowerUp::checkCollision(sf::FloatRect birdBounds) const {
     if (!sprite) return false;
     sf::FloatRect bounds = sprite->getGlobalBounds();
-    return (bounds.position.x < birdBounds.position.x + birdBounds.size.x &&
-            bounds.position.x + bounds.size.x > birdBounds.position.x &&
-            bounds.position.y < birdBounds.position.y + birdBounds.size.y &&
-            bounds.position.y + bounds.size.y > birdBounds.position.y);
+    return aabbOverlap(bounds, birdBounds);
 }
  
 bool PowerUp::isOffScreen() const {

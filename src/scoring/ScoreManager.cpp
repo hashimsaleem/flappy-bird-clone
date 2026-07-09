@@ -16,17 +16,6 @@ ScoreManager::ScoreManager(const ConfigValues& cfg, const sf::Font& font, int in
     }
 }
 
-void ScoreManager::update(float dt) {
-    for (auto& sf : scoreFloats) sf->update(dt);
-    removeExpiredScoreFloats();
-
-    if (scoreBounceTimer > 0.f) {
-        scoreBounceTimer -= dt;
-        scoreScale = 1.f + 0.4f * std::min(scoreBounceTimer / 0.3f, 1.f);
-        if (scoreBounceTimer <= 0.f) scoreScale = 1.f;
-    }
-}
-
 void ScoreManager::addScore() {
     score++;
     scoreBounceTimer = 0.3f;
@@ -53,6 +42,6 @@ void ScoreManager::setScoreScale(float scale) { scoreScale = scale; }
 void ScoreManager::setScoreBounceTimer(float timer) { scoreBounceTimer = timer; }
 float ScoreManager::getScoreBounceTimer() const { return scoreBounceTimer; }
 
-std::vector<std::shared_ptr<ScoreFloat>> ScoreManager::getScoreFloats() const {
+const std::vector<std::shared_ptr<ScoreFloat>>& ScoreManager::getScoreFloats() const {
     return scoreFloats;
 }

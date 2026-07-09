@@ -7,6 +7,7 @@
 
 class HighScoreScreenState : public GameState {
 public:
+    void setHighScore(int val) { cachedHighScore = val; }
     void update(float dt) override { (void)dt; }
 
     void draw(sf::RenderWindow& window, const sf::Font& font) override {
@@ -14,7 +15,7 @@ public:
             sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH / 2 - 150), 150.f));
         window.draw(title);
 
-        auto hsValue = makeText(font, std::to_string(HighScore::load()), 80,
+        auto hsValue = makeText(font, std::to_string(cachedHighScore), 80,
             sf::Color::Yellow,
             sf::Vector2f(static_cast<float>(Config::SCREEN_WIDTH / 2 - 50), 250.f));
         window.draw(hsValue);
@@ -36,6 +37,7 @@ public:
 
 private:
     bool returnToMenu = false;
+    int cachedHighScore = 0;
 };
 
 #endif

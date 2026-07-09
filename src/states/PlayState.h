@@ -102,6 +102,8 @@ private:
     float powerUpSpawnTimer = 0.f;
     int lastPowerUpScore = 0;
     int currentTheme = Config::THEME_SKY;
+    float cachedFmod4 = 0.f;
+    int cachedFmod4Score = -1;
 
 public:
     std::unique_ptr<ScoreManager>& getScoreManager() { return scoreManager; }

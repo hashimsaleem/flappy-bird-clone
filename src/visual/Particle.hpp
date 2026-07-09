@@ -4,7 +4,6 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <cmath>
-#include <random>
 
 enum class ParticleType {
     Fire,
@@ -19,10 +18,9 @@ struct Particle {
     float lifetime;
     ParticleType type = ParticleType::Fire;
     float wobblePhase = 0.0f;
-    std::mt19937 rng;
 
     Particle(sf::Vector2f position, sf::Vector2f vel, float life, ParticleType t = ParticleType::Fire)
-        : velocity(vel), lifetime(life), type(t), rng(std::random_device{}()) {
+        : velocity(vel), lifetime(life), type(t) {
         shape.setSize({5.f, 5.f});
         shape.setFillColor(sf::Color::Yellow);
         shape.setPosition(position);
