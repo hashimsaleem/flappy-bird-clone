@@ -22,4 +22,14 @@ private:
     std::vector<int> activeParticles;
     std::random_device rd;
     std::mt19937 rng;
+    std::uniform_real_distribution<float> spawnDist;
+    std::uniform_real_distribution<float> dustSizeDist;
+    std::uniform_real_distribution<float> dustVelDist;
+    std::uniform_real_distribution<float> dustAngleDist;
+    std::uniform_real_distribution<float> sparkSizeDist;
+    std::uniform_real_distribution<float> sparkSpeedDist;
+    std::uniform_real_distribution<float> sparkAngleDist;
+    std::uniform_real_distribution<float> sparkleSizeDist;
+    std::uniform_real_distribution<float> sparkleWobbleDist;
+    std::uniform_real_distribution<float> lifetimeDist;
 };

@@ -21,6 +21,16 @@ void ScoreManager::addScore() {
     scoreBounceTimer = 0.3f;
 }
 
+void ScoreManager::updateBounceTimer(float dt) {
+    if (scoreBounceTimer > 0.f) {
+        scoreBounceTimer -= dt;
+        scoreScale = 1.f + 0.4f * std::min(scoreBounceTimer / 0.3f, 1.f);
+        if (scoreBounceTimer <= 0.f) scoreScale = 1.f;
+    } else {
+        scoreScale = 1.f;
+    }
+}
+
 void ScoreManager::removeExpiredScoreFloats() {
     scoreFloats.erase(std::remove_if(scoreFloats.begin(), scoreFloats.end(),
         [](const std::shared_ptr<ScoreFloat>& s) { return !s->alive(); }), scoreFloats.end());
@@ -38,7 +48,6 @@ void ScoreManager::setCurrentPipeSpeed(float speed) { currentPipeSpeed = speed; 
 void ScoreManager::setCurrentSpawnInterval(float interval) { currentSpawnInterval = interval; }
 
 float ScoreManager::getScoreScale() const { return scoreScale; }
-void ScoreManager::setScoreScale(float scale) { scoreScale = scale; }
 void ScoreManager::setScoreBounceTimer(float timer) { scoreBounceTimer = timer; }
 float ScoreManager::getScoreBounceTimer() const { return scoreBounceTimer; }
 

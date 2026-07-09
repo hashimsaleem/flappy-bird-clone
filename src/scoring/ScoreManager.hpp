@@ -12,6 +12,8 @@ public:
     ScoreManager(const ConfigValues& cfg, const sf::Font& font, int initialDifficulty);
 
     void addScore();
+    void updateBounceTimer(float dt);
+    void resetBounceTimer() { scoreBounceTimer = 0.f; }
     
     int getScore() const;
     int getDifficulty() const;

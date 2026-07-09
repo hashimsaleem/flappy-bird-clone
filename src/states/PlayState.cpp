@@ -155,16 +155,7 @@ void PlayState::update(float dt) {
 
   for (auto& sf : scoreManager->getScoreFloats()) sf->update(dt);
     scoreManager->removeExpiredScoreFloats();
-
-    float currentBounceTimer = scoreManager->getScoreBounceTimer();
-    if (currentBounceTimer > 0.f) {
-        float newTimer = currentBounceTimer - dt;
-        scoreManager->setScoreBounceTimer(newTimer);
-        float newScale = 1.f + 0.4f * std::min(newTimer / 0.3f, 1.f);
-        scoreManager->setScoreScale(newScale > 1.f ? newScale : 1.f);
-    } else {
-        scoreManager->setScoreScale(1.f);
-    }
+    scoreManager->updateBounceTimer(dt);
 
     bird.update(effectiveDt);
 
@@ -181,8 +172,7 @@ void PlayState::update(float dt) {
             dustSpawnTimer = 0.f;
             visualEffects->spawnDust({bird.getBoundingBox().position.x, groundY - 5.f}, 1);
         }
-    }
-    if (bird.getBoundingBox().position.y + bird.getBoundingBox().size.y <= groundY - 20.f) {
+    } else {
         dustSpawnTimer = 0.f;
     }
 
@@ -227,23 +217,12 @@ void PlayState::update(float dt) {
         cachedFmod4 = std::fmod(static_cast<float>(currentScore), 4.0f);
     }
     float fmodScore = cachedFmod4;
-    float globalLerp = 0.0f;
+    float globalLerp = std::min(1.0f, static_cast<float>(currentScore) / static_cast<float>(Config::INSANE_ZONE.maxScore));
     const Config::DifficultyZone* activeZone = &Config::EASY_ZONE;
+    if (currentScore > Config::EASY_ZONE.maxScore) activeZone = &Config::NORMAL_ZONE;
+    if (currentScore > Config::NORMAL_ZONE.maxScore) activeZone = &Config::HARD_ZONE;
+    if (currentScore > Config::HARD_ZONE.maxScore) activeZone = &Config::INSANE_ZONE;
 
-    if (currentScore <= Config::EASY_ZONE.maxScore) {
-        activeZone = &Config::EASY_ZONE;
-        globalLerp = static_cast<float>(currentScore) / static_cast<float>(Config::INSANE_ZONE.maxScore);
-    } else if (currentScore <= Config::NORMAL_ZONE.maxScore) {
-        activeZone = &Config::NORMAL_ZONE;
-        globalLerp = static_cast<float>(currentScore) / static_cast<float>(Config::INSANE_ZONE.maxScore);
-    } else if (currentScore <= Config::HARD_ZONE.maxScore) {
-        activeZone = &Config::HARD_ZONE;
-        globalLerp = static_cast<float>(currentScore) / static_cast<float>(Config::INSANE_ZONE.maxScore);
-    } else {
-        activeZone = &Config::INSANE_ZONE;
-        globalLerp = static_cast<float>(currentScore) / static_cast<float>(Config::INSANE_ZONE.maxScore);
-    }
-    if (globalLerp > 1.0f) globalLerp = 1.0f;
      float targetSpeed = cfg.pipeSpeed + (cfg.pipeSpeedMax - cfg.pipeSpeed) * globalLerp;
     float targetInterval = cfg.pipeSpawnInterval - (cfg.pipeSpawnInterval - cfg.spawnIntervalMin) * globalLerp;
 
@@ -297,13 +276,9 @@ void PlayState::update(float dt) {
     }
 
     float remainingBounceTimer = scoreManager->getScoreBounceTimer();
-    if (remainingBounceTimer > 0.f) {
-        float newTimer = remainingBounceTimer - effectiveDt;
-        scoreManager->setScoreBounceTimer(newTimer);
-        if (newTimer <= 0.f) {
-            bird.setInvincible(false);
-            slowMoFactor = 1.0f;
-        }
+    if (remainingBounceTimer <= 0.f) {
+        bird.setInvincible(false);
+        slowMoFactor = 1.0f;
     }
 }
 
