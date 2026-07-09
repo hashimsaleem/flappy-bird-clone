@@ -13,11 +13,10 @@ GameOverState::GameOverState(const ConfigValues& cfg, BirdState birdState, std::
     restartBirdState = birdState;
     restartBirdState.difficulty = difficulty;
 
-    if (score > highScore) {
+     if (score > highScore) {
         highScore = score;
         HighScore::save(highScore);
     }
-    highScoreSaved = true;
 }
 
 void GameOverState::update(float dt) {
@@ -43,7 +42,7 @@ void GameOverState::update(float dt) {
 }
 
 void GameOverState::draw(sf::RenderWindow& window, const sf::Font& font) {
-    float a = static_cast<unsigned char>(overlayAlpha * 128);
+    float a = static_cast<unsigned char>(overlayAlpha * 255);
     sf::RectangleShape overlay;
     overlay.setSize(sf::Vector2f(static_cast<float>(cfg.screenWidth), static_cast<float>(cfg.screenHeight)));
     overlay.setFillColor(sf::Color(0, 0, 0, a));
@@ -63,7 +62,12 @@ void GameOverState::draw(sf::RenderWindow& window, const sf::Font& font) {
 
     for (const auto& sf : scoreFloats) sf->draw(window);
 
-    auto scoreText = makeText(font, "Score: " + std::to_string(score),
+    std::string scoreStr = (score != lastScore) ? ("Score: " + std::to_string(score)) : cachedScoreStr;
+    if (score != lastScore) {
+        cachedScoreStr = scoreStr;
+        lastScore = score;
+    }
+    auto scoreText = makeText(font, scoreStr,
                               30, Config::TEXT_COLOR,
                               sf::Vector2f(static_cast<float>(cfg.screenWidth / 2 - 60),
                                            static_cast<float>(cfg.screenHeight / 2 - 80)));
@@ -80,7 +84,12 @@ void GameOverState::draw(sf::RenderWindow& window, const sf::Font& font) {
                      static_cast<float>(cfg.screenHeight / 2 + 50)));
     window.draw(restartText);
 
-    auto hsText = makeText(font, "High Score: " + std::to_string(highScore),
+    std::string hsStr = (highScore != lastHighScore) ? ("High Score: " + std::to_string(highScore)) : cachedHsStr;
+    if (highScore != lastHighScore) {
+        cachedHsStr = hsStr;
+        lastHighScore = highScore;
+    }
+    auto hsText = makeText(font, hsStr,
                             24, Config::TEXT_COLOR,
                             sf::Vector2f(static_cast<float>(cfg.screenWidth / 2 - 80),
                                          static_cast<float>(cfg.screenHeight / 2 + 80)));
@@ -112,7 +121,13 @@ void GameOverState::draw(sf::RenderWindow& window, const sf::Font& font) {
         medal.setPosition({cx, cy});
         window.draw(medal);
 
-        auto medalText = makeText(font, medalLabel, 18, medalColor,
+       int medalScore = (score >= 50) ? 50 : (score >= 30) ? 30 : (score >= 20) ? 20 : 10;
+        std::string medalStr = (medalScore != lastMedalScore) ? medalLabel : cachedMedalLabel;
+        if (medalScore != lastMedalScore) {
+            cachedMedalLabel = medalStr;
+            lastMedalScore = medalScore;
+        }
+        auto medalText = makeText(font, medalStr, 18, medalColor,
             sf::Vector2f(cx - 35.f, cy + 25.f));
         window.draw(medalText);
     }

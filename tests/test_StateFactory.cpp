@@ -44,6 +44,7 @@ TEST_F(StateFactoryTest, CreateGameOverStateReturnsNonNull) {
 }
 
 TEST_F(StateFactoryTest, CreateHighScoreScreenStateReturnsNonNull) {
-    auto state = StateFactory::createHighScoreScreenState();
+    int highScore = 0;
+    auto state = StateFactory::createHighScoreScreenState(highScore);
     EXPECT_NE(state, nullptr);
 }

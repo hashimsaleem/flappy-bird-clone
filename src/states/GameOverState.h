@@ -2,6 +2,7 @@
 #define GAMEOVERSTATE_H
 
 #include <SFML/Graphics.hpp>
+#include <string>
 #include <vector>
 #include "GameState.h"
 #include "entities/Pipe.hpp"
@@ -37,7 +38,12 @@ private:
     ConfigValues cfg;
     float overlayAlpha = 0.f;
     StateAction nextActionCode = StateAction::None;
-    bool highScoreSaved = false;
+   int lastScore = -1;
+    int lastHighScore = -1;
+    int lastMedalScore = -1;
+    std::string cachedScoreStr;
+    std::string cachedHsStr;
+    std::string cachedMedalLabel;
 };
 
 #endif
