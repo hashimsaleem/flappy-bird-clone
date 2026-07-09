@@ -28,7 +28,6 @@ public:
     void setCurrentSpawnInterval(float interval);
 
     float getScoreScale() const;
-    void setScoreScale(float scale);
     void setScoreBounceTimer(float timer);
     float getScoreBounceTimer() const;
 

@@ -185,7 +185,6 @@ void PlayState::update(float dt) {
         int idx = *it;
         Pipe& pipe = (*pipePool)[idx];
         pipe.update(effectiveDt);
-        float currentGap = cfg.gapHeight;
         if (!bird.isInvincibleFlag() && pipe.checkCollision(bird.getBoundingBox())) {
             triggerGameOver();
             return;
@@ -195,7 +194,6 @@ void PlayState::update(float dt) {
         if (!pipe.passed && pipe.getX() < birdX) {
             pipe.passed = true;
             scoreManager->addScore();
-            scoreManager->setScoreBounceTimer(0.3f);
             soundManager->playScore();
             visualEffects->spawnScoreSparkle({cfg.birdStartX - 30.f, cfg.birdStartY - 30.f}, 3);
             scoreManager->pushScoreFloat(*font, sf::Vector2f(bird.getBoundingBox().position.x, bird.getBoundingBox().position.y - 20.f));
