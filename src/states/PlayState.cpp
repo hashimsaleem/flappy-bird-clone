@@ -156,8 +156,6 @@ void PlayState::update(float dt) {
   for (auto& sf : scoreManager->getScoreFloats()) sf->update(dt);
     scoreManager->removeExpiredScoreFloats();
 
-    visualEffects->update(effectiveDt, scoreManager->getCurrentPipeSpeed());
-
     float currentBounceTimer = scoreManager->getScoreBounceTimer();
     if (currentBounceTimer > 0.f) {
         float newTimer = currentBounceTimer - dt;
